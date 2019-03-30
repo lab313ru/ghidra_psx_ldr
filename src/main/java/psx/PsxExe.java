@@ -68,12 +68,16 @@ public class PsxExe implements StructConverter {
 		parsed = true;
 	}
 	
-	public long getRomAddr() {
+	public long getRomStart() {
 		return romAddr;
 	}
 
 	public long getRomSize() {
 		return romSize;
+	}
+	
+	public long getRomEnd() {
+		return romAddr + romSize;
 	}
 
 	public long getDataAddr() {
@@ -113,7 +117,7 @@ public class PsxExe implements StructConverter {
 	}
 
 	@Override
-	public DataType toDataType() throws IOException {
+	public DataType toDataType() {
 		Structure s = new StructureDataType("PsxHeader", 0);
 		
 		s.add(ASCII, 16, "ascii_id", null);
