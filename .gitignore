@@ -1,0 +1,7 @@
+/.gradle/
+/build/
+/bin/
+/dist/
+.antProperties.xml
+.classpath
+.project
