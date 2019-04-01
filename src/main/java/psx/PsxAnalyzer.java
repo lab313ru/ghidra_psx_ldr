@@ -31,7 +31,7 @@ public class PsxAnalyzer extends AbstractAnalyzer {
 	
 	public PsxAnalyzer() {
 		super("PSYQ Signatures", "PSX signatures applier", AnalyzerType.INSTRUCTION_ANALYZER);
-		setDefaultEnablement(true);
+		setDefaultEnablement(false);
 	}
 
 	@Override
