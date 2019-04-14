@@ -21,17 +21,28 @@ import ghidra.util.exception.CancelledException;
 import ghidra.util.task.TaskMonitor;
 import pat.PatParser;
 
-/**
- * TODO: Provide class-level documentation that describes what this analyzer does.
- */
+
 public class PsxAnalyzer extends AbstractAnalyzer {
 
 	private static final String OPTION_NAME = "PSYQ PAT-File Path";
 	private File file = null;
 	
+	public static boolean isPsxLoader(Program program) {
+		return program.getExecutableFormat().equalsIgnoreCase(PsxLoader.PSX_LOADER);
+	}
+	
 	public PsxAnalyzer() {
 		super("PSYQ Signatures", "PSX signatures applier", AnalyzerType.INSTRUCTION_ANALYZER);
-		setDefaultEnablement(false);
+	}
+	
+	@Override
+	public boolean getDefaultEnablement(Program program) {
+		return isPsxLoader(program);
+	}
+
+	@Override
+	public boolean canAnalyze(Program program) {
+		return isPsxLoader(program);
 	}
 
 	@Override

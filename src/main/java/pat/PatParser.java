@@ -26,8 +26,8 @@ import ghidra.util.exception.InvalidInputException;
 import ghidra.util.task.TaskMonitor;
 
 public class PatParser {
-	private static final Pattern modulePat = Pattern.compile("([:\\^][0-9A-F]{4}@?) (\\w+) ");
-	private static final Pattern linePat = Pattern.compile("^((?:[0-9A-F\\.]{2})+) ([0-9A-F]{2}) ([0-9A-F]{4}) ([0-9A-F]{4}) ((?:[:\\^][0-9A-F]{4}@? \\w+ )+)((?:[0-9A-F\\.]{2})+)?$");
+	private static final Pattern modulePat = Pattern.compile("([:\\^][0-9A-F]{4}@?) ([\\.\\w]+) ");
+	private static final Pattern linePat = Pattern.compile("^((?:[0-9A-F\\.]{2})+) ([0-9A-F]{2}) ([0-9A-F]{4}) ([0-9A-F]{4}) ((?:[:\\^][0-9A-F]{4}@? [\\.\\w]+ )+)((?:[0-9A-F\\.]{2})+)?$");
 
 	private List<SignatureData> signatures = null;
 	private final TaskMonitor monitor;
@@ -72,9 +72,7 @@ public class PatParser {
 			MaskedBytes fullBytes = sig.getFullBytes();
 			MaskedBytes tmpl = sig.getTemplateBytes();
 			
-			long progress = monitor.getProgress();
-			Address addr = program.getMemory().findBytes(startAddr, endAddr, fullBytes.getBytes(), fullBytes.getMasks(), true, monitor);
-			monitor.setProgress(progress);
+			Address addr = program.getMemory().findBytes(startAddr, endAddr, fullBytes.getBytes(), fullBytes.getMasks(), true, TaskMonitor.DUMMY);
 			
 			if (addr == null) {
 				monitor.incrementProgress(sig.getModules().size());
@@ -96,11 +94,11 @@ public class PatParser {
 			for (ModuleData data : modules) {
 				Address _addr = addr.add(data.getOffset());
 				
-				if (data.getType().isGlobal() || data.getType().isLocal()) {
+				if (data.getType().isGlobal()) {
 					setFunction(program, fpa, _addr, data.getName(), data.getType().isGlobal(), false, log);
 				}
 				else if (!skipRefs && data.getType().isReference()) {
-					setInstrRefName(program, fpa, ps, _addr, data.getName(), log, monitor);
+					setInstrRefName(program, fpa, ps, _addr, data.getName(), log);
 				}
 				
 				if (!(skipRefs && data.getType().isReference())) {
@@ -180,13 +178,13 @@ public class PatParser {
 		return modulesCount;
 	}
 	
-	public static void setInstrRefName(Program program, FlatProgramAPI fpa, PseudoDisassembler ps, Address address, String name, MessageLog log, TaskMonitor monitor) {
+	public static void setInstrRefName(Program program, FlatProgramAPI fpa, PseudoDisassembler ps, Address address, String name, MessageLog log) {
 		ReferenceManager refsMgr = program.getReferenceManager();
 		
 		Reference[] refs = refsMgr.getReferencesFrom(address);
 		
 		if (refs.length == 0) {
-			disasmInstruction(program, address, monitor);
+			disasmInstruction(program, address);
 			refs = refsMgr.getReferencesFrom(address);
 			
 			if (refs.length == 0) {
@@ -196,6 +194,16 @@ public class PatParser {
 					refs = refsMgr.getFlowReferencesFrom(address.add(4));
 					
 					Instruction instr = program.getListing().getInstructionAt(address.add(4));
+					
+					if (instr == null) {
+						disasmInstruction(program, address.add(4));
+						instr = program.getListing().getInstructionAt(address.add(4));
+						
+						if (instr == null) {
+							return;
+						}
+					}
+					
 					FlowType flowType = instr.getFlowType();
 					
 					if (refs.length == 0 && !(flowType.isJump() || flowType.isCall() || flowType.isTerminal())) {
@@ -218,21 +226,27 @@ public class PatParser {
 		}
 	}
 	
-	private static void disasmInstruction(Program program, Address address, TaskMonitor monitor) {
-		long progress = monitor.getProgress();
-		DisassembleCommand cmd = new DisassembleCommand(address, null, false);
-		cmd.applyTo(program, monitor);
-		monitor.setProgress(progress);
+	private static void disasmInstruction(Program program, Address address) {
+		DisassembleCommand cmd = new DisassembleCommand(address, null, true);
+		cmd.applyTo(program, TaskMonitor.DUMMY);
 	}
 	
 	public static void setFunction(Program program, FlatProgramAPI fpa, Address address, String name, boolean isFunction, boolean isEntryPoint, MessageLog log) {
 		try {
+			if (fpa.getInstructionAt(address) == null)
+				disasmInstruction(program, address);
+			
 			if (isFunction) {
 				fpa.createFunction(address, name);
 			}
 			if (isEntryPoint) {
 				fpa.addEntryPoint(address);
 			}
+			
+			if (isFunction && program.getSymbolTable().hasSymbol(address)) {
+				return;
+			}
+			
 			program.getSymbolTable().createLabel(address, name, SourceType.IMPORTED);
 		} catch (InvalidInputException e) {
 			log.appendException(e);

@@ -2,6 +2,6 @@
 /build/
 /bin/
 /dist/
-.antProperties.xml
-.classpath
-.project
+/\.antProperties.xml
+/\.classpath
+/\.project

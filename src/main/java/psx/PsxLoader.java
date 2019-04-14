@@ -65,6 +65,8 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 			0x00, 0x00, 0x00, 0x00, 0x4D, 0x00, 0x00, 0x00
 	};
 	
+	public static final String PSX_LOADER = "PSX Executables Loader";
+	
 	private static final byte MAIN_SIGN_MASK[] = new byte[] {
 			0x00, 0x00, 0x00, (byte)0xFF,
 			(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
@@ -75,7 +77,7 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 
 	@Override
 	public String getName() {
-		return "PSX Executables Loader";
+		return PSX_LOADER;
 	}
 
 	@Override
@@ -131,10 +133,10 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 	}
 	
 	private void findAndAppyMain(Program program, FlatProgramAPI fpa, MessageLog log, TaskMonitor monitor) {
-		Address mainAddr = program.getMemory().findBytes(fpa.toAddr(psxExe.getInitPc()), MAIN_SIGN, MAIN_SIGN_MASK, true, monitor);
+		Address mainAddr = program.getMemory().findBytes(fpa.toAddr(psxExe.getInitPc()), MAIN_SIGN, MAIN_SIGN_MASK, true, TaskMonitor.DUMMY);
 		
 		if (mainAddr != null) {
-			PatParser.setInstrRefName(program, fpa, new PseudoDisassembler(program), mainAddr, "main", log, monitor);
+			PatParser.setInstrRefName(program, fpa, new PseudoDisassembler(program), mainAddr, "main", log);
 		}
 	}
 	
