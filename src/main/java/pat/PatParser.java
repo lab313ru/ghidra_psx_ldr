@@ -31,7 +31,6 @@ public class PatParser {
 
 	private List<SignatureData> signatures = null;
 	private final TaskMonitor monitor;
-	private boolean skipRefs = true;
 	private long modulesCount = 0L;
 
 	public PatParser(File file, TaskMonitor monitor) throws IOException {
@@ -54,10 +53,6 @@ public class PatParser {
 		this.monitor = monitor;
 		this.signatures = signatures;
 		getAllModulesCount();
-	}
-	
-	public void setSkipRefs(boolean skip) {
-		skipRefs = skip;
 	}
 	
 	public void applySignatures(ByteProvider provider, Program program, Address imageBase, Address startAddr, Address endAddr, MessageLog log) throws IOException {
@@ -97,13 +92,20 @@ public class PatParser {
 				if (data.getType().isGlobal()) {
 					setFunction(program, fpa, _addr, data.getName(), data.getType().isGlobal(), false, log);
 				}
-				else if (!skipRefs && data.getType().isReference()) {
+				
+				monitor.setMessage(String.format("%s function %s at 0x%08X", data.getType(), data.getName(), _addr.getOffset()));
+				
+				monitor.incrementProgress(1);
+			}
+			
+			for (ModuleData data : modules) {
+				Address _addr = addr.add(data.getOffset());
+				
+				if (data.getType().isReference()) {
 					setInstrRefName(program, fpa, ps, _addr, data.getName(), log);
 				}
 				
-				if (!(skipRefs && data.getType().isReference())) {
-					monitor.setMessage(String.format("%s function %s at 0x%08X", data.getType(), data.getName(), _addr.getOffset()));
-				}
+				monitor.setMessage(String.format("%s function %s at 0x%08X", data.getType(), data.getName(), _addr.getOffset()));
 				
 				monitor.incrementProgress(1);
 			}

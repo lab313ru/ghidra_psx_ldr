@@ -82,7 +82,6 @@ public class PsxAnalyzer extends AbstractAnalyzer {
 					PatParser pat = new PatParser(file, monitor);
 					RandomAccessByteProvider provider = new RandomAccessByteProvider(new File(program.getExecutablePath()));
 					
-					pat.setSkipRefs(false);
 					pat.applySignatures(provider, program, block.getStart(), block.getStart(), block.getEnd(), log);
 				}
 			} catch (IOException e) {

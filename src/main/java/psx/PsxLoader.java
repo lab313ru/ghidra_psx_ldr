@@ -15,8 +15,6 @@
  */
 package psx;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
@@ -31,7 +29,6 @@ import ghidra.app.util.importer.MemoryConflictHandler;
 import ghidra.app.util.importer.MessageLog;
 import ghidra.app.util.opinion.AbstractLibrarySupportLoader;
 import ghidra.app.util.opinion.LoadSpec;
-import ghidra.framework.Application;
 import ghidra.framework.model.DomainObject;
 import ghidra.program.flatapi.FlatProgramAPI;
 import ghidra.program.model.address.Address;
@@ -112,17 +109,6 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 		createSegments(provider, program, fpa, log);
 		
 		PatParser.setFunction(program, fpa, fpa.toAddr(psxExe.getInitPc()), "start", true, true, log);
-		
-		try {
-			File file = Application.getModuleDataFile("psyq4_7.pat").getFile(false);
-			PatParser pat = new PatParser(file, monitor);
-			pat.applySignatures(provider, program,
-					fpa.toAddr(psxExe.getRomStart() - PsxExe.HEADER_SIZE),
-					fpa.toAddr(psxExe.getRomStart()), fpa.toAddr(psxExe.getRomEnd()),
-					log);
-		} catch (FileNotFoundException e) {
-			
-		}
 		
 		findAndAppyMain(program, fpa, log, monitor);
 
