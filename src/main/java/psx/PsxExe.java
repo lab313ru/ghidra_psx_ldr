@@ -12,6 +12,8 @@ public class PsxExe implements StructConverter {
 	
 	public static final int HEADER_SIZE = 0x800;
 	
+	public static final String CODE_SEGM = "CODE";
+	
 	private static final String ASCII_ID = "PS-X EXE";
 	private static final long ASCII_ID_OFF = 0;
 	private static final int ASCII_ID_LEN = 8;

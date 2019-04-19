@@ -7,7 +7,7 @@ public enum ModuleType {
 		return this == GLOBAL_NAME;
 	}
 	
-	public boolean isLocal() {
+	private boolean isLocal() {
 		return this == LOCAL_NAME;
 	}
 	

@@ -1,14 +1,14 @@
 package pat;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class SignatureData {
-	private final MaskedBytes templateBytes, tailBytes;
+class SignatureData {
+	private final MaskedBytes templateBytes;
 	private MaskedBytes fullBytes;
 	private final int crc16Length;
 	private final short crc16;
-	private final int moduleLength;
 	private final List<ModuleData> modules;
 	
 	public SignatureData(MaskedBytes templateBytes, int crc16Length,
@@ -16,11 +16,9 @@ public class SignatureData {
 		this.templateBytes = this.fullBytes = templateBytes;
 		this.crc16Length = crc16Length;
 		this.crc16 = crc16;
-		this.moduleLength = moduleLength;
 		this.modules = modules;
-		this.tailBytes = tailBytes;
-		
-		if (this.tailBytes != null) {
+
+		if (tailBytes != null) {
 			int addLength = moduleLength - templateBytes.getLength() - tailBytes.getLength();
 			
 			byte[] addBytes = new byte[addLength];
@@ -37,10 +35,6 @@ public class SignatureData {
 		return templateBytes;
 	}
 
-	public MaskedBytes getTailBytes() {
-		return tailBytes;
-	}
-	
 	public MaskedBytes getFullBytes() {
 		return fullBytes;
 	}
@@ -53,11 +47,17 @@ public class SignatureData {
 		return crc16;
 	}
 
-	public int getModuleLength() {
-		return moduleLength;
-	}
-
-	public List<ModuleData> getModules() {
-		return modules;
+	public ModuleData[] getModules(boolean global) {
+		List<ModuleData> resModules = new ArrayList<>();
+		
+		for (ModuleData data : modules) {
+			if (global && data.getType().isGlobal()) {
+				resModules.add(data);
+			} else if (!global && data.getType().isReference()) {
+				resModules.add(data);
+			}
+		}
+		
+		return resModules.toArray(ModuleData[]::new);
 	}
 }
