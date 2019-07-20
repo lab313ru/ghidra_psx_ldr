@@ -32,8 +32,8 @@ import ghidra.program.flatapi.FlatProgramAPI;
 import ghidra.program.model.address.Address;
 import ghidra.program.model.lang.LanguageCompilerSpecPair;
 import ghidra.program.model.lang.RegisterValue;
+import ghidra.program.model.listing.ContextChangeException;
 import ghidra.program.model.listing.Program;
-import ghidra.program.model.listing.ProgramContext;
 import ghidra.program.model.mem.Memory;
 import ghidra.program.model.mem.MemoryBlock;
 import ghidra.program.model.symbol.SourceType;
@@ -91,14 +91,20 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 		
 		PatParser.setFunction(program, fpa, fpa.toAddr(psxExe.getInitPc()), "start", true, true, log);
 
-		setDefaultRegister(program.getProgramContext(), "gp", psxExe.getInitGp());
-		setDefaultRegister(program.getProgramContext(), "sp", psxExe.getSpBase() + psxExe.getSpOff());
+		setRegisterValue(program, fpa, "gp", psxExe.getInitPc(), psxExe.getInitGp(), log);
+		setRegisterValue(program, fpa, "sp", psxExe.getInitPc(), psxExe.getSpBase() + psxExe.getSpOff(), log);
 		
 		monitor.setMessage(String.format("%s : Loading done", getName()));
 	}
-
-	private void setDefaultRegister(ProgramContext context, String reg, long value) {
-		context.setDefaultDisassemblyContext(new RegisterValue(context.getRegister(reg), BigInteger.valueOf(value)));
+	
+	private static void setRegisterValue(Program program, FlatProgramAPI fpa, String name, long startAddress, long value, MessageLog log) {
+		RegisterValue regVal = new RegisterValue(program.getRegister(name), BigInteger.valueOf(value));
+		Address start = fpa.toAddr(startAddress);
+		try {
+			program.getProgramContext().setRegisterValue(start, start, regVal);
+		} catch (ContextChangeException e) {
+			log.appendException(e);
+		}
 	}
 	
 	private void createSegments(ByteProvider provider, Program program, FlatProgramAPI fpa, MessageLog log) throws IOException {
