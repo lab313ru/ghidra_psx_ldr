@@ -33,7 +33,6 @@ import ghidra.app.plugin.core.reloc.InstructionStasher;
 import ghidra.app.util.Option;
 import ghidra.app.util.bin.BinaryReader;
 import ghidra.app.util.bin.ByteProvider;
-import ghidra.app.util.importer.MemoryConflictHandler;
 import ghidra.app.util.importer.MessageLog;
 import ghidra.app.util.opinion.AbstractLibrarySupportLoader;
 import ghidra.app.util.opinion.LoadSpec;
@@ -114,8 +113,7 @@ public class PsxPsyqLoader extends AbstractLibrarySupportLoader {
 	}
 
 	@Override
-	protected void load(ByteProvider provider, LoadSpec loadSpec, List<Option> options,
-			Program program, MemoryConflictHandler handler, TaskMonitor monitor, MessageLog log)
+	protected void load(ByteProvider provider, LoadSpec loadSpec, List<Option> options, Program program, TaskMonitor monitor, MessageLog log)
 			throws CancelledException, IOException {
 		
 		SymbolTable symTbl = program.getSymbolTable();
@@ -742,10 +740,5 @@ public class PsxPsyqLoader extends AbstractLibrarySupportLoader {
 	public List<Option> getDefaultOptions(ByteProvider provider, LoadSpec loadSpec,
 			DomainObject domainObject, boolean isLoadIntoProgram) {
 		return super.getDefaultOptions(provider, loadSpec, domainObject, isLoadIntoProgram);
-	}
-
-	@Override
-	public String validateOptions(ByteProvider provider, LoadSpec loadSpec, List<Option> options) {
-		return super.validateOptions(provider, loadSpec, options);
 	}
 }

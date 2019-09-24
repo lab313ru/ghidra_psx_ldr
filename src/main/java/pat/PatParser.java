@@ -226,7 +226,7 @@ public class PatParser {
 					
 					SymbolType symType = sym.getSymbolType();
 					if (!symType.equals(SymbolType.GLOBAL_VAR) &&
-						!symType.equals(SymbolType.CODE) &&
+						!symType.equals(SymbolType.LABEL) &&
 						!symType.equals(SymbolType.FUNCTION)) {
 						monitor.incrementProgress(1);
 						continue;

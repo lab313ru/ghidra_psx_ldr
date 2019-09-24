@@ -23,7 +23,6 @@ import java.util.*;
 import ghidra.app.util.Option;
 import ghidra.app.util.bin.BinaryReader;
 import ghidra.app.util.bin.ByteProvider;
-import ghidra.app.util.importer.MemoryConflictHandler;
 import ghidra.app.util.importer.MessageLog;
 import ghidra.app.util.opinion.AbstractLibrarySupportLoader;
 import ghidra.app.util.opinion.LoadSpec;
@@ -74,8 +73,7 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 	}
 
 	@Override
-	protected void load(ByteProvider provider, LoadSpec loadSpec, List<Option> options,
-			Program program, MemoryConflictHandler handler, TaskMonitor monitor, MessageLog log)
+	protected void load(ByteProvider provider, LoadSpec loadSpec, List<Option> options, Program program, TaskMonitor monitor, MessageLog log)
 			throws IOException {
 
 		if (!psxExe.isParsed()) {
@@ -400,14 +398,5 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 		//list.add(new Option("Option name goes here", "Default option value goes here"));
 
 		return super.getDefaultOptions(provider, loadSpec, domainObject, isLoadIntoProgram);
-	}
-
-	@Override
-	public String validateOptions(ByteProvider provider, LoadSpec loadSpec, List<Option> options) {
-
-		// TODO: If this loader has custom options, validate them here.  Not all options require
-		// validation.
-
-		return super.validateOptions(provider, loadSpec, options);
 	}
 }

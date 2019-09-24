@@ -170,7 +170,7 @@ public class PsxPsyqLibFileSystem implements GFileSystem {
 	}
 
 	@Override
-	public String getInfo(GFile file, TaskMonitor monitor) throws IOException {
+	public String getInfo(GFile file, TaskMonitor monitor) {
 		LibFileItem metadata = fsih.getMetadata(file);
 		return (metadata == null) ? null : FSUtilities.infoMapToString(getInfoMap(metadata));
 	}
