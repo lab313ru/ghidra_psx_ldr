@@ -33,7 +33,6 @@ import ghidra.program.model.lang.LanguageCompilerSpecPair;
 import ghidra.program.model.lang.RegisterValue;
 import ghidra.program.model.listing.ContextChangeException;
 import ghidra.program.model.listing.Program;
-import ghidra.program.model.mem.Memory;
 import ghidra.program.model.mem.MemoryBlock;
 import ghidra.program.model.symbol.SourceType;
 import ghidra.util.exception.InvalidInputException;
@@ -43,9 +42,6 @@ import pat.PatParser;
 public class PsxLoader extends AbstractLibrarySupportLoader {
 	
 	private static final long RAM_START_B = 0x80000000L;
-	private static final long RAM_START_A = 0x00000000L;
-	private static final long RAM_START_C = 0xA0000000L;
-	private static final long RAM_ADDR_MASK = 0x00FFFFFFL;
 	private static final long RAM_SIZE = 0x200000L;
 	
 	public static final String PSX_LOADER = "PSX Executables Loader";
@@ -108,17 +104,12 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 	private void createSegments(ByteProvider provider, Program program, FlatProgramAPI fpa, MessageLog log) throws IOException {
 		InputStream codeStream = provider.getInputStream(PsxExe.HEADER_SIZE);
 		
-		Memory memory = program.getMemory();
 		long ram_b_size_1 = psxExe.getRomStart() - RAM_START_B;
 		createSegment(fpa, null, "RAM", RAM_START_B, ram_b_size_1, false, true, log);
-		createMirrorSegment(memory, fpa, "RAM", RAM_START_B, RAM_START_A, ram_b_size_1, log);
-		createMirrorSegment(memory, fpa, "RAM", RAM_START_B, RAM_START_C, ram_b_size_1, log);
 		
 		long code_b_size = psxExe.getRomSize();
 		long code_addr_b = psxExe.getRomStart();
 		createSegment(fpa, codeStream, "CODE", code_addr_b, code_b_size, false, true, log);
-		createMirrorSegment(memory, fpa, "CODE", code_addr_b, RAM_START_A + (code_addr_b & RAM_ADDR_MASK), code_b_size, log);
-		createMirrorSegment(memory, fpa, "CODE", code_addr_b, RAM_START_C + (code_addr_b & RAM_ADDR_MASK), code_b_size, log);
 		
 		if (psxExe.getDataAddr() != 0) {
 			createSegment(fpa, null, "DATA", psxExe.getDataAddr(), psxExe.getDataSize(), false, true, log);
@@ -131,8 +122,6 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 		long code_end = psxExe.getRomEnd();
 		long ram_b_size_2 = RAM_START_B + RAM_SIZE - code_end;
 		createSegment(fpa, null, "RAM", code_end, ram_b_size_2, false, true, log);
-		createMirrorSegment(memory, fpa, "RAM", code_end, RAM_START_A + (code_end & RAM_ADDR_MASK), ram_b_size_2, log);
-		createMirrorSegment(memory, fpa, "RAM", code_end, RAM_START_C + (code_end & RAM_ADDR_MASK), ram_b_size_2, log);
 		
 		createSegment(fpa, null, "CACHE", 0x1F800000L, 0x400, true, true, log);
 		createSegment(fpa, null, "UNK1", 0x1F800400L, 0xC00, true, true, log);
@@ -376,19 +365,19 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 		}
 	}
 	
-	private void createMirrorSegment(Memory memory, FlatProgramAPI fpa, String name, long base, long new_addr, long size, MessageLog log) {
-		MemoryBlock block;
-		Address baseAddress = fpa.toAddr(base);
-		try {
-			block = memory.createByteMappedBlock(name, fpa.toAddr(new_addr), baseAddress, size);
-			MemoryBlock baseBlock = memory.getBlock(baseAddress);
-			block.setRead(baseBlock.isRead());
-			block.setWrite(baseBlock.isWrite());
-			block.setExecute(baseBlock.isExecute());
-		} catch (Exception e) {
-			log.appendException(e);
-		}
-	}
+//	private void createMirrorSegment(Memory memory, FlatProgramAPI fpa, String name, long base, long new_addr, long size, MessageLog log) {
+//		MemoryBlock block;
+//		Address baseAddress = fpa.toAddr(base);
+//		try {
+//			block = memory.createByteMappedBlock(name, fpa.toAddr(new_addr), baseAddress, size);
+//			MemoryBlock baseBlock = memory.getBlock(baseAddress);
+//			block.setRead(baseBlock.isRead());
+//			block.setWrite(baseBlock.isWrite());
+//			block.setExecute(baseBlock.isExecute());
+//		} catch (Exception e) {
+//			log.appendException(e);
+//		}
+//	}
 
 	@Override
 	public List<Option> getDefaultOptions(ByteProvider provider, LoadSpec loadSpec,
