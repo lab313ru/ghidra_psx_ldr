@@ -15,34 +15,55 @@
  */
 package psx;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
 import java.util.*;
 
+import ghidra.app.cmd.disassemble.DisassembleCommand;
 import ghidra.app.util.Option;
 import ghidra.app.util.bin.BinaryReader;
 import ghidra.app.util.bin.ByteProvider;
 import ghidra.app.util.importer.MessageLog;
 import ghidra.app.util.opinion.AbstractLibrarySupportLoader;
 import ghidra.app.util.opinion.LoadSpec;
+import ghidra.feature.fid.db.FidFileManager;
+import ghidra.framework.Application;
 import ghidra.framework.model.DomainObject;
 import ghidra.program.flatapi.FlatProgramAPI;
 import ghidra.program.model.address.Address;
+import ghidra.program.model.address.AddressOutOfBoundsException;
 import ghidra.program.model.lang.LanguageCompilerSpecPair;
 import ghidra.program.model.lang.RegisterValue;
 import ghidra.program.model.listing.ContextChangeException;
+import ghidra.program.model.listing.Instruction;
 import ghidra.program.model.listing.Program;
+import ghidra.program.model.mem.Memory;
+import ghidra.program.model.mem.MemoryAccessException;
 import ghidra.program.model.mem.MemoryBlock;
+import ghidra.program.model.symbol.Reference;
 import ghidra.program.model.symbol.SourceType;
 import ghidra.util.exception.InvalidInputException;
 import ghidra.util.task.TaskMonitor;
-import pat.PatParser;
+import psxpsyq.DetectPsyQ;
 
 public class PsxLoader extends AbstractLibrarySupportLoader {
 	
 	private static final long RAM_START_B = 0x80000000L;
 	private static final long RAM_SIZE = 0x200000L;
+	
+	private static final byte[] MAIN_SIGN = new byte[]{
+			0x00, 0x00, 0x00, 0x0C,
+			0x00, 0x00, 0x00, 0x00, 0x4D, 0x00, 0x00, 0x00
+	};
+
+	private static final byte[] MAIN_SIGN_MASK = new byte[]{
+			0x00, 0x00, 0x00, (byte) 0xFF,
+			(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
+			(byte) 0xFF, (byte) 0xFF
+	};
 	
 	public static final String PSX_LOADER = "PSX Executables Loader";
 	
@@ -83,10 +104,15 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 		
 		createSegments(provider, program, fpa, log);
 		
-		PatParser.setFunction(program, fpa, fpa.toAddr(psxExe.getInitPc()), "start", true, true, log);
+		setFunction(program, fpa, fpa.toAddr(psxExe.getInitPc()), "start", true, true, log);
 
 		setRegisterValue(program, fpa, "gp", psxExe.getInitPc(), psxExe.getInitGp(), log);
 		setRegisterValue(program, fpa, "sp", psxExe.getInitPc(), psxExe.getSpBase() + psxExe.getSpOff(), log);
+		
+		Memory mem = program.getMemory();
+		Address romStart = fpa.toAddr(psxExe.getRomStart());
+		loadPsyqFidFile(mem, romStart, log);
+		findAndAppyMain(program, romStart, log);
 		
 		monitor.setMessage(String.format("%s : Loading done", getName()));
 	}
@@ -98,6 +124,73 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 			program.getProgramContext().setRegisterValue(start, start, regVal);
 		} catch (ContextChangeException e) {
 			log.appendException(e);
+		}
+	}
+	
+	private static void disasmInstruction(Program program, Address address) {
+		DisassembleCommand cmd = new DisassembleCommand(address, null, true);
+		cmd.applyTo(program, TaskMonitor.DUMMY);
+	}
+	
+	private static void setFunction(Program program, FlatProgramAPI fpa, Address address, String name, boolean isFunction, boolean isEntryPoint, MessageLog log) {
+		try {
+			if (fpa.getInstructionAt(address) == null)
+				disasmInstruction(program, address);
+			
+			if (isFunction) {
+				fpa.createFunction(address, name);
+			}
+			if (isEntryPoint) {
+				fpa.addEntryPoint(address);
+			}
+			
+			if (isFunction && program.getSymbolTable().hasSymbol(address)) {
+				return;
+			}
+			
+			program.getSymbolTable().createLabel(address, name, SourceType.IMPORTED);
+		} catch (InvalidInputException e) {
+			log.appendException(e);
+		}
+	}
+	
+	private static void loadPsyqFidFile(Memory mem, Address startAddr, MessageLog log) {
+		try {
+			String psyVersion = DetectPsyQ.getPsyqVersion(mem, startAddr);
+			
+			if (psyVersion == null) {
+				return;
+			}
+			
+			FidFileManager fm = FidFileManager.getInstance();
+			File fidFile = Application.getModuleDataFile(String.format("psyq%s.fidb", psyVersion)).getFile(false);
+			fm.addUserFidFile(fidFile);
+		} catch (MemoryAccessException | AddressOutOfBoundsException | FileNotFoundException e) {
+			log.appendException(e);
+		}
+	}
+	
+	private void findAndAppyMain(Program program, Address searchAddress, MessageLog log) {
+		Address mainRefAddr = program.getMemory().findBytes(searchAddress, MAIN_SIGN, MAIN_SIGN_MASK, true, TaskMonitor.DUMMY);
+		
+		if (mainRefAddr != null) {
+			Instruction instr = program.getListing().getInstructionAt(mainRefAddr);
+			
+			if (instr == null) {
+				return;
+			}
+			
+			Reference[] refs = instr.getReferencesFrom();
+			
+			if (refs.length == 0) {
+				return;
+			}
+			
+			try {
+				program.getSymbolTable().createLabel(refs[0].getToAddress(), "main", SourceType.USER_DEFINED);
+			} catch (InvalidInputException e) {
+				log.appendException(e);
+			}
 		}
 	}
 	
