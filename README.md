@@ -7,3 +7,4 @@ You can find it in binary database menu: *File* -> *Configure* -> *FunctionID* (
 
 Also enable:
 ![Screen1](/imgs/screen1.png?raw=true)
+![Screen2](/imgs/screen2.png?raw=true)
