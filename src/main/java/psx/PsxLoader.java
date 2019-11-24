@@ -350,9 +350,12 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 			
 			Address _sbss_addr = fpa.toAddr((sbss1.getUnsignedValue() << 16) + ((Scalar)(sbss2[0])).getSignedValue());
 			MemoryBlock _sbss_block = mem.getBlock(_sbss_addr);
-			mem.split(_sbss_block, _sbss_addr);
-			_sbss_block = mem.getBlock(_sbss_addr);
-			_sbss_block.setName(".sbss");
+			
+			if (_sbss_block.getStart().getOffset() < _sbss_addr.getOffset()) {
+				mem.split(_sbss_block, _sbss_addr);
+				_sbss_block = mem.getBlock(_sbss_addr);
+				_sbss_block.setName(".sbss");
+			}
 			_sbss_block.setWrite(true);
 			_sbss_block.setExecute(false);
 			if (_sbss_block.isInitialized()) {
