@@ -65,7 +65,6 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 	
 	private static final long RAM_START = 0x80000000L;
 	private static final long RAM_SIZE = 0x200000L;
-	private static final long __sn_cpp_structors_off = 0x18;
 	private static final long __heapbase_off = -0x30;
 	private static final long _sbss_off = -0x28;
 	private static final long _sdata_off = -0x20;
@@ -230,25 +229,6 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 			}
 			
 			mainRefAddr = mainRefAddr.add(4);
-		} else {
-			Instruction jalSnCpp = listing.getInstructionAt(mainRefAddr.add(__sn_cpp_structors_off));
-			
-			if (jalSnCpp == null) {
-				return;
-			}
-			
-			Reference[] jalSnCppRefs = jalSnCpp.getReferencesFrom();
-			
-			if (jalSnCppRefs.length != 1) {
-				return;
-			}
-			
-			try {
-				st.createLabel(jalSnCppRefs[0].getToAddress(), "__sn_cpp_structors", SourceType.USER_DEFINED);
-			} catch (InvalidInputException e) {
-				log.appendException(e);
-				return;
-			}
 		}
 
 		Instruction jalMain = listing.getInstructionAt(mainRefAddr);
