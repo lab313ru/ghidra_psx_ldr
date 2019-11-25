@@ -1,4 +1,4 @@
-package psxpsyq;
+package psyq.structs;
 
 import java.io.IOException;
 import java.util.HashMap;

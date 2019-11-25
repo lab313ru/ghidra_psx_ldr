@@ -59,7 +59,7 @@ import ghidra.util.exception.DuplicateNameException;
 import ghidra.util.exception.InvalidInputException;
 import ghidra.util.exception.NotFoundException;
 import ghidra.util.task.TaskMonitor;
-import psxpsyq.DetectPsyQ;
+import psyq.DetectPsyQ;
 
 public class PsxLoader extends AbstractLibrarySupportLoader {
 	

@@ -1,4 +1,4 @@
-package psxpsyq;
+package psyq;
 
 import ghidra.program.model.address.Address;
 import ghidra.program.model.address.AddressOutOfBoundsException;

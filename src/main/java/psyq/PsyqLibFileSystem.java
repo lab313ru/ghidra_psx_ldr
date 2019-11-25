@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package psxpsyq;
+package psyq;
 
 import java.io.*;
 import java.text.SimpleDateFormat;
@@ -33,10 +33,10 @@ import ghidra.util.task.TaskMonitor;
  * TODO: Provide class-level documentation that describes what this file system does.
  */
 @FileSystemInfo(
-		type = "psxpsyqlibfile", // ([a-z0-9]+ only)
+		type = "psyqlibfile", // ([a-z0-9]+ only)
 		description = "PsyQ Library File",
-		factory = PsxPsyqLibFileSystem.PsxPsyqFileSystemFactory.class)
-public class PsxPsyqLibFileSystem implements GFileSystem {
+		factory = PsyqLibFileSystem.PsyqFileSystemFactory.class)
+public class PsyqLibFileSystem implements GFileSystem {
 
 	private final FSRLRoot fsFSRL;
 	private FileSystemIndexHelper<LibFileItem> fsih;
@@ -50,7 +50,7 @@ public class PsxPsyqLibFileSystem implements GFileSystem {
 	 * @param fsFSRL The root {@link FSRL} of the file system.
 	 * @param provider The file system provider.
 	 */
-	public PsxPsyqLibFileSystem(FSRLRoot fsFSRL, ByteProvider provider) {
+	public PsyqLibFileSystem(FSRLRoot fsFSRL, ByteProvider provider) {
 		this.fsFSRL = fsFSRL;
 		this.provider = provider;
 		this.fsih = new FileSystemIndexHelper<>(this, fsFSRL);
@@ -62,7 +62,7 @@ public class PsxPsyqLibFileSystem implements GFileSystem {
 	 * @param monitor A cancellable task monitor.
 	 */
 	public void mount(TaskMonitor monitor) {
-		monitor.setMessage("Opening " + PsxPsyqLibFileSystem.class.getSimpleName() + "...");
+		monitor.setMessage("Opening " + PsyqLibFileSystem.class.getSimpleName() + "...");
 		
 		BinaryReader reader = new BinaryReader(provider, true);
 		long startOffset = 4;
@@ -184,15 +184,15 @@ public class PsxPsyqLibFileSystem implements GFileSystem {
 	}
 
 	// TODO: Customize for the real file system.
-	public static class PsxPsyqFileSystemFactory
-			implements GFileSystemFactoryFull<PsxPsyqLibFileSystem>, GFileSystemProbeFull {
+	public static class PsyqFileSystemFactory
+			implements GFileSystemFactoryFull<PsyqLibFileSystem>, GFileSystemProbeFull {
 
 		@Override
-		public PsxPsyqLibFileSystem create(FSRL containerFSRL, FSRLRoot targetFSRL,
+		public PsyqLibFileSystem create(FSRL containerFSRL, FSRLRoot targetFSRL,
 				ByteProvider byteProvider, File containerFile, FileSystemService fsService,
 				TaskMonitor monitor) throws IOException, CancelledException {
 
-			PsxPsyqLibFileSystem fs = new PsxPsyqLibFileSystem(targetFSRL, byteProvider);
+			PsyqLibFileSystem fs = new PsyqLibFileSystem(targetFSRL, byteProvider);
 			fs.mount(monitor);
 			return fs;
 		}

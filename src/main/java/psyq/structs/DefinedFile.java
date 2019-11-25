@@ -1,4 +1,4 @@
-package psxpsyq;
+package psyq.structs;
 
 public final class DefinedFile extends Symbol {
 	public DefinedFile(int number, String name) {

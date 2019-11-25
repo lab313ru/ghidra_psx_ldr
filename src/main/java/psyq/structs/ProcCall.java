@@ -1,4 +1,4 @@
-package psxpsyq;
+package psyq.structs;
 
 public final class ProcCall {
 

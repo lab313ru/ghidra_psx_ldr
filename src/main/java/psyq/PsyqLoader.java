@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package psxpsyq;
+package psyq;
 
 import java.io.IOException;
 import java.math.BigInteger;
@@ -57,11 +57,12 @@ import ghidra.program.model.util.CodeUnitInsertionException;
 import ghidra.util.exception.CancelledException;
 import ghidra.util.exception.InvalidInputException;
 import ghidra.util.task.TaskMonitor;
+import psyq.structs.*;
 
 /**
  * TODO: Provide class-level documentation that describes what this loader does.
  */
-public class PsxPsyqLoader extends AbstractLibrarySupportLoader {
+public class PsyqLoader extends AbstractLibrarySupportLoader {
 	
 	private HashMap<Integer, Long> runPoints = new HashMap<>();
 	private int sectionSwitch = 0;

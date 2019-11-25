@@ -1,4 +1,4 @@
-package psxpsyq;
+package psyq.structs;
 
 public abstract class Symbol implements ISymbol {
 	private final int number;

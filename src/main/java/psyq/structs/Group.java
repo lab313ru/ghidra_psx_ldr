@@ -1,4 +1,4 @@
-package psxpsyq;
+package psyq.structs;
 
 public final class Group extends Symbol {
 	private final byte type;
