@@ -2,9 +2,9 @@ package psyq.sym;
 
 public class SymObject implements ISymObject {
 	private long offset;
-	private byte tag;
+	private int tag;
 	
-	protected SymObject(long offset, byte tag) {
+	protected SymObject(long offset, int tag) {
 		this.offset = offset;
 		this.tag = tag;
 	}
@@ -15,7 +15,7 @@ public class SymObject implements ISymObject {
 	}
 
 	@Override
-	public byte getTag() {
+	public int getTag() {
 		return tag;
 	}
 

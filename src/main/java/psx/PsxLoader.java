@@ -23,6 +23,9 @@ import java.math.BigInteger;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
+import javax.swing.JFileChooser;
+import javax.swing.filechooser.FileNameExtensionFilter;
+
 import docking.widgets.OptionDialog;
 import ghidra.app.cmd.disassemble.DisassembleCommand;
 import ghidra.app.util.Option;
@@ -64,6 +67,7 @@ import ghidra.util.exception.InvalidInputException;
 import ghidra.util.exception.NotFoundException;
 import ghidra.util.task.TaskMonitor;
 import psyq.DetectPsyQ;
+import psyq.sym.SymFile;
 
 public class PsxLoader extends AbstractLibrarySupportLoader {
 	
@@ -208,6 +212,31 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 		findAndAppyMain(program, provider, fpa, romStart, log);
 		
 		monitor.setMessage(String.format("%s : Loading done", getName()));
+		
+		try {
+			TimeUnit.SECONDS.sleep(1);
+		} catch (InterruptedException e) {
+		}
+		
+		if (OptionDialog.YES_OPTION == OptionDialog.showYesNoDialogWithNoAsDefaultButton(null,
+				"Question", "Do you have .SYM file for this executable?")) {
+			String symPath = showSelectFile("Select file...", program.getExecutablePath());
+			SymFile symFile = SymFile.fromBinary(symPath);
+		}
+	}
+	
+	private static String showSelectFile(String title, String baseDir) {
+		JFileChooser jfc = new JFileChooser(new File(baseDir));
+		jfc.setDialogTitle(title);
+
+		jfc.setFileFilter(new FileNameExtensionFilter("Symbols File", "sym"));
+		jfc.setMultiSelectionEnabled(false);
+
+		if (jfc.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+			return jfc.getSelectedFile().getAbsolutePath();
+		}
+
+		return null;
 	}
 	
 	private static void setRegisterValue(Program program, FlatProgramAPI fpa, String name, long startAddress, long value, MessageLog log) {

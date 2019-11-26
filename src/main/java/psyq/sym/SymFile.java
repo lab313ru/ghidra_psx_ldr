@@ -23,71 +23,71 @@ public class SymFile {
 	}
 
 	private SymFile(BinaryReader reader) throws IOException {
-		String sig = reader.readNextNullTerminatedAsciiString();
+		String sig = reader.readNextAsciiString(3);
 		
 		if (!sig.equals("MND")) {
 			throw new IOException("Wrong MND signature");
 		}
 		
-		reader.readNextByte(); // version
-		reader.readNextByte(); // unit
+		reader.readNextUnsignedByte(); // version
+		reader.readNextUnsignedByte(); // unit
 		reader.readNextByteArray(3); // skip
 		
 		SymFunc symFunc = null;
 		
-		while (true) {
+		while (reader.getPointerIndex() < reader.length()) {
 			long offset = 0;
-			byte tag = 0;
+			int tag = 0;
 
 			while (true) {
 				offset = reader.readNextUnsignedInt();
-				tag = reader.readNextByte();
+				tag = reader.readNextUnsignedByte();
 				
 				if (tag != 8) {
 					break;
 				}
 				
-				reader.readNextByte(); // MX-info
+				reader.readNextUnsignedByte(); // MX-info
 			}
 			
 			if (tag <= 0x7F) {
-				String name = reader.readNextAsciiString();
+				String name = readString(reader);
 				SymObject obj = new SymObjectName(offset, tag, name);
 				objects.add(obj);
 				continue;
 			}
 			
 			switch (tag) {
-			case (byte)0x80: {
+			case 0x80: {
 			} break;
-			case (byte)0x82: {
-				reader.readNextByte(); // line byte_add
+			case 0x82: {
+				reader.readNextUnsignedByte(); // line byte_add
 			} break;
-			case (byte)0x84: {
+			case 0x84: {
 				reader.readNextUnsignedShort(); // line word_add
 			} break;
-			case (byte)0x86: {
+			case 0x86: {
 				reader.readNextUnsignedInt(); // new line_num
 			} break;
-			case (byte)0x88: {
+			case 0x88: {
 				reader.readNextUnsignedInt(); // new line_num
-				reader.readNextAsciiString(); // new line_num to file_name
+				readString(reader); // new line_num to file_name
 			} break;
-			case (byte)0x8A: {
+			case 0x8A: {
 			} break;
-			case (byte)0x8C: {
+			case 0x8C: {
 				reader.readNextUnsignedShort(); // fp
 				reader.readNextUnsignedInt(); // fsize
 				reader.readNextUnsignedShort(); // retreg
 				reader.readNextUnsignedInt(); // mask
 				reader.readNextUnsignedInt(); // maskoffs
 				reader.readNextUnsignedInt(); // line
-				String fileName = reader.readNextAsciiString();
-				String funcName = reader.readNextAsciiString();
+				String fileName = readString(reader);
+				String funcName = readString(reader);
 				
 				symFunc = new SymFunc(fileName, funcName, offset);
 			} break;
-			case (byte)0x8E: {
+			case 0x8E: {
 				reader.readNextUnsignedInt(); // func end line
 				if (symFunc == null) {
 					throw new IOException("End of non-started function");
@@ -97,14 +97,14 @@ public class SymFile {
 				objects.add(symFunc);
 				symFunc = null;
 			} break;
-			case (byte)0x90: {
+			case 0x90: {
 				reader.readNextUnsignedInt(); // block start line
 			} break;
-			case (byte)0x92: {
+			case 0x92: {
 				reader.readNextUnsignedInt(); // block end line
 			} break;
-			case (byte)0x94:
-			case (byte)0x96: {
+			case 0x94:
+			case 0x96: {
 				SymDefClass classDef = SymDefClass.fromInt(reader.readNextUnsignedShort());
 				SymDefType classType = new SymDefType(reader.readNextUnsignedShort());
 				long size = reader.readNextUnsignedInt();
@@ -112,22 +112,22 @@ public class SymFile {
 				List<Long> dims = null;
 				String defTag = null;
 				
-				if (tag == (byte)0x96) {
-					long dimsCount = reader.readNextUnsignedInt();
+				if (tag == 0x96) {
+					int dimsCount = reader.readNextUnsignedShort();
 					dims = new ArrayList<>();
 					
-					for (long i = 0; i < dimsCount; ++i) {
+					for (int i = 0; i < dimsCount; ++i) {
 						dims.add(reader.readNextUnsignedInt());
 					}
 					
-					defTag = reader.readNextAsciiString();
+					defTag = readString(reader);
 				}
 				
-				String defName = reader.readNextAsciiString();
+				String defName = readString(reader);
 				
 				SymDef def2 = new SymDef(classDef, classType, size, defName, offset);
 				
-				if (tag == (byte)0x96) {
+				if (tag == 0x96) {
 					def2.setDims(dims.toArray(Long[]::new));
 					def2.setDefTag(defTag);
 				}
@@ -145,13 +145,13 @@ public class SymFile {
 				default: break;
 				}
 			} break;
-			case (byte)0x98: {
+			case 0x98: {
 				reader.readNextUnsignedInt(); // ovr_length
 				reader.readNextUnsignedInt(); // ovr_id
 			} break;
-			case (byte)0x9A: {
+			case 0x9A: {
 			} break;
-			case (byte)0x9C: {
+			case 0x9C: {
 				reader.readNextUnsignedShort(); // fp
 				reader.readNextUnsignedInt(); // fsize
 				reader.readNextUnsignedShort(); // retreg
@@ -160,17 +160,21 @@ public class SymFile {
 				reader.readNextUnsignedInt(); // fmask
 				reader.readNextUnsignedInt(); // fmaskoffs
 				reader.readNextUnsignedInt(); // line
-				String fileName = reader.readNextAsciiString();
-				String funcName = reader.readNextAsciiString();
+				String fileName = readString(reader);
+				String funcName = readString(reader);
 				
 				symFunc = new SymFunc(fileName, funcName, offset);
 			} break;
-			case (byte)0x9E: {
-				reader.readNextAsciiString(); // mangled name1
-				reader.readNextAsciiString(); // mangled name2
+			case 0x9E: {
+				readString(reader); // mangled name1
+				readString(reader); // mangled name2
 			} break;
 			}
 		}
+	}
+	
+	private static String readString(BinaryReader reader) throws IOException {
+		return reader.readNextAsciiString(reader.readNextUnsignedByte());
 	}
 	
 	public SymObject[] getObjects() {
