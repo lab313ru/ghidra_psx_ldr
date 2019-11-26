@@ -15,19 +15,17 @@
  */
 package psx;
 
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
-import docking.options.editor.StringWithChoicesEditor;
+import docking.widgets.OptionDialog;
 import ghidra.app.cmd.disassemble.DisassembleCommand;
 import ghidra.app.util.Option;
-import ghidra.app.util.OptionListener;
 import ghidra.app.util.bin.BinaryReader;
 import ghidra.app.util.bin.ByteProvider;
 import ghidra.app.util.importer.MessageLog;
@@ -38,20 +36,15 @@ import ghidra.feature.fid.db.FidFile;
 import ghidra.feature.fid.db.FidFileManager;
 import ghidra.framework.Application;
 import ghidra.framework.model.DomainObject;
-import ghidra.framework.options.OptionType;
-import ghidra.framework.options.Options;
 import ghidra.framework.store.LockException;
 import ghidra.program.flatapi.FlatProgramAPI;
 import ghidra.program.model.address.Address;
-import ghidra.program.model.address.AddressFormatException;
 import ghidra.program.model.address.AddressOutOfBoundsException;
 import ghidra.program.model.data.DataType;
 import ghidra.program.model.data.DataUtilities;
 import ghidra.program.model.data.PointerDataType;
 import ghidra.program.model.data.DataUtilities.ClearDataMode;
-import ghidra.program.model.lang.Language;
 import ghidra.program.model.lang.LanguageCompilerSpecPair;
-import ghidra.program.model.lang.LanguageNotFoundException;
 import ghidra.program.model.lang.RegisterValue;
 import ghidra.program.model.listing.ContextChangeException;
 import ghidra.program.model.listing.Instruction;
@@ -74,7 +67,7 @@ import psyq.DetectPsyQ;
 
 public class PsxLoader extends AbstractLibrarySupportLoader {
 	
-	private static final long DEF_RAM_START = 0x80000000L;
+	private static final long DEF_RAM_BASE = 0x80000000L;
 	private static final long RAM_SIZE = 0x200000L;
 	private static final long __heapbase_off = -0x30;
 	private static final long _sbss_off = -0x28;
@@ -118,8 +111,8 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 	
 	private PsxExe psxExe;
 	
-	static final String OPTION_NAME = "RAM Base Address: ";
-	Address ramStart = null;
+	private static final String OPTION_NAME = "RAM Base Address: ";
+	private long ramBase = DEF_RAM_BASE;
 
 	@Override
 	public String getName() {
@@ -147,44 +140,17 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 		
 		List<Option> list = new ArrayList<>();
 		
-		LanguageCompilerSpecPair pair = loadSpec.getLanguageCompilerSpec();
-		try {
-			Language importerLanguage = getLanguageService().getLanguage(pair.languageID);
-			ramStart = importerLanguage.getAddressFactory().getDefaultAddressSpace().getAddress(DEF_RAM_START);
-			PsxBaseChooser opt = new PsxBaseChooser(OPTION_NAME, ramStart, PsxBaseChooser.class, Loader.COMMAND_LINE_ARG_PREFIX + "-ramStart");
-			list.add(opt);
-		} catch (LanguageNotFoundException ignored) {
-		}
+		list.add(new PsxBaseChooser(OPTION_NAME, ramBase, PsxBaseChooser.class, Loader.COMMAND_LINE_ARG_PREFIX + "-ramStart"));
 		
 		return list;
 	}
 	
-	private Address getDefRamAddress(LoadSpec loadSpec) {
-		LanguageCompilerSpecPair pair = loadSpec.getLanguageCompilerSpec();
-		try {
-			Language importerLanguage = getLanguageService().getLanguage(pair.languageID);
-			return importerLanguage.getAddressFactory().getDefaultAddressSpace().getAddress(DEF_RAM_START);
-		} catch (LanguageNotFoundException ignored) {
-			return null;
-		}
-	}
-	
 	@Override
 	public String validateOptions(ByteProvider provider, LoadSpec loadSpec, List<Option> options, Program program) {
-		ramStart = getDefRamAddress(loadSpec);
-
 		for (Option option : options) {
 			String optName = option.getName();
 			if (optName.equals(OPTION_NAME)) {
-				LanguageCompilerSpecPair pair = loadSpec.getLanguageCompilerSpec();
-
-				try {
-					Language importerLanguage = getLanguageService().getLanguage(pair.languageID);
-					ramStart = importerLanguage.getAddressFactory().getDefaultAddressSpace().getAddress((String)option.getValue());
-				} catch (LanguageNotFoundException | AddressFormatException e) {
-
-				}
-				
+				ramBase = Long.decode((String)option.getValue());
 				break;
 			}
 		}
@@ -204,6 +170,31 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 		monitor.setMessage(String.format("%s : Start loading", getName()));
 		
 		FlatProgramAPI fpa = new FlatProgramAPI(program, monitor);
+		
+		long realRamBase = psxExe.getInitPc() & 0xFF000000L;
+		
+		try {
+			TimeUnit.SECONDS.sleep(1);
+		} catch (InterruptedException e) {
+		}
+		
+		if (realRamBase != ramBase) {
+			if (ramBase == DEF_RAM_BASE) {
+				ramBase = realRamBase;
+			} else {
+				switch (OptionDialog.showYesNoDialogWithNoAsDefaultButton(null, "Question",
+						"RAM Base Address in the \"PS-X EXE\" header differs from the specified one!\n\n" +
+			            "Do you want to continue?\n" +
+						String.format("YES: Use specified address           - 0x%08X.\n", ramBase) +
+				        String.format(" NO: Use address based on the binary - 0x%08X.\n", realRamBase))) {
+				case OptionDialog.YES_OPTION: {
+				} break;
+				case OptionDialog.NO_OPTION: {
+					ramBase = realRamBase;
+				} break;
+				}
+			}
+		}
 		
 		createSegments(provider, program, fpa, log);
 		
@@ -448,8 +439,8 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 		
 		InputStream codeStream = provider.getInputStream(PsxExe.HEADER_SIZE);
 		
-		long ram_size_1 = psxExe.getRomStart() - ramStart.getOffset();
-		createSegment(fpa, null, "RAM", ramStart.getOffset(), ram_size_1, true, true, log);
+		long ram_size_1 = psxExe.getRomStart() - ramBase;
+		createSegment(fpa, null, "RAM", ramBase, ram_size_1, true, true, log);
 		
 		long code_size = psxExe.getRomSize();
 		long code_addr = psxExe.getRomStart();
@@ -465,7 +456,7 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 		}
 		
 		long code_end = psxExe.getRomEnd();
-		long ram_size_2 = ramStart.getOffset() + RAM_SIZE - code_end;
+		long ram_size_2 = ramBase + RAM_SIZE - code_end;
 		createSegment(fpa, null, "RAM", code_end, ram_size_2, false, true, log);
 		
 		createSegment(fpa, null, "CACHE", 0x1F800000L, 0x400, true, true, log);
