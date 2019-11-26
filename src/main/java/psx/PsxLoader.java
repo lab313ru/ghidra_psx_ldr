@@ -15,6 +15,8 @@
  */
 package psx;
 
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -22,25 +24,34 @@ import java.io.InputStream;
 import java.math.BigInteger;
 import java.util.*;
 
+import docking.options.editor.StringWithChoicesEditor;
 import ghidra.app.cmd.disassemble.DisassembleCommand;
 import ghidra.app.util.Option;
+import ghidra.app.util.OptionListener;
 import ghidra.app.util.bin.BinaryReader;
 import ghidra.app.util.bin.ByteProvider;
 import ghidra.app.util.importer.MessageLog;
 import ghidra.app.util.opinion.AbstractLibrarySupportLoader;
 import ghidra.app.util.opinion.LoadSpec;
+import ghidra.app.util.opinion.Loader;
 import ghidra.feature.fid.db.FidFile;
 import ghidra.feature.fid.db.FidFileManager;
 import ghidra.framework.Application;
+import ghidra.framework.model.DomainObject;
+import ghidra.framework.options.OptionType;
+import ghidra.framework.options.Options;
 import ghidra.framework.store.LockException;
 import ghidra.program.flatapi.FlatProgramAPI;
 import ghidra.program.model.address.Address;
+import ghidra.program.model.address.AddressFormatException;
 import ghidra.program.model.address.AddressOutOfBoundsException;
 import ghidra.program.model.data.DataType;
 import ghidra.program.model.data.DataUtilities;
 import ghidra.program.model.data.PointerDataType;
 import ghidra.program.model.data.DataUtilities.ClearDataMode;
+import ghidra.program.model.lang.Language;
 import ghidra.program.model.lang.LanguageCompilerSpecPair;
+import ghidra.program.model.lang.LanguageNotFoundException;
 import ghidra.program.model.lang.RegisterValue;
 import ghidra.program.model.listing.ContextChangeException;
 import ghidra.program.model.listing.Instruction;
@@ -63,7 +74,7 @@ import psyq.DetectPsyQ;
 
 public class PsxLoader extends AbstractLibrarySupportLoader {
 	
-	private static final long RAM_START = 0x80000000L;
+	private static final long DEF_RAM_START = 0x80000000L;
 	private static final long RAM_SIZE = 0x200000L;
 	private static final long __heapbase_off = -0x30;
 	private static final long _sbss_off = -0x28;
@@ -106,6 +117,9 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 	public static final String PSX_LOADER = "PSX Executables Loader";
 	
 	private PsxExe psxExe;
+	
+	static final String OPTION_NAME = "RAM Base Address: ";
+	Address ramStart = null;
 
 	@Override
 	public String getName() {
@@ -125,6 +139,57 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 		}
 
 		return loadSpecs;
+	}
+	
+	@Override
+	public List<Option> getDefaultOptions(ByteProvider provider, LoadSpec loadSpec, DomainObject domainObject,
+			boolean loadIntoProgram) {
+		
+		List<Option> list = new ArrayList<>();
+		
+		LanguageCompilerSpecPair pair = loadSpec.getLanguageCompilerSpec();
+		try {
+			Language importerLanguage = getLanguageService().getLanguage(pair.languageID);
+			ramStart = importerLanguage.getAddressFactory().getDefaultAddressSpace().getAddress(DEF_RAM_START);
+			PsxBaseChooser opt = new PsxBaseChooser(OPTION_NAME, ramStart, PsxBaseChooser.class, Loader.COMMAND_LINE_ARG_PREFIX + "-ramStart");
+			list.add(opt);
+		} catch (LanguageNotFoundException ignored) {
+		}
+		
+		return list;
+	}
+	
+	private Address getDefRamAddress(LoadSpec loadSpec) {
+		LanguageCompilerSpecPair pair = loadSpec.getLanguageCompilerSpec();
+		try {
+			Language importerLanguage = getLanguageService().getLanguage(pair.languageID);
+			return importerLanguage.getAddressFactory().getDefaultAddressSpace().getAddress(DEF_RAM_START);
+		} catch (LanguageNotFoundException ignored) {
+			return null;
+		}
+	}
+	
+	@Override
+	public String validateOptions(ByteProvider provider, LoadSpec loadSpec, List<Option> options, Program program) {
+		ramStart = getDefRamAddress(loadSpec);
+
+		for (Option option : options) {
+			String optName = option.getName();
+			if (optName.equals(OPTION_NAME)) {
+				LanguageCompilerSpecPair pair = loadSpec.getLanguageCompilerSpec();
+
+				try {
+					Language importerLanguage = getLanguageService().getLanguage(pair.languageID);
+					ramStart = importerLanguage.getAddressFactory().getDefaultAddressSpace().getAddress((String)option.getValue());
+				} catch (LanguageNotFoundException | AddressFormatException e) {
+
+				}
+				
+				break;
+			}
+		}
+
+		return null;
 	}
 
 	@Override
@@ -383,8 +448,8 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 		
 		InputStream codeStream = provider.getInputStream(PsxExe.HEADER_SIZE);
 		
-		long ram_size_1 = psxExe.getRomStart() - RAM_START;
-		createSegment(fpa, null, "RAM", RAM_START, ram_size_1, true, true, log);
+		long ram_size_1 = psxExe.getRomStart() - ramStart.getOffset();
+		createSegment(fpa, null, "RAM", ramStart.getOffset(), ram_size_1, true, true, log);
 		
 		long code_size = psxExe.getRomSize();
 		long code_addr = psxExe.getRomStart();
@@ -400,7 +465,7 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 		}
 		
 		long code_end = psxExe.getRomEnd();
-		long ram_size_2 = RAM_START + RAM_SIZE - code_end;
+		long ram_size_2 = ramStart.getOffset() + RAM_SIZE - code_end;
 		createSegment(fpa, null, "RAM", code_end, ram_size_2, false, true, log);
 		
 		createSegment(fpa, null, "CACHE", 0x1F800000L, 0x400, true, true, log);
