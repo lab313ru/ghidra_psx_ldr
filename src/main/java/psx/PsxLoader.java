@@ -68,6 +68,8 @@ import ghidra.util.exception.NotFoundException;
 import ghidra.util.task.TaskMonitor;
 import psyq.DetectPsyQ;
 import psyq.sym.SymFile;
+import psyq.sym.SymFunc;
+import psyq.sym.SymObject;
 
 public class PsxLoader extends AbstractLibrarySupportLoader {
 	
@@ -222,6 +224,24 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 				"Question", "Do you have .SYM file for this executable?")) {
 			String symPath = showSelectFile("Select file...", program.getExecutablePath());
 			SymFile symFile = SymFile.fromBinary(symPath);
+			applySymbols(program.getSymbolTable(), fpa, symFile, log);
+		}
+	}
+	
+	private static void applySymbols(SymbolTable st, FlatProgramAPI fpa, SymFile symFile, MessageLog log) {
+		SymObject[] objects = symFile.getObjects();
+		
+		for (SymObject obj : objects) {
+			if (obj instanceof SymFunc) {
+				SymFunc sf = (SymFunc)obj;
+				try {
+					st.createLabel(fpa.toAddr(sf.getOffset()), sf.getFuncName(), SourceType.ANALYSIS);
+					
+					
+				} catch (InvalidInputException e) {
+					log.appendException(e);
+				}
+			}
 		}
 	}
 	

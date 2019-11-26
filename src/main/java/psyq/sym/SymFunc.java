@@ -45,4 +45,8 @@ public class SymFunc extends SymObject {
 	public void addArgument(SymDef arg) {
 		args.add(arg);
 	}
+	
+	public SymDef[] getArguments() {
+		return args.toArray(SymDef[]::new);
+	}
 }
