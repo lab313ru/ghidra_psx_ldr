@@ -2,10 +2,8 @@ package psyq.sym;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 import ghidra.app.util.bin.BinaryReader;
 import ghidra.app.util.bin.ByteProvider;
@@ -36,7 +34,6 @@ public class SymFile {
 		reader.readNextByteArray(3); // skip
 		
 		SymFunc symFunc = null;
-		List<SymFuncArg> funcArgs = new ArrayList<>();
 		
 		while (true) {
 			long offset = 0;
@@ -89,10 +86,6 @@ public class SymFile {
 				String funcName = reader.readNextAsciiString();
 				
 				symFunc = new SymFunc(fileName, funcName, offset);
-				
-				// blocks
-				// args
-				// end line
 			} break;
 			case (byte)0x8E: {
 				reader.readNextUnsignedInt(); // func end line
@@ -103,7 +96,6 @@ public class SymFile {
 				symFunc.setEndOffset(offset);
 				objects.add(symFunc);
 				symFunc = null;
-				funcArgs.clear();
 			} break;
 			case (byte)0x90: {
 				reader.readNextUnsignedInt(); // block start line
@@ -111,15 +103,77 @@ public class SymFile {
 			case (byte)0x92: {
 				reader.readNextUnsignedInt(); // block end line
 			} break;
-			case (byte)0x94: {
-				int classDefType1 = reader.readNextUnsignedShort();
-			} break;
+			case (byte)0x94:
+			case (byte)0x96: {
+				SymDefClass classDef = SymDefClass.fromInt(reader.readNextUnsignedShort());
+				SymDefType classType = new SymDefType(reader.readNextUnsignedShort());
+				long size = reader.readNextUnsignedInt();
 				
+				List<Long> dims = null;
+				String defTag = null;
+				
+				if (tag == (byte)0x96) {
+					long dimsCount = reader.readNextUnsignedInt();
+					dims = new ArrayList<>();
+					
+					for (long i = 0; i < dimsCount; ++i) {
+						dims.add(reader.readNextUnsignedInt());
+					}
+					
+					defTag = reader.readNextAsciiString();
+				}
+				
+				String defName = reader.readNextAsciiString();
+				
+				SymDef def2 = new SymDef(classDef, classType, size, defName, offset);
+				
+				if (tag == (byte)0x96) {
+					def2.setDims(dims.toArray(Long[]::new));
+					def2.setDefTag(defTag);
+				}
+				objects.add(def2);
+				
+				switch (classDef) {
+				case ARG:
+				case REGPARM: {
+					if (symFunc == null) {
+						throw new IOException("Parameter for non-started function");
+					}
+					
+					symFunc.addArgument(def2);
+				} break;
+				default: break;
+				}
+			} break;
+			case (byte)0x98: {
+				reader.readNextUnsignedInt(); // ovr_length
+				reader.readNextUnsignedInt(); // ovr_id
+			} break;
+			case (byte)0x9A: {
+			} break;
+			case (byte)0x9C: {
+				reader.readNextUnsignedShort(); // fp
+				reader.readNextUnsignedInt(); // fsize
+				reader.readNextUnsignedShort(); // retreg
+				reader.readNextUnsignedInt(); // mask
+				reader.readNextUnsignedInt(); // maskoffs
+				reader.readNextUnsignedInt(); // fmask
+				reader.readNextUnsignedInt(); // fmaskoffs
+				reader.readNextUnsignedInt(); // line
+				String fileName = reader.readNextAsciiString();
+				String funcName = reader.readNextAsciiString();
+				
+				symFunc = new SymFunc(fileName, funcName, offset);
+			} break;
+			case (byte)0x9E: {
+				reader.readNextAsciiString(); // mangled name1
+				reader.readNextAsciiString(); // mangled name2
+			} break;
 			}
 		}
 	}
 	
-	private static SymFuncArg getArgType() {
-		return null;
+	public SymObject[] getObjects() {
+		return objects.toArray(SymObject[]::new);
 	}
 }

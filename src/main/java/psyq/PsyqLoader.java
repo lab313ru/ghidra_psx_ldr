@@ -78,11 +78,8 @@ public class PsyqLoader extends AbstractLibrarySupportLoader {
 	private FileLine fileLine = new FileLine();
 	private List<LocalSymbol> vlocals = new ArrayList<>();
 	private HashMap<Integer, Byte> mxInfos = new HashMap<>();
-	private byte procType = 0;
 	private HashMap<Integer, List<XbssSymbol>> xbssList = new HashMap<>();
-	private HashMap<Integer, SldFileLine> sldLines = new HashMap<>();
 	private List<RepeatedData> repeatedData = new ArrayList<>();
-	private int sldEndOffset = 0;
 	private List<FunctionStart> functionStarts = new ArrayList<>();
 	private List<FunctionEnd> functionEnds = new ArrayList<>();
 	private List<BlockStart> blockStarts = new ArrayList<>();
@@ -297,7 +294,7 @@ public class PsyqLoader extends AbstractLibrarySupportLoader {
 				mxInfos.put(mxOffset, mxInfoVal);
 			} break;
 			case 46: {
-				procType = reader.readNextByte();
+				reader.readNextByte();
 			} break;
 			case 48: {
 				int symIndex = reader.readNextUnsignedShort();
@@ -313,42 +310,27 @@ public class PsyqLoader extends AbstractLibrarySupportLoader {
 				symbols.put(symIndex, sym);
 			} break;
 			case 50: {
-				int offset = reader.readNextUnsignedShort();
-				SldFileLine line = sldLines.getOrDefault(0, new SldFileLine());
-				line.incLineAtOffset(offset);
-				sldLines.put(0, line);
+				reader.readNextUnsignedShort(); // offset
 			} break;
 			case 52: {
-				int offset = reader.readNextUnsignedShort();
-				byte val = reader.readNextByte();
-				SldFileLine line = sldLines.getOrDefault(0, new SldFileLine());
-				line.incLineAtOffsetByVal(offset, val);
-				sldLines.put(0, line);
+				reader.readNextUnsignedShort(); // offset
+				reader.readNextByte(); // val
 			} break;
 			case 54: {
-				int offset = reader.readNextUnsignedShort();
-				int val = reader.readNextUnsignedShort();
-				SldFileLine line = sldLines.getOrDefault(0, new SldFileLine());
-				line.incLineAtOffsetByVal(offset, val);
-				sldLines.put(0, line);
+				reader.readNextUnsignedShort(); // offset
+				reader.readNextUnsignedShort(); // val
 			} break;
 			case 56: {
-				int offset = reader.readNextUnsignedShort();
-				long val = reader.readNextUnsignedInt();
-				SldFileLine line = sldLines.getOrDefault(0, new SldFileLine());
-				line.setLineAtOffset(offset, val);
-				sldLines.put(0, line);
+				reader.readNextUnsignedShort(); // offset
+				reader.readNextUnsignedInt(); // val
 			} break;
 			case 58: {
-				int offset = reader.readNextUnsignedShort();
-				long val = reader.readNextUnsignedInt();
-				int fileIndex = reader.readNextUnsignedShort();
-				SldFileLine line = sldLines.getOrDefault(fileIndex, new SldFileLine());
-				line.setLineAtOffset(offset, val);
-				sldLines.put(fileIndex, line);
+				reader.readNextUnsignedShort(); // offset
+				reader.readNextUnsignedInt(); // val
+				reader.readNextUnsignedShort(); // fileIndex
 			} break;
 			case 60: {
-				sldEndOffset = reader.readNextUnsignedShort();
+				reader.readNextUnsignedShort();
 			} break;
 			case 62: {
 				int patchOffset = sections.get(sectionSwitch).getPatchOffset();
