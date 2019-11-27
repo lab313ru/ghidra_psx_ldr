@@ -43,4 +43,15 @@ public class SymDefType {
 	public SymDefTypePrimitive[] getTypesList() {
 		return primTypes.toArray(SymDefTypePrimitive[]::new);
 	}
+	
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		
+		for (SymDefTypePrimitive primType : primTypes) {
+			builder.append(primType.name()).append(' ');
+		}
+		
+		return builder.toString();
+	}
 }

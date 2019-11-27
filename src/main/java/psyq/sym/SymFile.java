@@ -55,7 +55,7 @@ public class SymFile {
 			
 			if (tag <= 0x7F) {
 				String name = readString(reader);
-				SymObjectName obj = new SymObjectName(offset, tag, name);
+				SymName obj = new SymName(offset, tag, name);
 				objects.add(obj);
 				continue;
 			}

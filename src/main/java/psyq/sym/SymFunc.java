@@ -5,12 +5,12 @@ import java.util.List;
 
 public class SymFunc extends SymObject {
 	String fileName = null;
-	String funcName = null;
+	String funcName;
 	
 	long endOffset = 0L;
 	
 	List<SymDef> args = new ArrayList<>();
-	SymDefType retnType = null;
+	SymDefType retnType;
 	
 
 	public SymFunc(long offset, SymDefType retnType, String funcName) {
@@ -50,5 +50,16 @@ public class SymFunc extends SymObject {
 	
 	public SymDefType getReturnType() {
 		return retnType;
+	}
+
+	public String getReturnTypeAsString() {
+		SymDefTypePrimitive[] primTypes = retnType.getTypesList();
+		StringBuilder builder = new StringBuilder();
+		
+		for (int i = 1; i < primTypes.length; ++i) {
+			builder.append(primTypes[i].name()).append(' ');
+		}
+		
+		return builder.toString();
 	}
 }

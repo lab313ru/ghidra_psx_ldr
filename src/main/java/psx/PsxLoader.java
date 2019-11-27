@@ -44,15 +44,20 @@ import ghidra.program.flatapi.FlatProgramAPI;
 import ghidra.program.model.address.Address;
 import ghidra.program.model.address.AddressOutOfBoundsException;
 import ghidra.program.model.data.DataType;
+import ghidra.program.model.data.DataTypeManager;
 import ghidra.program.model.data.DataUtilities;
 import ghidra.program.model.data.PointerDataType;
 import ghidra.program.model.data.DataUtilities.ClearDataMode;
 import ghidra.program.model.lang.LanguageCompilerSpecPair;
 import ghidra.program.model.lang.RegisterValue;
 import ghidra.program.model.listing.ContextChangeException;
+import ghidra.program.model.listing.Function;
+import ghidra.program.model.listing.Function.FunctionUpdateType;
 import ghidra.program.model.listing.Instruction;
 import ghidra.program.model.listing.Listing;
+import ghidra.program.model.listing.ParameterImpl;
 import ghidra.program.model.listing.Program;
+import ghidra.program.model.listing.ReturnParameterImpl;
 import ghidra.program.model.mem.Memory;
 import ghidra.program.model.mem.MemoryAccessException;
 import ghidra.program.model.mem.MemoryBlock;
@@ -67,9 +72,11 @@ import ghidra.util.exception.InvalidInputException;
 import ghidra.util.exception.NotFoundException;
 import ghidra.util.task.TaskMonitor;
 import psyq.DetectPsyQ;
+import psyq.sym.SymDef;
 import psyq.sym.SymFile;
 import psyq.sym.SymFunc;
 import psyq.sym.SymObject;
+import psyq.sym.SymName;
 
 public class PsxLoader extends AbstractLibrarySupportLoader {
 	
@@ -202,16 +209,16 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 			}
 		}
 		
-		createSegments(provider, program, fpa, log);
+		createSegments(provider, fpa, log);
 		
-		setFunction(program, fpa, fpa.toAddr(psxExe.getInitPc()), "start", true, true, log);
+		setFunction(program.getSymbolTable(), fpa, fpa.toAddr(psxExe.getInitPc()), "start", true, true, log);
 
-		setRegisterValue(program, fpa, "gp", psxExe.getInitPc(), psxExe.getInitGp(), log);
-		setRegisterValue(program, fpa, "sp", psxExe.getInitPc(), psxExe.getSpBase() + psxExe.getSpOff(), log);
+		setRegisterValue(fpa, "gp", psxExe.getInitPc(), psxExe.getInitGp(), log);
+		setRegisterValue(fpa, "sp", psxExe.getInitPc(), psxExe.getSpBase() + psxExe.getSpOff(), log);
 		
 		Address romStart = fpa.toAddr(psxExe.getRomStart());
 		loadPsyqFidFile(program.getMemory(), romStart, log);
-		findAndAppyMain(program, provider, fpa, romStart, log);
+		findAndAppyMain(provider, fpa, romStart, log);
 		
 		monitor.setMessage(String.format("%s : Loading done", getName()));
 		
@@ -232,16 +239,23 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 		SymObject[] objects = symFile.getObjects();
 		
 		for (SymObject obj : objects) {
-			if (obj instanceof SymFunc) {
-				SymFunc sf = (SymFunc)obj;
-				try {
-					Address funcAddr = fpa.toAddr(sf.getOffset());
-					st.createLabel(funcAddr, sf.getFuncName(), SourceType.ANALYSIS);
-					disasmInstruction(fpa.getCurrentProgram(), funcAddr);
-					
-				} catch (InvalidInputException e) {
-					log.appendException(e);
+			Address addr = fpa.toAddr(obj.getOffset());
+			
+			try {
+				if (obj instanceof SymFunc) {
+					SymFunc sf = (SymFunc)obj;
+					setFunction(st, fpa, addr, sf.getFuncName(), true, false, log);
+					setFunctionArguments(fpa, sf, log);
+					fpa.setPlateComment(addr, String.format(
+							"File: %s\n" +
+					        "Return type: %s",
+					        sf.getFileName(), sf.getReturnTypeAsString()));
+				} else if (obj instanceof SymName) {
+					SymName sn = (SymName)obj;
+					st.createLabel(addr, sn.getObjectName(), SourceType.ANALYSIS);
 				}
+			} catch (InvalidInputException e) {
+				log.appendException(e);
 			}
 		}
 	}
@@ -260,7 +274,9 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 		return null;
 	}
 	
-	private static void setRegisterValue(Program program, FlatProgramAPI fpa, String name, long startAddress, long value, MessageLog log) {
+	private static void setRegisterValue(FlatProgramAPI fpa, String name, long startAddress, long value, MessageLog log) {
+		Program program = fpa.getCurrentProgram();
+		
 		RegisterValue regVal = new RegisterValue(program.getRegister(name), BigInteger.valueOf(value));
 		Address start = fpa.toAddr(startAddress);
 		try {
@@ -275,10 +291,11 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 		cmd.applyTo(program, TaskMonitor.DUMMY);
 	}
 	
-	private static void setFunction(Program program, FlatProgramAPI fpa, Address address, String name, boolean isFunction, boolean isEntryPoint, MessageLog log) {
+	private static void setFunction(SymbolTable st, FlatProgramAPI fpa, Address address, String name,
+			boolean isFunction, boolean isEntryPoint, MessageLog log) {
 		try {
 			if (fpa.getInstructionAt(address) == null)
-				disasmInstruction(program, address);
+				disasmInstruction(fpa.getCurrentProgram(), address);
 			
 			if (isFunction) {
 				fpa.createFunction(address, name);
@@ -287,12 +304,37 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 				fpa.addEntryPoint(address);
 			}
 			
-			if (isFunction && program.getSymbolTable().hasSymbol(address)) {
+			if (isFunction && st.hasSymbol(address)) {
 				return;
 			}
 			
-			program.getSymbolTable().createLabel(address, name, SourceType.IMPORTED);
+			st.createLabel(address, name, SourceType.ANALYSIS);
 		} catch (InvalidInputException e) {
+			log.appendException(e);
+		}
+	}
+	
+	private static void setFunctionArguments(FlatProgramAPI fpa, SymFunc funcDef, MessageLog log) {
+		Function function = fpa.getFunctionAt(fpa.toAddr(funcDef.getOffset()));
+		SymDef[] args = funcDef.getArguments();
+		
+		List<ParameterImpl> params = new ArrayList<>();
+		
+		try {
+			DataTypeManager mgr = fpa.getCurrentProgram().getDataTypeManager();
+			
+			for (SymDef symDef : args) {
+				params.add(new ParameterImpl(
+						symDef.getName(),
+						SymDef.toDataType(symDef.getDefType().getTypesList(), symDef.getDefTag(), mgr),
+						fpa.getCurrentProgram()));
+			}
+
+			function.updateFunction("__stdcall",
+					new ReturnParameterImpl(SymDef.toDataType(funcDef.getReturnType().getTypesList(), null, mgr), fpa.getCurrentProgram()),
+					FunctionUpdateType.DYNAMIC_STORAGE_ALL_PARAMS, true, SourceType.ANALYSIS,
+					params.toArray(ParameterImpl[]::new));
+		} catch (Exception e) {
 			log.appendException(e);
 		}
 	}
@@ -319,7 +361,8 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 		}
 	}
 	
-	private void findAndAppyMain(Program program, ByteProvider provider, FlatProgramAPI fpa, Address searchAddress, MessageLog log) {
+	private void findAndAppyMain(ByteProvider provider, FlatProgramAPI fpa, Address searchAddress, MessageLog log) {
+		Program program = fpa.getCurrentProgram();
 		BinaryReader reader = new BinaryReader(provider, true);
 		Memory mem = program.getMemory();
 		Listing listing = program.getListing();
@@ -432,7 +475,7 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 			_sdata_block.setWrite(true);
 			_sdata_block.setExecute(false);
 			
-			setRegisterValue(program, fpa, "gp", mainAddr.getOffset(), _sdata_addr.getOffset(), log);
+			setRegisterValue(fpa, "gp", mainAddr.getOffset(), _sdata_addr.getOffset(), log);
 			
 			Address _sbss_addr = fpa.toAddr((sbss1.getUnsignedValue() << 16) + ((Scalar)(sbss2[0])).getSignedValue());
 			MemoryBlock _sbss_block = mem.getBlock(_sbss_addr);
@@ -485,7 +528,7 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 		}
 	}
 	
-	private void createSegments(ByteProvider provider, Program program, FlatProgramAPI fpa, MessageLog log) throws IOException {
+	private void createSegments(ByteProvider provider, FlatProgramAPI fpa, MessageLog log) throws IOException {
 		
 		InputStream codeStream = provider.getInputStream(PsxExe.HEADER_SIZE);
 		

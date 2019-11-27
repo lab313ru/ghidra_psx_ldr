@@ -410,11 +410,6 @@
 			<attribute name="javadoc_location" value="jar:file:/D:\ghidra_9.1_PUBLIC\docs\GhidraAPI_javadoc.zip!/api/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="D:/ghidra_9.1_PUBLIC/Ghidra/Extensions/ghidra_psx_ldr/lib/ghidra_psx_ldr.jar" sourcepath="D:/ghidra_9.1_PUBLIC/Ghidra/Extensions/ghidra_psx_ldr/lib/ghidra_psx_ldr-src.zip">
-		<attributes>
-			<attribute name="javadoc_location" value="jar:file:/D:\ghidra_9.1_PUBLIC\docs\GhidraAPI_javadoc.zip!/api/"/>
-		</attributes>
-	</classpathentry>
 	<classpathentry kind="lib" path="D:/ghidra_9.1_PUBLIC/Ghidra/Processors/tricore/lib/tricore.jar" sourcepath="D:/ghidra_9.1_PUBLIC/Ghidra/Processors/tricore/lib/tricore-src.zip">
 		<attributes>
 			<attribute name="javadoc_location" value="jar:file:/D:\ghidra_9.1_PUBLIC\docs\GhidraAPI_javadoc.zip!/api/"/>
