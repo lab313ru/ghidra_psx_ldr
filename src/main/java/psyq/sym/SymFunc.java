@@ -4,26 +4,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SymFunc extends SymObject {
-	String fileName;
-	String funcName;
+	String fileName = null;
+	String funcName = null;
 	
-	long startOffset;
-	long endOffset;
+	long endOffset = 0L;
 	
 	List<SymDef> args = new ArrayList<>();
-
-	public SymFunc(String fileName, String funcName, long startOffset) {
-		super(startOffset, (byte)0x8C);
-		
-		this.startOffset = startOffset;
-		this.endOffset = startOffset;
-		
-		this.fileName = fileName;
-		this.funcName = funcName;
-	}
+	SymDefType retnType = null;
 	
-	public long getStartOffset() {
-		return startOffset;
+
+	public SymFunc(long offset, SymDefType retnType, String funcName) {
+		super(offset, 0);
+		
+		this.retnType = retnType;
+		this.funcName = funcName;
 	}
 	
 	public void setEndOffset(long endOffset) {
@@ -32,6 +26,10 @@ public class SymFunc extends SymObject {
 	
 	public long getEndOffset() {
 		return endOffset;
+	}
+	
+	public void setFileName(String fileName) {
+		this.fileName = fileName;
 	}
 
 	public String getFileName() {
@@ -48,5 +46,9 @@ public class SymFunc extends SymObject {
 	
 	public SymDef[] getArguments() {
 		return args.toArray(SymDef[]::new);
+	}
+	
+	public SymDefType getReturnType() {
+		return retnType;
 	}
 }

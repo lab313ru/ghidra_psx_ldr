@@ -235,8 +235,9 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 			if (obj instanceof SymFunc) {
 				SymFunc sf = (SymFunc)obj;
 				try {
-					st.createLabel(fpa.toAddr(sf.getOffset()), sf.getFuncName(), SourceType.ANALYSIS);
-					
+					Address funcAddr = fpa.toAddr(sf.getOffset());
+					st.createLabel(funcAddr, sf.getFuncName(), SourceType.ANALYSIS);
+					disasmInstruction(fpa.getCurrentProgram(), funcAddr);
 					
 				} catch (InvalidInputException e) {
 					log.appendException(e);

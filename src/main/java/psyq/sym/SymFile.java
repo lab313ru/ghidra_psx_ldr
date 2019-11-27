@@ -3,7 +3,9 @@ package psyq.sym;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import ghidra.app.util.bin.BinaryReader;
 import ghidra.app.util.bin.ByteProvider;
@@ -33,7 +35,8 @@ public class SymFile {
 		reader.readNextUnsignedByte(); // unit
 		reader.readNextByteArray(3); // skip
 		
-		SymFunc symFunc = null;
+		SymFunc currFunc = null;
+		Map<String, SymFunc> defFuncs = new HashMap<>();
 		
 		while (reader.getPointerIndex() < reader.length()) {
 			long offset = 0;
@@ -52,7 +55,7 @@ public class SymFile {
 			
 			if (tag <= 0x7F) {
 				String name = readString(reader);
-				SymObject obj = new SymObjectName(offset, tag, name);
+				SymObjectName obj = new SymObjectName(offset, tag, name);
 				objects.add(obj);
 				continue;
 			}
@@ -75,27 +78,37 @@ public class SymFile {
 			} break;
 			case 0x8A: {
 			} break;
-			case 0x8C: {
+			case 0x8C: 
+			case 0x9C: {
 				reader.readNextUnsignedShort(); // fp
 				reader.readNextUnsignedInt(); // fsize
 				reader.readNextUnsignedShort(); // retreg
 				reader.readNextUnsignedInt(); // mask
 				reader.readNextUnsignedInt(); // maskoffs
+				
+				if (tag == 0x9C) {
+					reader.readNextUnsignedInt(); // fmask
+					reader.readNextUnsignedInt(); // fmaskoffs
+				}
+				
 				reader.readNextUnsignedInt(); // line
 				String fileName = readString(reader);
-				String funcName = readString(reader);
+				String funcName = readString(reader); // funcName
 				
-				symFunc = new SymFunc(fileName, funcName, offset);
+				SymFunc func = currFunc = defFuncs.get(funcName);
+				func.setFileName(fileName);
+				func.setTag(tag);
+
+				defFuncs.put(funcName, func);
 			} break;
 			case 0x8E: {
 				reader.readNextUnsignedInt(); // func end line
-				if (symFunc == null) {
+				if (currFunc == null) {
 					throw new IOException("End of non-started function");
 				}
 				
-				symFunc.setEndOffset(offset);
-				objects.add(symFunc);
-				symFunc = null;
+				currFunc.setEndOffset(offset);
+				currFunc = null;
 			} break;
 			case 0x90: {
 				reader.readNextUnsignedInt(); // block start line
@@ -136,11 +149,21 @@ public class SymFile {
 				switch (classDef) {
 				case ARG:
 				case REGPARM: {
-					if (symFunc == null) {
+					if (currFunc == null) {
 						throw new IOException("Parameter for non-started function");
 					}
 					
-					symFunc.addArgument(def2);
+					currFunc.addArgument(def2);
+				} break;
+				case EXT: {
+					SymDefTypePrimitive[] typesList = classType.getTypesList();
+					
+					if (typesList.length >= 1) {
+						if (typesList[0] == SymDefTypePrimitive.FCN) {
+							SymFunc func = new SymFunc(offset, classType, defName);
+							defFuncs.put(defName, func);
+						}
+					}
 				} break;
 				default: break;
 				}
@@ -151,26 +174,14 @@ public class SymFile {
 			} break;
 			case 0x9A: {
 			} break;
-			case 0x9C: {
-				reader.readNextUnsignedShort(); // fp
-				reader.readNextUnsignedInt(); // fsize
-				reader.readNextUnsignedShort(); // retreg
-				reader.readNextUnsignedInt(); // mask
-				reader.readNextUnsignedInt(); // maskoffs
-				reader.readNextUnsignedInt(); // fmask
-				reader.readNextUnsignedInt(); // fmaskoffs
-				reader.readNextUnsignedInt(); // line
-				String fileName = readString(reader);
-				String funcName = readString(reader);
-				
-				symFunc = new SymFunc(fileName, funcName, offset);
-			} break;
 			case 0x9E: {
 				readString(reader); // mangled name1
 				readString(reader); // mangled name2
 			} break;
 			}
 		}
+		
+		objects.addAll(defFuncs.values());
 	}
 	
 	private static String readString(BinaryReader reader) throws IOException {
