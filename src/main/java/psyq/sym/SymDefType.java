@@ -1,10 +1,15 @@
 package psyq.sym;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class SymDefType {
 	private List<SymDefTypePrimitive> primTypes = new ArrayList<>();
+	
+	public SymDefType(SymDefTypePrimitive[] primTypes) {
+		Collections.addAll(this.primTypes, primTypes);
+	}
 	
 	public SymDefType(int type) {
 		while ((type & 0xFFF0) != 0) {
@@ -48,8 +53,8 @@ public class SymDefType {
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		
-		for (SymDefTypePrimitive primType : primTypes) {
-			builder.append(primType.name()).append(' ');
+		for (int i = primTypes.size() - 1; i >= 0 ; --i) {
+			builder.append(primTypes.get(i).name()).append(' ');
 		}
 		
 		return builder.toString();

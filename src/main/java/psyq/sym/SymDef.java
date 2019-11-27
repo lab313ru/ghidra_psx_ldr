@@ -13,7 +13,6 @@ import ghidra.program.model.data.UnsignedCharDataType;
 import ghidra.program.model.data.UnsignedIntegerDataType;
 import ghidra.program.model.data.UnsignedLongDataType;
 import ghidra.program.model.data.UnsignedShortDataType;
-import ghidra.program.model.data.VoidDataType;
 
 public class SymDef extends SymObject {
 	private SymDefClass defClass;

@@ -96,6 +96,14 @@ public class SymFile {
 				String funcName = readString(reader); // funcName
 				
 				SymFunc func = currFunc = defFuncs.get(funcName);
+				
+				if (func == null) {
+					func = currFunc = new SymFunc(
+							offset,
+							new SymDefType(new SymDefTypePrimitive[] {SymDefTypePrimitive.FCN, SymDefTypePrimitive.VOID}),
+							funcName);
+				}
+				
 				func.setFileName(fileName);
 				func.setTag(tag);
 
@@ -152,7 +160,7 @@ public class SymFile {
 					if (currFunc == null) {
 						throw new IOException("Parameter for non-started function");
 					}
-					
+
 					currFunc.addArgument(def2);
 				} break;
 				case EXT: {

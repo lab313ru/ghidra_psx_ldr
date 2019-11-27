@@ -48,8 +48,30 @@ public class SymFunc extends SymObject {
 		return args.toArray(SymDef[]::new);
 	}
 	
+	public String getArgumentsAsString() {
+		if (args.size() == 0) {
+			return "";
+		}
+		
+		StringBuilder builder = new StringBuilder();
+		
+		for (int i = 0; i < args.size() - 1; ++i) {
+			builder.append(normalizeType(args.get(i).getDefType().toString())).append(' ').append(args.get(i).getName()).append(',');
+		}
+		
+		SymDef lastArg = args.get(args.size() - 1);
+		
+		builder.append(normalizeType(lastArg.getDefType().toString())).append(' ').append(lastArg.getName());
+		
+		return builder.toString();
+	}
+	
 	public SymDefType getReturnType() {
 		return retnType;
+	}
+	
+	private static String normalizeType(String type) {
+		return type.replace("PTR", "*");
 	}
 
 	public String getReturnTypeAsString() {
@@ -57,7 +79,7 @@ public class SymFunc extends SymObject {
 		StringBuilder builder = new StringBuilder();
 		
 		for (int i = 1; i < primTypes.length; ++i) {
-			builder.append(primTypes[i].name()).append(' ');
+			builder.append(normalizeType(primTypes[i].name())).append(' ');
 		}
 		
 		return builder.toString();

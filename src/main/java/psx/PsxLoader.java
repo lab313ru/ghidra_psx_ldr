@@ -28,6 +28,8 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 import docking.widgets.OptionDialog;
 import ghidra.app.cmd.disassemble.DisassembleCommand;
+import ghidra.app.cmd.function.ApplyFunctionSignatureCmd;
+import ghidra.app.plugin.core.analysis.DefaultDataTypeManagerService;
 import ghidra.app.util.Option;
 import ghidra.app.util.bin.BinaryReader;
 import ghidra.app.util.bin.ByteProvider;
@@ -35,6 +37,7 @@ import ghidra.app.util.importer.MessageLog;
 import ghidra.app.util.opinion.AbstractLibrarySupportLoader;
 import ghidra.app.util.opinion.LoadSpec;
 import ghidra.app.util.opinion.Loader;
+import ghidra.app.util.parser.FunctionSignatureParser;
 import ghidra.feature.fid.db.FidFile;
 import ghidra.feature.fid.db.FidFileManager;
 import ghidra.framework.Application;
@@ -48,16 +51,13 @@ import ghidra.program.model.data.DataTypeManager;
 import ghidra.program.model.data.DataUtilities;
 import ghidra.program.model.data.PointerDataType;
 import ghidra.program.model.data.DataUtilities.ClearDataMode;
+import ghidra.program.model.data.FunctionDefinitionDataType;
 import ghidra.program.model.lang.LanguageCompilerSpecPair;
 import ghidra.program.model.lang.RegisterValue;
 import ghidra.program.model.listing.ContextChangeException;
-import ghidra.program.model.listing.Function;
-import ghidra.program.model.listing.Function.FunctionUpdateType;
 import ghidra.program.model.listing.Instruction;
 import ghidra.program.model.listing.Listing;
-import ghidra.program.model.listing.ParameterImpl;
 import ghidra.program.model.listing.Program;
-import ghidra.program.model.listing.ReturnParameterImpl;
 import ghidra.program.model.mem.Memory;
 import ghidra.program.model.mem.MemoryAccessException;
 import ghidra.program.model.mem.MemoryBlock;
@@ -72,7 +72,6 @@ import ghidra.util.exception.InvalidInputException;
 import ghidra.util.exception.NotFoundException;
 import ghidra.util.task.TaskMonitor;
 import psyq.DetectPsyQ;
-import psyq.sym.SymDef;
 import psyq.sym.SymFile;
 import psyq.sym.SymFunc;
 import psyq.sym.SymObject;
@@ -315,25 +314,19 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 	}
 	
 	private static void setFunctionArguments(FlatProgramAPI fpa, SymFunc funcDef, MessageLog log) {
-		Function function = fpa.getFunctionAt(fpa.toAddr(funcDef.getOffset()));
-		SymDef[] args = funcDef.getArguments();
-		
-		List<ParameterImpl> params = new ArrayList<>();
-		
 		try {
 			DataTypeManager mgr = fpa.getCurrentProgram().getDataTypeManager();
 			
-			for (SymDef symDef : args) {
-				params.add(new ParameterImpl(
-						symDef.getName(),
-						SymDef.toDataType(symDef.getDefType().getTypesList(), symDef.getDefTag(), mgr),
-						fpa.getCurrentProgram()));
-			}
+			String sign = String.format("%s %s(%s)",
+					funcDef.getReturnTypeAsString(),
+					funcDef.getFuncName(),
+					funcDef.getArgumentsAsString());
 
-			function.updateFunction("__stdcall",
-					new ReturnParameterImpl(SymDef.toDataType(funcDef.getReturnType().getTypesList(), null, mgr), fpa.getCurrentProgram()),
-					FunctionUpdateType.DYNAMIC_STORAGE_ALL_PARAMS, true, SourceType.ANALYSIS,
-					params.toArray(ParameterImpl[]::new));
+			FunctionSignatureParser parser = new FunctionSignatureParser(mgr, new DefaultDataTypeManagerService());
+			FunctionDefinitionDataType fddt = parser.parse(null, sign);
+			ApplyFunctionSignatureCmd cmd = new ApplyFunctionSignatureCmd(fpa.toAddr(funcDef.getOffset()),
+					fddt, SourceType.ANALYSIS);
+			cmd.applyTo(fpa.getCurrentProgram());
 		} catch (Exception e) {
 			log.appendException(e);
 		}
