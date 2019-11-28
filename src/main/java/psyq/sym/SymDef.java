@@ -1,5 +1,7 @@
 package psyq.sym;
 
+import ghidra.program.model.data.DataType;
+
 public class SymDef extends SymObject {
 	private final SymDefClass defClass;
 	private final SymDefType defType;
@@ -26,6 +28,12 @@ public class SymDef extends SymObject {
 
 	public SymDefType getDefType() {
 		return defType;
+	}
+	
+	public DataType getDataType() {
+		// TODO: create data type parsing code
+		// TODO: use dims
+		return null;
 	}
 
 	public long getSize() {

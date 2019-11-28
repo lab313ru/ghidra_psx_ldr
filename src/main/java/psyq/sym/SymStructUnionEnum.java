@@ -9,13 +9,13 @@ public class SymStructUnionEnum extends SymObject {
 	private final String name;
 	private final long size;
 	private final boolean isFake;
-	private final SymDefTypePrimitive type;
+	private final SymDefTypePrim type;
 	
 	private final List<SymDef> fields = new ArrayList<>();
 	
 	private final static String FAKE_R = "\\.(\\d+)fake";
 	
-	public SymStructUnionEnum(String name, long size, SymDefTypePrimitive type) {
+	public SymStructUnionEnum(String name, long size, SymDefTypePrim type) {
 		super(0L);
 		
 		this.name = name;
@@ -32,7 +32,7 @@ public class SymStructUnionEnum extends SymObject {
 		return isFake ? getFakeStructUnionEnumName(name, type) : name;
 	}
 	
-	private static String getFakeStructUnionEnumName(String name, SymDefTypePrimitive type) {
+	private static String getFakeStructUnionEnumName(String name, SymDefTypePrim type) {
 		Pattern pat = Pattern.compile(FAKE_R);
 		Matcher mat = pat.matcher(name);
 		
@@ -55,7 +55,7 @@ public class SymStructUnionEnum extends SymObject {
 		return size;
 	}
 	
-	public SymDefTypePrimitive getType() {
+	public SymDefTypePrim getType() {
 		return type;
 	}
 

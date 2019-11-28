@@ -78,7 +78,7 @@ import ghidra.util.exception.NotFoundException;
 import ghidra.util.task.TaskMonitor;
 import psyq.DetectPsyQ;
 import psyq.sym.SymDef;
-import psyq.sym.SymDefTypePrimitive;
+import psyq.sym.SymDefTypePrim;
 import psyq.sym.SymFile;
 import psyq.sym.SymFunc;
 import psyq.sym.SymObject;
@@ -242,6 +242,7 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 		}
 	}
 	
+	@SuppressWarnings("incomplete-switch")
 	private static void applySymbols(SymbolTable st, FlatProgramAPI fpa, SymFile symFile, MessageLog log) {
 		SymObject[] objects = symFile.getObjects();
 		
@@ -262,30 +263,31 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 					st.createLabel(addr, sn.getObjectName(), SourceType.ANALYSIS);
 				} else if (obj instanceof SymStructUnionEnum) {
 					SymStructUnionEnum ssu = (SymStructUnionEnum)obj;
-					
-					CompositeDataTypeImpl dt;
-					SymDefTypePrimitive type = ssu.getType();
+					SymDefTypePrim type = ssu.getType();
 					SymDef[] fields = ssu.getFields();
 					
 					switch (type) {
-					case UNION:
-					case STRUCT: {
-						dt = (type == SymDefTypePrimitive.STRUCT) ?
-								new StructureDataType(ssu.getName(), 0) :
-								new UnionDataType(ssu.getName());
-								
-						for (int i = 0; i < fields.length; ++i) {
-							dt.add(null);
-							// TODO: fix types adding
+					case UNION: {
+						UnionDataType udt = new UnionDataType(ssu.getName());
+						
+						for (SymDef field : fields) {
+							// TODO: call getDataType();
+							udt.add(null, field.getName(), null);
 						}
 					} break;
-					default: {
+					case STRUCT: {
+						StructureDataType sdt = new StructureDataType(ssu.getName(), 0);
+						
+						for (SymDef field : fields) {
+							// TODO: call getDataType();
+							sdt.add(null, field.getName(), null);
+						}
+					} break;
+					case ENUM: {
 						EnumDataType edt = new EnumDataType(ssu.getName(), 0);
 						
-						// TODO: are enums starting from >= 1 possible?
-						
-						for (int i = 0; i < fields.length; ++i) {
-							edt.add(fields[i].getName(), i);
+						for (SymDef field : fields) {
+							edt.add(field.getName(), field.getOffset());
 						}
 						
 						fpa.getCurrentProgram().getDataTypeManager().addDataType(edt, DataTypeConflictHandler.DEFAULT_HANDLER);

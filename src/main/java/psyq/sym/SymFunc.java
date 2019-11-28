@@ -75,7 +75,7 @@ public class SymFunc extends SymObject {
 	}
 
 	public String getReturnTypeAsString() {
-		SymDefTypePrimitive[] primTypes = retnType.getTypesList();
+		SymDefTypePrim[] primTypes = retnType.getTypesList();
 		StringBuilder builder = new StringBuilder();
 		
 		for (int i = 1; i < primTypes.length; ++i) {

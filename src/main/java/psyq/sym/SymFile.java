@@ -101,7 +101,7 @@ public class SymFile {
 				if (func == null) {
 					func = currFunc = new SymFunc(
 							offset,
-							new SymDefType(new SymDefTypePrimitive[] {SymDefTypePrimitive.FCN, SymDefTypePrimitive.VOID}),
+							new SymDefType(new SymDefTypePrim[] {SymDefTypePrim.FCN, SymDefTypePrim.VOID}),
 							funcName);
 				}
 				
@@ -164,52 +164,51 @@ public class SymFile {
 					currFunc.addArgument(def2);
 				} break;
 				case EXT: {
-					SymDefTypePrimitive[] typesList = defType.getTypesList();
+					SymDefTypePrim[] typesList = defType.getTypesList();
 					
-					if (typesList.length >= 1 && typesList[0] == SymDefTypePrimitive.FCN) {
+					if (typesList.length >= 1 && typesList[0] == SymDefTypePrim.FCN) {
 						SymFunc func = new SymFunc(offset, defType, defName);
 						defFuncs.put(defName, func);
 					}
 				} break;
-				// STRUCT or UNION begin
+				// STRUCT, UNION, ENUM begin
 				case STRTAG:
-				case UNTAG: {
-					SymDefTypePrimitive[] typesList = defType.getTypesList();
+				case UNTAG:
+				case ENTAG: {
+					SymDefTypePrim[] typesList = defType.getTypesList();
 					
 					if (typesList.length != 1 ||
-							typesList[0] != SymDefTypePrimitive.STRUCT ||
-							typesList[0] != SymDefTypePrimitive.UNION) {
-						throw new IOException("Wrong STRTAG (or UNTAG) type");
+							typesList[0] != SymDefTypePrim.STRUCT ||
+							typesList[0] != SymDefTypePrim.UNION ||
+							typesList[0] != SymDefTypePrim.ENUM) {
+						throw new IOException("Wrong struct|union|enum type");
 					}
 					
 					currStructUnion = new SymStructUnionEnum(defName, size, typesList[0]);
 				} break;
-				// STRUCT or UNION fields
+				// STRUCT, UNION, ENUM fields
 				case MOS:
-				case MOU: {
+				case MOU:
+				case MOE: {
 					if (currStructUnion == null) {
-						throw new IOException("Non-defined struct (or union) field definition");
+						throw new IOException("Non-defined struct|union|enum field definition");
 					}
 					
 					currStructUnion.addField(def2);
 				} break;
-				// STRUCT or UNION end
+				// STRUCT, UNION, ENUM end
 				case EOS: {
 					if (currStructUnion == null) {
-						throw new IOException("End of non-defined struct (or union)");
+						throw new IOException("End of non-defined struct|union|enum");
 					}
 					
-					SymDefTypePrimitive[] typesList = defType.getTypesList();
+					SymDefTypePrim[] typesList = defType.getTypesList();
 					
-					if (typesList.length != 1 || typesList[0] != SymDefTypePrimitive.NULL || dims.get(0) != 0) {
+					if (typesList.length != 1 || typesList[0] != SymDefTypePrim.NULL || dims.get(0) != 0) {
 						throw new IOException("Wrong EOS type");
 					}
 					
 					objects.add(currStructUnion);
-				} break;
-				// ENUM begin
-				case ENTAG: {
-					
 				} break;
 				default: break;
 				}
