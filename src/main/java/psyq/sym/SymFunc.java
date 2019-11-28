@@ -4,17 +4,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SymFunc extends SymObject {
-	String fileName = null;
-	String funcName;
+	private String fileName = null;
+	private final String funcName;
 	
-	long endOffset = 0L;
+	private long endOffset = 0L;
 	
-	List<SymDef> args = new ArrayList<>();
-	SymDefType retnType;
+	private final List<SymDef> args = new ArrayList<>();
+	private final SymDefType retnType;
 	
 
 	public SymFunc(long offset, SymDefType retnType, String funcName) {
-		super(offset, 0);
+		super(offset);
 		
 		this.retnType = retnType;
 		this.funcName = funcName;
@@ -71,7 +71,7 @@ public class SymFunc extends SymObject {
 	}
 	
 	private static String normalizeType(String type) {
-		return type.replace("PTR", "*");
+		return type.replace("PTR", "*").replace("FCN", "()");
 	}
 
 	public String getReturnTypeAsString() {

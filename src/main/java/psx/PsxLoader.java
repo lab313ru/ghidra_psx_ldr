@@ -46,11 +46,16 @@ import ghidra.framework.store.LockException;
 import ghidra.program.flatapi.FlatProgramAPI;
 import ghidra.program.model.address.Address;
 import ghidra.program.model.address.AddressOutOfBoundsException;
+import ghidra.program.model.data.CompositeDataTypeImpl;
 import ghidra.program.model.data.DataType;
+import ghidra.program.model.data.DataTypeConflictHandler;
 import ghidra.program.model.data.DataTypeManager;
 import ghidra.program.model.data.DataUtilities;
 import ghidra.program.model.data.PointerDataType;
+import ghidra.program.model.data.StructureDataType;
+import ghidra.program.model.data.UnionDataType;
 import ghidra.program.model.data.DataUtilities.ClearDataMode;
+import ghidra.program.model.data.EnumDataType;
 import ghidra.program.model.data.FunctionDefinitionDataType;
 import ghidra.program.model.lang.LanguageCompilerSpecPair;
 import ghidra.program.model.lang.RegisterValue;
@@ -72,9 +77,12 @@ import ghidra.util.exception.InvalidInputException;
 import ghidra.util.exception.NotFoundException;
 import ghidra.util.task.TaskMonitor;
 import psyq.DetectPsyQ;
+import psyq.sym.SymDef;
+import psyq.sym.SymDefTypePrimitive;
 import psyq.sym.SymFile;
 import psyq.sym.SymFunc;
 import psyq.sym.SymObject;
+import psyq.sym.SymStructUnionEnum;
 import psyq.sym.SymName;
 
 public class PsxLoader extends AbstractLibrarySupportLoader {
@@ -252,6 +260,37 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 				} else if (obj instanceof SymName) {
 					SymName sn = (SymName)obj;
 					st.createLabel(addr, sn.getObjectName(), SourceType.ANALYSIS);
+				} else if (obj instanceof SymStructUnionEnum) {
+					SymStructUnionEnum ssu = (SymStructUnionEnum)obj;
+					
+					CompositeDataTypeImpl dt;
+					SymDefTypePrimitive type = ssu.getType();
+					SymDef[] fields = ssu.getFields();
+					
+					switch (type) {
+					case UNION:
+					case STRUCT: {
+						dt = (type == SymDefTypePrimitive.STRUCT) ?
+								new StructureDataType(ssu.getName(), 0) :
+								new UnionDataType(ssu.getName());
+								
+						for (int i = 0; i < fields.length; ++i) {
+							dt.add(null);
+							// TODO: fix types adding
+						}
+					} break;
+					default: {
+						EnumDataType edt = new EnumDataType(ssu.getName(), 0);
+						
+						// TODO: are enums starting from >= 1 possible?
+						
+						for (int i = 0; i < fields.length; ++i) {
+							edt.add(fields[i].getName(), i);
+						}
+						
+						fpa.getCurrentProgram().getDataTypeManager().addDataType(edt, DataTypeConflictHandler.DEFAULT_HANDLER);
+					} break;
+					}
 				}
 			} catch (InvalidInputException e) {
 				log.appendException(e);
@@ -324,8 +363,7 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 
 			FunctionSignatureParser parser = new FunctionSignatureParser(mgr, new DefaultDataTypeManagerService());
 			FunctionDefinitionDataType fddt = parser.parse(null, sign);
-			ApplyFunctionSignatureCmd cmd = new ApplyFunctionSignatureCmd(fpa.toAddr(funcDef.getOffset()),
-					fddt, SourceType.ANALYSIS);
+			ApplyFunctionSignatureCmd cmd = new ApplyFunctionSignatureCmd(fpa.toAddr(funcDef.getOffset()), fddt, SourceType.ANALYSIS);
 			cmd.applyTo(fpa.getCurrentProgram());
 		} catch (Exception e) {
 			log.appendException(e);

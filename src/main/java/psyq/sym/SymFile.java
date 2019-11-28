@@ -35,6 +35,7 @@ public class SymFile {
 		reader.readNextUnsignedByte(); // unit
 		reader.readNextByteArray(3); // skip
 		
+		SymStructUnionEnum currStructUnion = null;
 		SymFunc currFunc = null;
 		Map<String, SymFunc> defFuncs = new HashMap<>();
 		
@@ -55,7 +56,7 @@ public class SymFile {
 			
 			if (tag <= 0x7F) {
 				String name = readString(reader);
-				SymName obj = new SymName(offset, tag, name);
+				SymName obj = new SymName(offset, name);
 				objects.add(obj);
 				continue;
 			}
@@ -105,7 +106,6 @@ public class SymFile {
 				}
 				
 				func.setFileName(fileName);
-				func.setTag(tag);
 
 				defFuncs.put(funcName, func);
 			} break;
@@ -126,8 +126,8 @@ public class SymFile {
 			} break;
 			case 0x94:
 			case 0x96: {
-				SymDefClass classDef = SymDefClass.fromInt(reader.readNextUnsignedShort());
-				SymDefType classType = new SymDefType(reader.readNextUnsignedShort());
+				SymDefClass defClass = SymDefClass.fromInt(reader.readNextUnsignedShort());
+				SymDefType defType = new SymDefType(reader.readNextUnsignedShort());
 				long size = reader.readNextUnsignedInt();
 				
 				List<Long> dims = null;
@@ -146,7 +146,7 @@ public class SymFile {
 				
 				String defName = readString(reader);
 				
-				SymDef def2 = new SymDef(classDef, classType, size, defName, offset);
+				SymDef def2 = new SymDef(defClass, defType, size, defName, offset);
 				
 				if (tag == 0x96) {
 					def2.setDims(dims.toArray(Long[]::new));
@@ -154,7 +154,7 @@ public class SymFile {
 				}
 				objects.add(def2);
 				
-				switch (classDef) {
+				switch (defClass) {
 				case ARG:
 				case REGPARM: {
 					if (currFunc == null) {
@@ -164,14 +164,52 @@ public class SymFile {
 					currFunc.addArgument(def2);
 				} break;
 				case EXT: {
-					SymDefTypePrimitive[] typesList = classType.getTypesList();
+					SymDefTypePrimitive[] typesList = defType.getTypesList();
 					
-					if (typesList.length >= 1) {
-						if (typesList[0] == SymDefTypePrimitive.FCN) {
-							SymFunc func = new SymFunc(offset, classType, defName);
-							defFuncs.put(defName, func);
-						}
+					if (typesList.length >= 1 && typesList[0] == SymDefTypePrimitive.FCN) {
+						SymFunc func = new SymFunc(offset, defType, defName);
+						defFuncs.put(defName, func);
 					}
+				} break;
+				// STRUCT or UNION begin
+				case STRTAG:
+				case UNTAG: {
+					SymDefTypePrimitive[] typesList = defType.getTypesList();
+					
+					if (typesList.length != 1 ||
+							typesList[0] != SymDefTypePrimitive.STRUCT ||
+							typesList[0] != SymDefTypePrimitive.UNION) {
+						throw new IOException("Wrong STRTAG (or UNTAG) type");
+					}
+					
+					currStructUnion = new SymStructUnionEnum(defName, size, typesList[0]);
+				} break;
+				// STRUCT or UNION fields
+				case MOS:
+				case MOU: {
+					if (currStructUnion == null) {
+						throw new IOException("Non-defined struct (or union) field definition");
+					}
+					
+					currStructUnion.addField(def2);
+				} break;
+				// STRUCT or UNION end
+				case EOS: {
+					if (currStructUnion == null) {
+						throw new IOException("End of non-defined struct (or union)");
+					}
+					
+					SymDefTypePrimitive[] typesList = defType.getTypesList();
+					
+					if (typesList.length != 1 || typesList[0] != SymDefTypePrimitive.NULL || dims.get(0) != 0) {
+						throw new IOException("Wrong EOS type");
+					}
+					
+					objects.add(currStructUnion);
+				} break;
+				// ENUM begin
+				case ENTAG: {
+					
 				} break;
 				default: break;
 				}
