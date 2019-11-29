@@ -314,10 +314,7 @@ public class SymFile {
 			SymFunc sf = (SymFunc)obj;
 			PsxLoader.setFunction(st, fpa, addr, sf.getFuncName(), true, false, log);
 			setFunctionArguments(fpa, sf, log);
-			fpa.setPlateComment(addr, String.format(
-					"File: %s\n" +
-			        "Return type: %s",
-			        sf.getFileName(), sf.getReturnTypeAsString()));
+			fpa.setPlateComment(addr, String.format("File: %s", sf.getFileName()));
 		} else if (obj instanceof SymName) {
 			SymName sn = (SymName)obj;
 			try {
