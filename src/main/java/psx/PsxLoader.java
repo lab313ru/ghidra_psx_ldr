@@ -222,7 +222,8 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 				"Question", "Do you have .SYM file for this executable?")) {
 			String symPath = showSelectFile("Select file...", program.getExecutablePath());
 			SymFile symFile = SymFile.fromBinary(symPath);
-			symFile.applySymbols(program.getSymbolTable(), fpa, log);
+			
+			symFile.applySymbols(program.getSymbolTable(), fpa, log, monitor);
 		}
 	}
 	

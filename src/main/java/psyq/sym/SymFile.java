@@ -1,16 +1,15 @@
 package psyq.sym;
 
-import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
 
 import ghidra.app.util.bin.BinaryReader;
-import ghidra.app.util.bin.ByteProvider;
-import ghidra.app.util.bin.RandomAccessByteProvider;
+import ghidra.app.util.bin.ByteArrayProvider;
 import ghidra.app.util.importer.MessageLog;
 import ghidra.program.flatapi.FlatProgramAPI;
 import ghidra.program.model.address.Address;
@@ -38,7 +37,11 @@ public class SymFile {
 	
 	public static SymFile fromBinary(String path) {
 		try {
-			ByteProvider provider = new RandomAccessByteProvider(new File(path));
+			FileInputStream fis = new FileInputStream(path);
+			byte[] fileData = fis.readAllBytes();
+			fis.close();
+			
+			ByteArrayProvider provider = new ByteArrayProvider(fileData);
 			BinaryReader reader = new BinaryReader(provider, true);
 			return new SymFile(reader);
 		} catch (IOException e) {
@@ -124,8 +127,8 @@ public class SymFile {
 					func = currFunc = new SymFunc(
 							offset,
 							new SymDef(SymDefClass.EXT,
-									new SymDefType(new SymDefTypePrim[] {SymDefTypePrim.FCN, SymDefTypePrim.VOID}), 0L,
-									funcName, offset), funcName);
+									new SymDefType(new SymDefTypePrim[] {SymDefTypePrim.FCN, SymDefTypePrim.VOID}), false, 0L, funcName, offset),
+							funcName);
 				}
 				
 				func.setFileName(fileName);
@@ -169,11 +172,11 @@ public class SymFile {
 				
 				String defName = readString(reader);
 				
-				SymDef def2 = new SymDef(defClass, defType, size, defName, offset);
+				SymDef def2 = new SymDef(defClass, defType, tag == 0x96, size, defName, offset);
 				
 				if (tag == 0x96) {
 					def2.setDims(dims.toArray(Integer[]::new));
-					def2.setDefTag(defTag);
+					def2.setTag(defTag);
 				}
 				
 				switch (defClass) {
@@ -185,7 +188,8 @@ public class SymFile {
 
 					currFunc.addArgument(def2);
 				} break;
-				case EXT: {
+				case EXT:
+				case STAT: {
 					SymDefTypePrim[] typesList = defType.getTypesList();
 					
 					if (typesList.length >= 1 && typesList[0] == SymDefTypePrim.FCN) {
@@ -195,8 +199,7 @@ public class SymFile {
 				} break;
 				case TPDEF: {
 					objects.add(new SymTypedef(def2));
-					continue;
-				}
+				} break;
 				// STRUCT, UNION, ENUM begin
 				case STRTAG:
 				case UNTAG:
@@ -236,11 +239,9 @@ public class SymFile {
 					
 					objects.add(currStructUnion);
 					currStructUnion = null;
-					continue;
-				}
+				} break;
 				default: break;
 				}
-				objects.add(def2);
 			} break;
 			case 0x98: {
 				reader.readNextUnsignedInt(); // ovr_length
@@ -258,42 +259,57 @@ public class SymFile {
 		objects.addAll(defFuncs.values());
 	}
 	
-	public void applySymbols(SymbolTable st, FlatProgramAPI fpa, MessageLog log) {
+	public void applySymbols(SymbolTable st, FlatProgramAPI fpa, MessageLog log, TaskMonitor monitor) {
 		DataTypeManager mgr = fpa.getCurrentProgram().getDataTypeManager();
 		
 		List<SymObject> tryAgain = new ArrayList<>();
 		
-		try {
-			for (SymObject obj : objects) {
-				Address addr = fpa.toAddr(obj.getOffset());
-				
-				if (!applySymbol(obj, addr, st, fpa, mgr, log)) {
-					tryAgain.add(obj);
-				}
+		monitor.setMessage("Applying SYM objects...");
+		monitor.setMaximum(objects.size());
+		
+		for (int i = 0; i < objects.size(); ++i) {
+			if (monitor.isCancelled()) {
+				break;
 			}
 			
-			while (tryAgain.size() > 0) {
-				ListIterator<SymObject> i = tryAgain.listIterator();
-				
-				while (i.hasNext()) {
-					SymObject obj = i.next();
-					Address addr = fpa.toAddr(obj.getOffset());
-					
-					if (!applySymbol(obj, addr, st, fpa, mgr, log)) {
-						i.add(obj);
-					} else {
-						i.remove();
-					}
-				}
+			SymObject obj = objects.get(i);
+			
+			Address addr = fpa.toAddr(obj.getOffset());
+			
+			if (!applySymbol(obj, addr, st, fpa, mgr, log)) {
+				tryAgain.add(obj);
 			}
-		} catch (InvalidInputException e) {
-			// TODO Auto-generated catch block
-			log.appendException(e);
+			
+			monitor.setProgress(i + 1);
+		}
+		
+		monitor.setMessage("Applying SYM objects: done");
+		monitor.setMessage("Applying SYM forward usage objects...");
+		monitor.setMaximum(tryAgain.size());
+		
+		int c = 0;
+		Iterator<SymObject> i = tryAgain.iterator();
+		
+		while (i.hasNext()) {
+			if (monitor.isCancelled()) {
+				break;
+			}
+			
+			SymObject obj = i.next();
+			Address addr = fpa.toAddr(obj.getOffset());
+			
+			if (applySymbol(obj, addr, st, fpa, mgr, log)) {
+				i.remove();
+				c++;
+				
+				monitor.setProgress(c);
+			}
 		}
 	}
 	
 	@SuppressWarnings("incomplete-switch")
-	private static boolean applySymbol(SymObject obj, Address addr, SymbolTable st, FlatProgramAPI fpa, DataTypeManager mgr, MessageLog log) throws InvalidInputException {
+	private static boolean applySymbol(SymObject obj, Address addr, SymbolTable st, FlatProgramAPI fpa,
+			DataTypeManager mgr, MessageLog log) {
 		if (obj instanceof SymFunc) {
 			SymFunc sf = (SymFunc)obj;
 			PsxLoader.setFunction(st, fpa, addr, sf.getFuncName(), true, false, log);
@@ -304,14 +320,26 @@ public class SymFile {
 			        sf.getFileName(), sf.getReturnTypeAsString()));
 		} else if (obj instanceof SymName) {
 			SymName sn = (SymName)obj;
-			st.createLabel(addr, sn.getObjectName(), SourceType.ANALYSIS);
+			try {
+				st.createLabel(addr, sn.getObjectName(), SourceType.ANALYSIS);
+			} catch (InvalidInputException e) {
+				log.appendException(e);
+			}
 		} else if (obj instanceof SymTypedef) {
 			SymTypedef tpdef = (SymTypedef)obj;
 			SymDef def = tpdef.getDefinition();
 			
-			DataType baseType = def.getDataType(mgr);
-			baseType = new TypedefDataType(tpdef.getTypedefName(), baseType);
-			mgr.addDataType(baseType, DataTypeConflictHandler.DEFAULT_HANDLER);
+			DataType dt = def.getDataType(mgr);
+			
+			if (dt == null) {
+				return false;
+			}
+			
+			DataType baseType = new TypedefDataType(tpdef.getName(), dt);
+			
+			if (mgr.getDataType(baseType.getDataTypePath()) == null) {
+				mgr.addDataType(baseType, DataTypeConflictHandler.REPLACE_HANDLER);
+			}
 		} else if (obj instanceof SymStructUnionEnum) {
 			SymStructUnionEnum ssu = (SymStructUnionEnum)obj;
 			SymDefTypePrim type = ssu.getType();
@@ -320,8 +348,9 @@ public class SymFile {
 			switch (type) {
 			case UNION: {
 				UnionDataType udt = new UnionDataType(ssu.getName());
+				udt.setMinimumAlignment(4);
 				
-				Union uut = (Union)mgr.addDataType(udt, DataTypeConflictHandler.DEFAULT_HANDLER);
+				Union uut = (Union)mgr.addDataType(udt, DataTypeConflictHandler.REPLACE_HANDLER);
 				
 				for (SymDef field : fields) {
 					DataType dt = field.getDataType(mgr);
@@ -338,7 +367,7 @@ public class SymFile {
 				StructureDataType sdt = new StructureDataType(ssu.getName(), 0);
 				sdt.setMinimumAlignment(4);
 				
-				Structure ddt = (Structure)mgr.addDataType(sdt, DataTypeConflictHandler.DEFAULT_HANDLER);
+				Structure ddt = (Structure)mgr.addDataType(sdt, DataTypeConflictHandler.REPLACE_HANDLER);
 				
 				for (SymDef field : fields) {
 					DataType dt = field.getDataType(mgr);
@@ -358,7 +387,7 @@ public class SymFile {
 					edt.add(field.getName(), field.getOffset());
 				}
 				
-				mgr.addDataType(edt, DataTypeConflictHandler.DEFAULT_HANDLER);
+				mgr.addDataType(edt, DataTypeConflictHandler.REPLACE_HANDLER);
 			} break;
 			}
 		}
@@ -372,7 +401,11 @@ public class SymFile {
 			DataTypeManager mgr = program.getDataTypeManager();
 			Function func = fpa.getFunctionAt(fpa.toAddr(funcDef.getOffset()));
 			
-			func.setReturnType(funcDef.getReturnType().getDataType(mgr), SourceType.ANALYSIS);
+			DataType dt = funcDef.getReturnType().getDataType(mgr);
+			
+			if (dt != null) {
+				func.setReturnType(dt, SourceType.ANALYSIS);
+			}
 			
 			List<ParameterImpl> params = new ArrayList<>();
 			SymDef[] args = funcDef.getArguments();

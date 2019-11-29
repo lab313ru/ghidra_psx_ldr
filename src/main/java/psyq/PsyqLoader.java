@@ -117,8 +117,6 @@ public class PsyqLoader extends AbstractLibrarySupportLoader {
 		SymbolTable symTbl = program.getSymbolTable();
 		Listing listing = program.getListing();
 		
-		System.out.println(program.getName());
-		
 		BinaryReader reader = new BinaryReader(provider, true);
 		reader.setPointerIndex(4);
 
@@ -354,10 +352,8 @@ public class PsyqLoader extends AbstractLibrarySupportLoader {
 				repeatedData.add(rep);
 			} break;
 			case 68: {
-				System.out.println("proc call");
 			} break;
 			case 70: {
-				System.out.println("proc definition");
 			} break;
 			case 72: {
 				int patchOffset = sections.get(sectionSwitch).getPatchOffset();
@@ -439,7 +435,8 @@ public class PsyqLoader extends AbstractLibrarySupportLoader {
 			} break;
 			default: {
 				log.appendException(new Exception(String.format("%d : Unknown tag", type)));
-			} break;
+				return;
+			}
 			}
 			
 			if (isEndOfFile) {
@@ -493,6 +490,7 @@ public class PsyqLoader extends AbstractLibrarySupportLoader {
 						program.getProgramContext().setRegisterValue(start, start, value);
 					} catch (ContextChangeException e) {
 						log.appendException(e);
+						return;
 					}
 					break;
 				}
@@ -561,6 +559,7 @@ public class PsyqLoader extends AbstractLibrarySupportLoader {
 				}
 			} catch (Exception e) {
 				log.appendException(e);
+				return;
 			}
 		}
 
@@ -605,16 +604,15 @@ public class PsyqLoader extends AbstractLibrarySupportLoader {
 					} break;
 					default: {
 						log.appendException(new Exception(String.format("Unknown patch tag", patch.getType())));
-						continue;
+						return;
 					}
 					}
-					
-					System.out.println(newLine);
 					
 					newBytes = asm.assembleLine(addr, newLine);
 					System.arraycopy(newBytes, 0, sectionBytes, patch.getOffset(), newBytes.length);
 				} catch (AssemblySyntaxException | AssemblySemanticException e) {
 					log.appendException(e);
+					return;
 				}
 				
 				try {
@@ -622,10 +620,9 @@ public class PsyqLoader extends AbstractLibrarySupportLoader {
 					
 				} catch (MemoryAccessException e) {
 					log.appendException(e);
+					return;
 				}
 			} else {
-				System.out.println(String.format("%s[%X]: patched bytes", sect.getName(), patch.getOffset()));
-				
 				newBytes = intToBytes((int)newAddr);
 				System.arraycopy(newBytes, 0, sectionBytes, patch.getOffset(), newBytes.length);
 				
@@ -636,6 +633,7 @@ public class PsyqLoader extends AbstractLibrarySupportLoader {
 					
 				} catch (MemoryAccessException | CodeUnitInsertionException e) {
 					log.appendException(e);
+					return;
 				}
 			}
 			
@@ -651,6 +649,7 @@ public class PsyqLoader extends AbstractLibrarySupportLoader {
 					}
 				} catch (CodeUnitInsertionException | DataTypeConflictException e) {
 					log.appendException(e);
+					return;
 				}
 			}
 		}
@@ -661,6 +660,7 @@ public class PsyqLoader extends AbstractLibrarySupportLoader {
 				symTbl.createLabel(offset, xdef.getName(), SourceType.ANALYSIS);
 			} catch (InvalidInputException e) {
 				log.appendException(e);
+				return;
 			}
 			
 			DisassembleCommand dism = new DisassembleCommand(offset, null, true);
@@ -676,6 +676,7 @@ public class PsyqLoader extends AbstractLibrarySupportLoader {
 				symTbl.createLabel(offset, xref.getName(), SourceType.IMPORTED);
 			} catch (Exception e) {
 				log.appendException(e);
+				return;
 			}
 		}
 		
@@ -685,6 +686,7 @@ public class PsyqLoader extends AbstractLibrarySupportLoader {
 				symTbl.createLabel(offset, local.getName(), SourceType.IMPORTED);
 			} catch (Exception e) {
 				log.appendException(e);
+				return;
 			}
 		}
 		
@@ -694,6 +696,7 @@ public class PsyqLoader extends AbstractLibrarySupportLoader {
 				symTbl.createLabel(offset, vlocal.getName(), SourceType.IMPORTED);
 			} catch (Exception e) {
 				log.appendException(e);
+				return;
 			}
 		}
 		
@@ -707,6 +710,7 @@ public class PsyqLoader extends AbstractLibrarySupportLoader {
 					array.applyTo(program);
 				} catch (InvalidInputException e) {
 					log.appendException(e);
+					return;
 				}
 			}
 		}

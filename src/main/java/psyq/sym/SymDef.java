@@ -7,14 +7,11 @@ import ghidra.program.model.data.CharDataType;
 import ghidra.program.model.data.DataType;
 import ghidra.program.model.data.DataTypeManager;
 import ghidra.program.model.data.DoubleDataType;
-import ghidra.program.model.data.EnumDataType;
 import ghidra.program.model.data.FloatDataType;
 import ghidra.program.model.data.IntegerDataType;
 import ghidra.program.model.data.LongDataType;
 import ghidra.program.model.data.PointerDataType;
 import ghidra.program.model.data.ShortDataType;
-import ghidra.program.model.data.StructureDataType;
-import ghidra.program.model.data.UnionDataType;
 import ghidra.program.model.data.UnsignedCharDataType;
 import ghidra.program.model.data.UnsignedIntegerDataType;
 import ghidra.program.model.data.UnsignedLongDataType;
@@ -27,9 +24,10 @@ public class SymDef extends SymObject {
 	private String name;
 	
 	private Integer[] dims;
-	private String defTag;
+	private final boolean hasTag;
+	private String tag;
 	
-	public SymDef(SymDefClass defClass, SymDefType defType, long size, String name, long offset) {
+	public SymDef(SymDefClass defClass, SymDefType defType, boolean hasTag, long size, String name, long offset) {
 		super(offset);
 		
 		this.defClass = defClass;
@@ -37,7 +35,8 @@ public class SymDef extends SymObject {
 		this.size = size;
 		this.name = name;
 		this.dims = null;
-		this.defTag = null;
+		this.hasTag = hasTag;
+		this.tag = null;
 	}
 
 	public SymDefClass getDefClass() {
@@ -55,28 +54,39 @@ public class SymDef extends SymObject {
 			return DataType.VOID;
 		}
 		
-		return primTypeToDataType(types, name, defTag, (int)size, dims, mgr);
+		return primTypeToDataType(types, dims, mgr);
 	}
 	
-	private static DataType primTypeToDataType(SymDefTypePrim[] types,
-			String name, String defTag,
-			int size, Integer[] dims, DataTypeManager mgr) {
-		
+	private DataType primTypeToDataType(SymDefTypePrim[] types, Integer[] newDims, DataTypeManager mgr) {
 		switch (types[0]) {
 		case PTR: {
 			SymDefTypePrim[] followTypes = Arrays.copyOfRange(types, 1, types.length);
-			DataType ptrTo = primTypeToDataType(followTypes, name, defTag, size, dims, mgr);
-			return new PointerDataType(ptrTo);
+			DataType ptrTo = primTypeToDataType(followTypes, newDims, mgr);
+			
+			if (ptrTo != null) {
+				return new PointerDataType(ptrTo);
+			}
+
+			return null;
 		}
 		case FCN: {
 			SymDefTypePrim[] followTypes = Arrays.copyOfRange(types, 1, types.length);
-			return primTypeToDataType(followTypes, name, defTag, size, dims, mgr);
+			return primTypeToDataType(followTypes, newDims, mgr);
 		}
 		case ARY: {
 			SymDefTypePrim[] followTypes = Arrays.copyOfRange(types, 1, types.length);
-			Integer[] followDims = Arrays.copyOfRange(dims, 1, dims.length);
-			DataType arrItemType = primTypeToDataType(followTypes, name, defTag, size, followDims, mgr);
-			return new ArrayDataType(arrItemType, dims[0], arrItemType.getLength());
+			Integer[] followDims = Arrays.copyOfRange(newDims, 1, newDims.length);
+			DataType arrItemType = primTypeToDataType(followTypes, followDims, mgr);
+			
+			if (arrItemType == null) {
+				return null;
+			}
+
+			if (newDims[0] == 0) {
+				newDims[0] = 1;
+			}
+			
+			return new ArrayDataType(arrItemType, newDims[0], arrItemType.getLength());
 		}
 		case VOID: return DataType.VOID;
 		case CHAR: return new CharDataType();
@@ -85,35 +95,16 @@ public class SymDef extends SymObject {
 		case LONG: return new LongDataType();
 		case FLOAT: return new FloatDataType();
 		case DOUBLE: return new DoubleDataType();
-		case STRUCT: {
-			DataType dt = mgr.getDataType(mgr.getRootCategory().getCategoryPath(), defTag);
-			
-			if (dt != null) {
-				return dt;
-			}
-			
-			dt = mgr.getDataType(mgr.getRootCategory().getCategoryPath(), name);
-			return (dt != null) ? dt : new StructureDataType(name, size);
-		}
-		case UNION: {
-			DataType dt = mgr.getDataType(mgr.getRootCategory().getCategoryPath(), defTag);
-			
-			if (dt != null) {
-				return dt;
-			}
-			
-			dt = mgr.getDataType(mgr.getRootCategory().getCategoryPath(), name);
-			return (dt != null) ? dt : new UnionDataType(name);
-		}
+		case STRUCT:
+		case UNION:
 		case ENUM: {
-			DataType dt = mgr.getDataType(mgr.getRootCategory().getCategoryPath(), defTag);
+			DataType dt = mgr.getDataType(mgr.getRootCategory().getCategoryPath(), hasTag ? tag : name);
 			
 			if (dt != null) {
 				return dt;
 			}
-			
-			dt = mgr.getDataType(mgr.getRootCategory().getCategoryPath(), name);
-			return (dt != null) ? dt : new EnumDataType(name, size);
+
+			return null;
 		}
 		case UCHAR: return new UnsignedCharDataType();
 		case USHORT: return new UnsignedShortDataType();
@@ -139,15 +130,19 @@ public class SymDef extends SymObject {
 		this.dims = dims.clone();
 	}
 	
-	public void setDefTag(String defTag) {
-		this.defTag = defTag;
+	public void setTag(String tag) {
+		this.tag = tag;
+	}
+	
+	public String getTag() {
+		return tag;
 	}
 	
 	public Integer[] getDims() {
 		return dims;
 	}
 	
-	public String getDefTag() {
-		return defTag;
+	public boolean hasTag() {
+		return hasTag;
 	}
 }

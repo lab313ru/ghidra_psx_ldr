@@ -9,12 +9,7 @@ public class SymTypedef extends SymObject {
 		this.base = base;
 	}
 	
-	public String getBaseName() {
-		String defTag = base.getDefTag();
-		return (defTag == null || defTag.isEmpty()) ? base.getName() : defTag;
-	}
-	
-	public String getTypedefName() {
+	public String getName() {
 		return base.getName();
 	}
 
