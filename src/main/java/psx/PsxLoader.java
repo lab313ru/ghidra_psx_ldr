@@ -28,8 +28,6 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 import docking.widgets.OptionDialog;
 import ghidra.app.cmd.disassemble.DisassembleCommand;
-import ghidra.app.cmd.function.ApplyFunctionSignatureCmd;
-import ghidra.app.plugin.core.analysis.DefaultDataTypeManagerService;
 import ghidra.app.util.Option;
 import ghidra.app.util.bin.BinaryReader;
 import ghidra.app.util.bin.ByteProvider;
@@ -37,7 +35,6 @@ import ghidra.app.util.importer.MessageLog;
 import ghidra.app.util.opinion.AbstractLibrarySupportLoader;
 import ghidra.app.util.opinion.LoadSpec;
 import ghidra.app.util.opinion.Loader;
-import ghidra.app.util.parser.FunctionSignatureParser;
 import ghidra.feature.fid.db.FidFile;
 import ghidra.feature.fid.db.FidFileManager;
 import ghidra.framework.Application;
@@ -46,17 +43,10 @@ import ghidra.framework.store.LockException;
 import ghidra.program.flatapi.FlatProgramAPI;
 import ghidra.program.model.address.Address;
 import ghidra.program.model.address.AddressOutOfBoundsException;
-import ghidra.program.model.data.CompositeDataTypeImpl;
 import ghidra.program.model.data.DataType;
-import ghidra.program.model.data.DataTypeConflictHandler;
-import ghidra.program.model.data.DataTypeManager;
 import ghidra.program.model.data.DataUtilities;
 import ghidra.program.model.data.PointerDataType;
-import ghidra.program.model.data.StructureDataType;
-import ghidra.program.model.data.UnionDataType;
 import ghidra.program.model.data.DataUtilities.ClearDataMode;
-import ghidra.program.model.data.EnumDataType;
-import ghidra.program.model.data.FunctionDefinitionDataType;
 import ghidra.program.model.lang.LanguageCompilerSpecPair;
 import ghidra.program.model.lang.RegisterValue;
 import ghidra.program.model.listing.ContextChangeException;
@@ -77,13 +67,7 @@ import ghidra.util.exception.InvalidInputException;
 import ghidra.util.exception.NotFoundException;
 import ghidra.util.task.TaskMonitor;
 import psyq.DetectPsyQ;
-import psyq.sym.SymDef;
-import psyq.sym.SymDefTypePrim;
 import psyq.sym.SymFile;
-import psyq.sym.SymFunc;
-import psyq.sym.SymObject;
-import psyq.sym.SymStructUnionEnum;
-import psyq.sym.SymName;
 
 public class PsxLoader extends AbstractLibrarySupportLoader {
 	
@@ -238,65 +222,7 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 				"Question", "Do you have .SYM file for this executable?")) {
 			String symPath = showSelectFile("Select file...", program.getExecutablePath());
 			SymFile symFile = SymFile.fromBinary(symPath);
-			applySymbols(program.getSymbolTable(), fpa, symFile, log);
-		}
-	}
-	
-	@SuppressWarnings("incomplete-switch")
-	private static void applySymbols(SymbolTable st, FlatProgramAPI fpa, SymFile symFile, MessageLog log) {
-		SymObject[] objects = symFile.getObjects();
-		
-		for (SymObject obj : objects) {
-			Address addr = fpa.toAddr(obj.getOffset());
-			
-			try {
-				if (obj instanceof SymFunc) {
-					SymFunc sf = (SymFunc)obj;
-					setFunction(st, fpa, addr, sf.getFuncName(), true, false, log);
-					setFunctionArguments(fpa, sf, log);
-					fpa.setPlateComment(addr, String.format(
-							"File: %s\n" +
-					        "Return type: %s",
-					        sf.getFileName(), sf.getReturnTypeAsString()));
-				} else if (obj instanceof SymName) {
-					SymName sn = (SymName)obj;
-					st.createLabel(addr, sn.getObjectName(), SourceType.ANALYSIS);
-				} else if (obj instanceof SymStructUnionEnum) {
-					SymStructUnionEnum ssu = (SymStructUnionEnum)obj;
-					SymDefTypePrim type = ssu.getType();
-					SymDef[] fields = ssu.getFields();
-					
-					switch (type) {
-					case UNION: {
-						UnionDataType udt = new UnionDataType(ssu.getName());
-						
-						for (SymDef field : fields) {
-							// TODO: call getDataType();
-							udt.add(null, field.getName(), null);
-						}
-					} break;
-					case STRUCT: {
-						StructureDataType sdt = new StructureDataType(ssu.getName(), 0);
-						
-						for (SymDef field : fields) {
-							// TODO: call getDataType();
-							sdt.add(null, field.getName(), null);
-						}
-					} break;
-					case ENUM: {
-						EnumDataType edt = new EnumDataType(ssu.getName(), 0);
-						
-						for (SymDef field : fields) {
-							edt.add(field.getName(), field.getOffset());
-						}
-						
-						fpa.getCurrentProgram().getDataTypeManager().addDataType(edt, DataTypeConflictHandler.DEFAULT_HANDLER);
-					} break;
-					}
-				}
-			} catch (InvalidInputException e) {
-				log.appendException(e);
-			}
+			symFile.applySymbols(program.getSymbolTable(), fpa, log);
 		}
 	}
 	
@@ -331,7 +257,7 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 		cmd.applyTo(program, TaskMonitor.DUMMY);
 	}
 	
-	private static void setFunction(SymbolTable st, FlatProgramAPI fpa, Address address, String name,
+	public static void setFunction(SymbolTable st, FlatProgramAPI fpa, Address address, String name,
 			boolean isFunction, boolean isEntryPoint, MessageLog log) {
 		try {
 			if (fpa.getInstructionAt(address) == null)
@@ -350,24 +276,6 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 			
 			st.createLabel(address, name, SourceType.ANALYSIS);
 		} catch (InvalidInputException e) {
-			log.appendException(e);
-		}
-	}
-	
-	private static void setFunctionArguments(FlatProgramAPI fpa, SymFunc funcDef, MessageLog log) {
-		try {
-			DataTypeManager mgr = fpa.getCurrentProgram().getDataTypeManager();
-			
-			String sign = String.format("%s %s(%s)",
-					funcDef.getReturnTypeAsString(),
-					funcDef.getFuncName(),
-					funcDef.getArgumentsAsString());
-
-			FunctionSignatureParser parser = new FunctionSignatureParser(mgr, new DefaultDataTypeManagerService());
-			FunctionDefinitionDataType fddt = parser.parse(null, sign);
-			ApplyFunctionSignatureCmd cmd = new ApplyFunctionSignatureCmd(fpa.toAddr(funcDef.getOffset()), fddt, SourceType.ANALYSIS);
-			cmd.applyTo(fpa.getCurrentProgram());
-		} catch (Exception e) {
 			log.appendException(e);
 		}
 	}

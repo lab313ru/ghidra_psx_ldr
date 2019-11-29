@@ -2,8 +2,6 @@ package psyq.sym;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class SymStructUnionEnum extends SymObject {
 	private final String name;
@@ -33,16 +31,16 @@ public class SymStructUnionEnum extends SymObject {
 	}
 	
 	private static String getFakeStructUnionEnumName(String name, SymDefTypePrim type) {
-		Pattern pat = Pattern.compile(FAKE_R);
-		Matcher mat = pat.matcher(name);
-		
-		if (mat.find()) {
-			switch (type) {
-			case UNION: return String.format("FakeUnion%0d", mat.group(1));
-			case ENUM: return String.format("FakeEnum%0d", mat.group(1));
-			default: return String.format("FakeStruct%0d", mat.group(1));
-			}
-		}
+//		Pattern pat = Pattern.compile(FAKE_R);
+//		Matcher mat = pat.matcher(name);
+//		
+//		if (mat.find()) {
+//			switch (type) {
+//			case UNION: return String.format("FakeUnion%s", mat.group(1));
+//			case ENUM: return String.format("FakeEnum%s", mat.group(1));
+//			default: return String.format("FakeStruct%s", mat.group(1));
+//			}
+//		}
 		
 		return name;
 	}

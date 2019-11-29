@@ -10,10 +10,10 @@ public class SymFunc extends SymObject {
 	private long endOffset = 0L;
 	
 	private final List<SymDef> args = new ArrayList<>();
-	private final SymDefType retnType;
+	private final SymDef retnType;
 	
 
-	public SymFunc(long offset, SymDefType retnType, String funcName) {
+	public SymFunc(long offset, SymDef retnType, String funcName) {
 		super(offset);
 		
 		this.retnType = retnType;
@@ -48,38 +48,16 @@ public class SymFunc extends SymObject {
 		return args.toArray(SymDef[]::new);
 	}
 	
-	public String getArgumentsAsString() {
-		if (args.size() == 0) {
-			return "";
-		}
-		
-		StringBuilder builder = new StringBuilder();
-		
-		for (int i = 0; i < args.size() - 1; ++i) {
-			builder.append(normalizeType(args.get(i).getDefType().toString())).append(' ').append(args.get(i).getName()).append(',');
-		}
-		
-		SymDef lastArg = args.get(args.size() - 1);
-		
-		builder.append(normalizeType(lastArg.getDefType().toString())).append(' ').append(lastArg.getName());
-		
-		return builder.toString();
-	}
-	
-	public SymDefType getReturnType() {
+	public SymDef getReturnType() {
 		return retnType;
-	}
-	
-	private static String normalizeType(String type) {
-		return type.replace("PTR", "*").replace("FCN", "()");
 	}
 
 	public String getReturnTypeAsString() {
-		SymDefTypePrim[] primTypes = retnType.getTypesList();
+		SymDefTypePrim[] primTypes = retnType.getDefType().getTypesList();
 		StringBuilder builder = new StringBuilder();
 		
 		for (int i = 1; i < primTypes.length; ++i) {
-			builder.append(normalizeType(primTypes[i].name())).append(' ');
+			builder.append(primTypes[i].name()).append(' ');
 		}
 		
 		return builder.toString();

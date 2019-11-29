@@ -5,11 +5,33 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 
 import ghidra.app.util.bin.BinaryReader;
 import ghidra.app.util.bin.ByteProvider;
 import ghidra.app.util.bin.RandomAccessByteProvider;
+import ghidra.app.util.importer.MessageLog;
+import ghidra.program.flatapi.FlatProgramAPI;
+import ghidra.program.model.address.Address;
+import ghidra.program.model.data.DataType;
+import ghidra.program.model.data.DataTypeConflictHandler;
+import ghidra.program.model.data.DataTypeManager;
+import ghidra.program.model.data.EnumDataType;
+import ghidra.program.model.data.Structure;
+import ghidra.program.model.data.StructureDataType;
+import ghidra.program.model.data.TypedefDataType;
+import ghidra.program.model.data.Union;
+import ghidra.program.model.data.UnionDataType;
+import ghidra.program.model.listing.Function;
+import ghidra.program.model.listing.ParameterImpl;
+import ghidra.program.model.listing.Program;
+import ghidra.program.model.listing.Function.FunctionUpdateType;
+import ghidra.program.model.symbol.SourceType;
+import ghidra.program.model.symbol.SymbolTable;
+import ghidra.util.exception.InvalidInputException;
+import ghidra.util.task.TaskMonitor;
+import psx.PsxLoader;
 
 public class SymFile {
 	private List<SymObject> objects = new ArrayList<>();
@@ -101,8 +123,9 @@ public class SymFile {
 				if (func == null) {
 					func = currFunc = new SymFunc(
 							offset,
-							new SymDefType(new SymDefTypePrim[] {SymDefTypePrim.FCN, SymDefTypePrim.VOID}),
-							funcName);
+							new SymDef(SymDefClass.EXT,
+									new SymDefType(new SymDefTypePrim[] {SymDefTypePrim.FCN, SymDefTypePrim.VOID}), 0L,
+									funcName, offset), funcName);
 				}
 				
 				func.setFileName(fileName);
@@ -130,7 +153,7 @@ public class SymFile {
 				SymDefType defType = new SymDefType(reader.readNextUnsignedShort());
 				long size = reader.readNextUnsignedInt();
 				
-				List<Long> dims = null;
+				List<Integer> dims = null;
 				String defTag = null;
 				
 				if (tag == 0x96) {
@@ -138,7 +161,7 @@ public class SymFile {
 					dims = new ArrayList<>();
 					
 					for (int i = 0; i < dimsCount; ++i) {
-						dims.add(reader.readNextUnsignedInt());
+						dims.add((int)reader.readNextUnsignedInt());
 					}
 					
 					defTag = readString(reader);
@@ -149,10 +172,9 @@ public class SymFile {
 				SymDef def2 = new SymDef(defClass, defType, size, defName, offset);
 				
 				if (tag == 0x96) {
-					def2.setDims(dims.toArray(Long[]::new));
+					def2.setDims(dims.toArray(Integer[]::new));
 					def2.setDefTag(defTag);
 				}
-				objects.add(def2);
 				
 				switch (defClass) {
 				case ARG:
@@ -167,10 +189,14 @@ public class SymFile {
 					SymDefTypePrim[] typesList = defType.getTypesList();
 					
 					if (typesList.length >= 1 && typesList[0] == SymDefTypePrim.FCN) {
-						SymFunc func = new SymFunc(offset, defType, defName);
+						SymFunc func = new SymFunc(offset, def2, defName);
 						defFuncs.put(defName, func);
 					}
 				} break;
+				case TPDEF: {
+					objects.add(new SymTypedef(def2));
+					continue;
+				}
 				// STRUCT, UNION, ENUM begin
 				case STRTAG:
 				case UNTAG:
@@ -178,9 +204,9 @@ public class SymFile {
 					SymDefTypePrim[] typesList = defType.getTypesList();
 					
 					if (typesList.length != 1 ||
-							typesList[0] != SymDefTypePrim.STRUCT ||
-							typesList[0] != SymDefTypePrim.UNION ||
-							typesList[0] != SymDefTypePrim.ENUM) {
+							(typesList[0] != SymDefTypePrim.STRUCT &&
+							typesList[0] != SymDefTypePrim.UNION &&
+							typesList[0] != SymDefTypePrim.ENUM)) {
 						throw new IOException("Wrong struct|union|enum type");
 					}
 					
@@ -204,14 +230,17 @@ public class SymFile {
 					
 					SymDefTypePrim[] typesList = defType.getTypesList();
 					
-					if (typesList.length != 1 || typesList[0] != SymDefTypePrim.NULL || dims.get(0) != 0) {
+					if (typesList.length != 1 || typesList[0] != SymDefTypePrim.NULL || dims.size() != 0) {
 						throw new IOException("Wrong EOS type");
 					}
 					
 					objects.add(currStructUnion);
-				} break;
+					currStructUnion = null;
+					continue;
+				}
 				default: break;
 				}
+				objects.add(def2);
 			} break;
 			case 0x98: {
 				reader.readNextUnsignedInt(); // ovr_length
@@ -227,6 +256,135 @@ public class SymFile {
 		}
 		
 		objects.addAll(defFuncs.values());
+	}
+	
+	public void applySymbols(SymbolTable st, FlatProgramAPI fpa, MessageLog log) {
+		DataTypeManager mgr = fpa.getCurrentProgram().getDataTypeManager();
+		
+		List<SymObject> tryAgain = new ArrayList<>();
+		
+		try {
+			for (SymObject obj : objects) {
+				Address addr = fpa.toAddr(obj.getOffset());
+				
+				if (!applySymbol(obj, addr, st, fpa, mgr, log)) {
+					tryAgain.add(obj);
+				}
+			}
+			
+			while (tryAgain.size() > 0) {
+				ListIterator<SymObject> i = tryAgain.listIterator();
+				
+				while (i.hasNext()) {
+					SymObject obj = i.next();
+					Address addr = fpa.toAddr(obj.getOffset());
+					
+					if (!applySymbol(obj, addr, st, fpa, mgr, log)) {
+						i.add(obj);
+					} else {
+						i.remove();
+					}
+				}
+			}
+		} catch (InvalidInputException e) {
+			// TODO Auto-generated catch block
+			log.appendException(e);
+		}
+	}
+	
+	@SuppressWarnings("incomplete-switch")
+	private static boolean applySymbol(SymObject obj, Address addr, SymbolTable st, FlatProgramAPI fpa, DataTypeManager mgr, MessageLog log) throws InvalidInputException {
+		if (obj instanceof SymFunc) {
+			SymFunc sf = (SymFunc)obj;
+			PsxLoader.setFunction(st, fpa, addr, sf.getFuncName(), true, false, log);
+			setFunctionArguments(fpa, sf, log);
+			fpa.setPlateComment(addr, String.format(
+					"File: %s\n" +
+			        "Return type: %s",
+			        sf.getFileName(), sf.getReturnTypeAsString()));
+		} else if (obj instanceof SymName) {
+			SymName sn = (SymName)obj;
+			st.createLabel(addr, sn.getObjectName(), SourceType.ANALYSIS);
+		} else if (obj instanceof SymTypedef) {
+			SymTypedef tpdef = (SymTypedef)obj;
+			SymDef def = tpdef.getDefinition();
+			
+			DataType baseType = def.getDataType(mgr);
+			baseType = new TypedefDataType(tpdef.getTypedefName(), baseType);
+			mgr.addDataType(baseType, DataTypeConflictHandler.DEFAULT_HANDLER);
+		} else if (obj instanceof SymStructUnionEnum) {
+			SymStructUnionEnum ssu = (SymStructUnionEnum)obj;
+			SymDefTypePrim type = ssu.getType();
+			SymDef[] fields = ssu.getFields();
+			
+			switch (type) {
+			case UNION: {
+				UnionDataType udt = new UnionDataType(ssu.getName());
+				
+				Union uut = (Union)mgr.addDataType(udt, DataTypeConflictHandler.DEFAULT_HANDLER);
+				
+				for (SymDef field : fields) {
+					DataType dt = field.getDataType(mgr);
+					
+					if (dt == null) {
+						mgr.remove(uut, TaskMonitor.DUMMY);
+						return false;
+					}
+					
+					uut.add(dt, field.getName(), null);
+				}
+			} break;
+			case STRUCT: {
+				StructureDataType sdt = new StructureDataType(ssu.getName(), 0);
+				sdt.setMinimumAlignment(4);
+				
+				Structure ddt = (Structure)mgr.addDataType(sdt, DataTypeConflictHandler.DEFAULT_HANDLER);
+				
+				for (SymDef field : fields) {
+					DataType dt = field.getDataType(mgr);
+					
+					if (dt == null) {
+						mgr.remove(ddt, TaskMonitor.DUMMY);
+						return false;
+					}
+					
+					ddt.add(dt, field.getName(), null);
+				}
+			} break;
+			case ENUM: {
+				EnumDataType edt = new EnumDataType(ssu.getName(), (int)ssu.getSize());
+				
+				for (SymDef field : fields) {
+					edt.add(field.getName(), field.getOffset());
+				}
+				
+				mgr.addDataType(edt, DataTypeConflictHandler.DEFAULT_HANDLER);
+			} break;
+			}
+		}
+		
+		return true;
+	}
+	
+	private static void setFunctionArguments(FlatProgramAPI fpa, SymFunc funcDef, MessageLog log) {
+		try {
+			Program program = fpa.getCurrentProgram();
+			DataTypeManager mgr = program.getDataTypeManager();
+			Function func = fpa.getFunctionAt(fpa.toAddr(funcDef.getOffset()));
+			
+			func.setReturnType(funcDef.getReturnType().getDataType(mgr), SourceType.ANALYSIS);
+			
+			List<ParameterImpl> params = new ArrayList<>();
+			SymDef[] args = funcDef.getArguments();
+			for (int i = 0; i < args.length; ++i) {
+				params.add(new ParameterImpl(args[i].getName(), args[i].getDataType(mgr), program));
+			}
+			
+			func.updateFunction("__stdcall", null, FunctionUpdateType.DYNAMIC_STORAGE_ALL_PARAMS, true,
+					SourceType.ANALYSIS, params.toArray(ParameterImpl[]::new));
+		} catch (Exception e) {
+			log.appendException(e);
+		}
 	}
 	
 	private static String readString(BinaryReader reader) throws IOException {
