@@ -16,7 +16,6 @@
 package psx;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
@@ -35,14 +34,10 @@ import ghidra.app.util.importer.MessageLog;
 import ghidra.app.util.opinion.AbstractLibrarySupportLoader;
 import ghidra.app.util.opinion.LoadSpec;
 import ghidra.app.util.opinion.Loader;
-import ghidra.feature.fid.db.FidFile;
-import ghidra.feature.fid.db.FidFileManager;
-import ghidra.framework.Application;
 import ghidra.framework.model.DomainObject;
 import ghidra.framework.store.LockException;
 import ghidra.program.flatapi.FlatProgramAPI;
 import ghidra.program.model.address.Address;
-import ghidra.program.model.address.AddressOutOfBoundsException;
 import ghidra.program.model.data.DataType;
 import ghidra.program.model.data.DataUtilities;
 import ghidra.program.model.data.PointerDataType;
@@ -54,7 +49,6 @@ import ghidra.program.model.listing.Instruction;
 import ghidra.program.model.listing.Listing;
 import ghidra.program.model.listing.Program;
 import ghidra.program.model.mem.Memory;
-import ghidra.program.model.mem.MemoryAccessException;
 import ghidra.program.model.mem.MemoryBlock;
 import ghidra.program.model.mem.MemoryBlockException;
 import ghidra.program.model.scalar.Scalar;
@@ -66,7 +60,6 @@ import ghidra.util.exception.DuplicateNameException;
 import ghidra.util.exception.InvalidInputException;
 import ghidra.util.exception.NotFoundException;
 import ghidra.util.task.TaskMonitor;
-import psyq.DetectPsyQ;
 import psyq.sym.SymFile;
 
 public class PsxLoader extends AbstractLibrarySupportLoader {
@@ -116,7 +109,7 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 	private PsxExe psxExe;
 	
 	private static final String OPTION_NAME = "RAM Base Address: ";
-	private long ramBase = DEF_RAM_BASE;
+	public static long ramBase = DEF_RAM_BASE;
 
 	@Override
 	public String getName() {
@@ -208,7 +201,6 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 		setRegisterValue(fpa, "sp", psxExe.getInitPc(), psxExe.getSpBase() + psxExe.getSpOff(), log);
 		
 		Address romStart = fpa.toAddr(psxExe.getRomStart());
-		loadPsyqFidFile(program.getMemory(), romStart, log);
 		findAndAppyMain(provider, fpa, romStart, log);
 		
 		monitor.setMessage(String.format("%s : Loading done", getName()));
@@ -277,28 +269,6 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 			
 			st.createLabel(address, name, SourceType.ANALYSIS);
 		} catch (InvalidInputException e) {
-			log.appendException(e);
-		}
-	}
-	
-	private static void loadPsyqFidFile(Memory mem, Address startAddr, MessageLog log) {
-		try {
-			String psyVersion = DetectPsyQ.getPsyqVersion(mem, startAddr);
-			
-			if (psyVersion == null) {
-				return;
-			}
-			
-			FidFileManager fm = FidFileManager.getInstance();
-			List<FidFile> fl = fm.getUserAddedFiles();
-			
-			for (FidFile ff : fl) {
-				fm.removeUserFile(ff);
-			}
-			
-			File fidFile = Application.getModuleDataFile(String.format("psyq%s.fidb", psyVersion)).getFile(false);
-			fm.addUserFidFile(fidFile);
-		} catch (MemoryAccessException | AddressOutOfBoundsException | FileNotFoundException e) {
 			log.appendException(e);
 		}
 	}
