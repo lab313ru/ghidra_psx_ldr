@@ -3,20 +3,21 @@ package psyq.sym;
 import ghidra.program.model.data.DataType;
 import ghidra.program.model.data.DataTypeManager;
 
-public class SymTypedef extends SymObject {
-	private final SymDef base;
+public class SymExtStat extends SymObject {
+
+	private final SymDef def;
 	
-	public SymTypedef(SymDef base) {
-		super(0L);
+	public SymExtStat(long offset, SymDef def) {
+		super(offset);
 		
-		this.base = base;
+		this.def = def;
 	}
-	
+
 	public String getName() {
-		return base.getName();
+		return def.getName();
 	}
 	
 	public DataType getDataType(DataTypeManager mgr) {
-		return base.getDataType(mgr);
+		return def.getDataType(mgr);
 	}
 }

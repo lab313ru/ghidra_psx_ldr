@@ -16,18 +16,21 @@ import ghidra.program.model.address.Address;
 import ghidra.program.model.data.DataType;
 import ghidra.program.model.data.DataTypeConflictHandler;
 import ghidra.program.model.data.DataTypeManager;
+import ghidra.program.model.data.DataUtilities;
 import ghidra.program.model.data.EnumDataType;
 import ghidra.program.model.data.Structure;
 import ghidra.program.model.data.StructureDataType;
 import ghidra.program.model.data.TypedefDataType;
 import ghidra.program.model.data.Union;
 import ghidra.program.model.data.UnionDataType;
+import ghidra.program.model.data.DataUtilities.ClearDataMode;
 import ghidra.program.model.listing.Function;
 import ghidra.program.model.listing.ParameterImpl;
 import ghidra.program.model.listing.Program;
 import ghidra.program.model.listing.Function.FunctionUpdateType;
 import ghidra.program.model.symbol.SourceType;
 import ghidra.program.model.symbol.SymbolTable;
+import ghidra.program.model.util.CodeUnitInsertionException;
 import ghidra.util.exception.InvalidInputException;
 import ghidra.util.task.TaskMonitor;
 import psx.PsxLoader;
@@ -195,6 +198,8 @@ public class SymFile {
 					if (typesList.length >= 1 && typesList[0] == SymDefTypePrim.FCN) {
 						SymFunc func = new SymFunc(offset, def2, defName);
 						defFuncs.put(defName, func);
+					} else if (currFunc == null) { // exclude function blocks
+						objects.add(new SymExtStat(offset, def2));
 					}
 				} break;
 				case TPDEF: {
@@ -324,9 +329,8 @@ public class SymFile {
 			}
 		} else if (obj instanceof SymTypedef) {
 			SymTypedef tpdef = (SymTypedef)obj;
-			SymDef def = tpdef.getDefinition();
-			
-			DataType dt = def.getDataType(mgr);
+
+			DataType dt = tpdef.getDataType(mgr);
 			
 			if (dt == null) {
 				return false;
@@ -336,6 +340,26 @@ public class SymFile {
 			
 			if (mgr.getDataType(baseType.getDataTypePath()) == null) {
 				mgr.addDataType(baseType, DataTypeConflictHandler.REPLACE_HANDLER);
+			}
+		} else if (obj instanceof SymExtStat) {
+			SymExtStat extStat = (SymExtStat)obj;
+			
+			DataType dt = extStat.getDataType(mgr);
+			
+			if (dt == null) {
+				return false;
+			}
+			
+			try {
+				st.createLabel(addr, extStat.getName(), SourceType.ANALYSIS);
+			} catch (InvalidInputException e) {
+				log.appendException(e);
+			}
+
+			try {
+				DataUtilities.createData(fpa.getCurrentProgram(), addr, dt, -1, false, ClearDataMode.CLEAR_ALL_CONFLICT_DATA);
+			} catch (CodeUnitInsertionException e) {
+				log.appendException(e);
 			}
 		} else if (obj instanceof SymStructUnionEnum) {
 			SymStructUnionEnum ssu = (SymStructUnionEnum)obj;
@@ -387,6 +411,8 @@ public class SymFile {
 				mgr.addDataType(edt, DataTypeConflictHandler.REPLACE_HANDLER);
 			} break;
 			}
+		} else {
+			System.out.println(String.format("unkn type offset: 0x%08X", addr.getOffset()));
 		}
 		
 		return true;
