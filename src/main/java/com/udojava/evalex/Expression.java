@@ -1458,6 +1458,7 @@ public class Expression {
 	 * @return The previous operator with that name, or <code>null</code> if
 	 *         there was none.
 	 */
+	@SuppressWarnings("unchecked")
 	public <OPERATOR extends LazyOperator> OPERATOR addOperator(OPERATOR operator) {
 		String key = operator.getOper();
 		if (operator instanceof AbstractUnaryOperator) {
