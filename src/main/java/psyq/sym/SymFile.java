@@ -318,7 +318,7 @@ public class SymFile {
 		if (obj instanceof SymFunc) {
 			SymFunc sf = (SymFunc)obj;
 			PsxLoader.setFunction(st, fpa, addr, sf.getFuncName(), true, false, log);
-			setFunctionArguments(fpa, sf, log);
+			setFunctionArguments(fpa, st, sf, log);
 			fpa.setPlateComment(addr, String.format("File: %s", sf.getFileName()));
 		} else if (obj instanceof SymName) {
 			SymName sn = (SymName)obj;
@@ -418,11 +418,17 @@ public class SymFile {
 		return true;
 	}
 	
-	private static void setFunctionArguments(FlatProgramAPI fpa, SymFunc funcDef, MessageLog log) {
+	private static void setFunctionArguments(FlatProgramAPI fpa, SymbolTable st, SymFunc funcDef, MessageLog log) {
 		try {
 			Program program = fpa.getCurrentProgram();
 			DataTypeManager mgr = program.getDataTypeManager();
-			Function func = fpa.getFunctionAt(fpa.toAddr(funcDef.getOffset()));
+			Address funcAddr = fpa.toAddr(funcDef.getOffset());
+			Function func = fpa.getFunctionAt(funcAddr);
+			
+			if (func == null) {
+				System.out.println(String.format("Cannot get function at: 0x%08X", funcAddr.getOffset()));
+				return;
+			}
 			
 			DataType dt = funcDef.getReturnType().getDataType(mgr);
 			
