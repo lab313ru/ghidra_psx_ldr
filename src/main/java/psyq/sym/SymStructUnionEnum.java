@@ -14,7 +14,7 @@ public class SymStructUnionEnum extends SymObject {
 	private final static String FAKE_R = "\\.(\\d+)fake";
 	
 	public SymStructUnionEnum(String name, long size, SymDefTypePrim type) {
-		super(0L);
+		super(0L, 0L);
 		
 		this.name = name;
 		this.isFake = name.matches(FAKE_R);

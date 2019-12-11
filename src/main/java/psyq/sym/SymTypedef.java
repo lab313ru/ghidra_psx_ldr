@@ -7,7 +7,7 @@ public class SymTypedef extends SymObject {
 	private final SymDef base;
 	
 	public SymTypedef(SymDef base) {
-		super(0L);
+		super(0L, 0L);
 		
 		this.base = base;
 	}

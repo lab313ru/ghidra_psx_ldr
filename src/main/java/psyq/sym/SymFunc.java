@@ -13,8 +13,8 @@ public class SymFunc extends SymObject {
 	private final SymDef retnType;
 	
 
-	public SymFunc(long offset, SymDef retnType, String funcName) {
-		super(offset);
+	public SymFunc(SymDef retnType, String funcName, long offset, long overlayId) {
+		super(offset, overlayId);
 		
 		this.retnType = retnType;
 		this.funcName = funcName;

@@ -27,8 +27,8 @@ public class SymDef extends SymObject {
 	private final boolean hasTag;
 	private String tag;
 	
-	public SymDef(SymDefClass defClass, SymDefType defType, boolean hasTag, long size, String name, long offset) {
-		super(offset);
+	public SymDef(SymDefClass defClass, SymDefType defType, boolean hasTag, long size, String name, long offset, long overlayId) {
+		super(offset, overlayId);
 		
 		this.defClass = defClass;
 		this.defType = defType;

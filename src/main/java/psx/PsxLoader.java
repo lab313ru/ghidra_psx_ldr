@@ -27,6 +27,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 import docking.widgets.OptionDialog;
 import ghidra.app.cmd.disassemble.DisassembleCommand;
+import ghidra.app.cmd.function.CreateFunctionCmd;
 import ghidra.app.util.Option;
 import ghidra.app.util.bin.BinaryReader;
 import ghidra.app.util.bin.ByteProvider;
@@ -195,7 +196,7 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 		
 		createSegments(provider, fpa, log);
 		
-		setFunction(program.getSymbolTable(), fpa, fpa.toAddr(psxExe.getInitPc()), "start", true, true, log);
+		setFunction(program, fpa.toAddr(psxExe.getInitPc()), "start", true, true, log);
 
 		setRegisterValue(fpa, "gp", psxExe.getInitPc(), psxExe.getInitGp(), log);
 		setRegisterValue(fpa, "sp", psxExe.getInitPc(), psxExe.getSpBase() + psxExe.getSpOff(), log);
@@ -215,7 +216,8 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 			String symPath = showSelectFile("Select file...", program.getExecutablePath());
 			SymFile symFile = SymFile.fromBinary(symPath);
 			
-			symFile.applySymbols(program.getSymbolTable(), fpa, log, monitor);
+			symFile.createOverlays(program, log, monitor);
+			symFile.applySymbols(program, log, monitor);
 		}
 	}
 	
@@ -250,17 +252,20 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 		cmd.applyTo(program, TaskMonitor.DUMMY);
 	}
 	
-	public static void setFunction(SymbolTable st, FlatProgramAPI fpa, Address address, String name,
-			boolean isFunction, boolean isEntryPoint, MessageLog log) {
+	public static void setFunction(Program program, Address address, String name, boolean isFunction, boolean isEntryPoint, MessageLog log) {
 		try {
-			if (fpa.getInstructionAt(address) == null)
-				disasmInstruction(fpa.getCurrentProgram(), address);
+			SymbolTable st = program.getSymbolTable();
+			
+			if (program.getListing().getInstructionAt(address) == null) {
+				disasmInstruction(program, address);
+			}
 			
 			if (isFunction) {
-				fpa.createFunction(address, name);
+				CreateFunctionCmd cmd = new CreateFunctionCmd(name, address, null, SourceType.USER_DEFINED);
+				cmd.applyTo(program, TaskMonitor.DUMMY);
 			}
 			if (isEntryPoint) {
-				fpa.addEntryPoint(address);
+				st.addExternalEntryPoint(address);
 			}
 			
 			if (isFunction && st.hasSymbol(address)) {
@@ -349,6 +354,8 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 			long _text = reader.readUnsignedInt(_text_ptr.subtract(searchAddress.subtract(PsxExe.HEADER_SIZE)));
 			long _textlen = reader.readUnsignedInt(_text_ptr.add(4).subtract(searchAddress.subtract(PsxExe.HEADER_SIZE)));
 			
+			_textlen = _textlen == 0L ? 4L : _textlen;
+			
 			Address _text_addr = fpa.toAddr(_text);
 			MemoryBlock _text_block = mem.getBlock(_text_addr);
 			mem.split(_text_block, _text_addr);
@@ -370,6 +377,8 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 			createNamedDword(fpa, _data_ptr.add(4).getOffset(), "__datalen", log);
 			long _data = reader.readUnsignedInt(_data_ptr.subtract(searchAddress.subtract(PsxExe.HEADER_SIZE)));
 			long _datalen = reader.readUnsignedInt(_data_ptr.add(4).subtract(searchAddress.subtract(PsxExe.HEADER_SIZE)));
+			
+			_datalen = _datalen == 0L ? 4L : _datalen;
 			
 			Address _data_addr = fpa.toAddr(_data);
 			MemoryBlock _data_block = mem.getBlock(_data_addr);
@@ -408,6 +417,8 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 			createNamedDword(fpa, _bss_ptr.add(4).getOffset(), "__bsslen", log);
 			long _bss = reader.readUnsignedInt(_bss_ptr.subtract(searchAddress.subtract(PsxExe.HEADER_SIZE)));
 			long _bsslen = reader.readUnsignedInt(_bss_ptr.add(4).subtract(searchAddress.subtract(PsxExe.HEADER_SIZE)));
+			
+			_bsslen = _bsslen == 0L ? 4L : _bsslen;
 			
 			Address _bss_addr = fpa.toAddr(_bss);
 			MemoryBlock _bss_block = mem.getBlock(_bss_addr);

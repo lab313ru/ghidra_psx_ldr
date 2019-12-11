@@ -7,8 +7,8 @@ public class SymExtStat extends SymObject {
 
 	private final SymDef def;
 	
-	public SymExtStat(long offset, SymDef def) {
-		super(offset);
+	public SymExtStat(SymDef def, long offset, long overlayId) {
+		super(offset, overlayId);
 		
 		this.def = def;
 	}

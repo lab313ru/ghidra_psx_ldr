@@ -8,11 +8,16 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import ghidra.app.cmd.comments.SetCommentCmd;
 import ghidra.app.util.bin.BinaryReader;
 import ghidra.app.util.bin.ByteArrayProvider;
 import ghidra.app.util.importer.MessageLog;
-import ghidra.program.flatapi.FlatProgramAPI;
+import ghidra.framework.store.LockException;
 import ghidra.program.model.address.Address;
+import ghidra.program.model.address.AddressFactory;
+import ghidra.program.model.address.AddressOutOfBoundsException;
+import ghidra.program.model.address.AddressOverflowException;
+import ghidra.program.model.address.AddressSpace;
 import ghidra.program.model.data.DataType;
 import ghidra.program.model.data.DataTypeConflictHandler;
 import ghidra.program.model.data.DataTypeManager;
@@ -24,19 +29,25 @@ import ghidra.program.model.data.TypedefDataType;
 import ghidra.program.model.data.Union;
 import ghidra.program.model.data.UnionDataType;
 import ghidra.program.model.data.DataUtilities.ClearDataMode;
+import ghidra.program.model.listing.CodeUnit;
 import ghidra.program.model.listing.Function;
 import ghidra.program.model.listing.ParameterImpl;
 import ghidra.program.model.listing.Program;
+import ghidra.program.model.mem.Memory;
+import ghidra.program.model.mem.MemoryBlock;
+import ghidra.program.model.mem.MemoryConflictException;
 import ghidra.program.model.listing.Function.FunctionUpdateType;
 import ghidra.program.model.symbol.SourceType;
 import ghidra.program.model.symbol.SymbolTable;
 import ghidra.program.model.util.CodeUnitInsertionException;
+import ghidra.util.exception.DuplicateNameException;
 import ghidra.util.exception.InvalidInputException;
 import ghidra.util.task.TaskMonitor;
 import psx.PsxLoader;
 
 public class SymFile {
 	private List<SymObject> objects = new ArrayList<>();
+	private List<SymOverlay> overlays = new ArrayList<>();
 	
 	public static SymFile fromBinary(String path) {
 		try {
@@ -66,6 +77,7 @@ public class SymFile {
 		SymStructUnionEnum currStructUnion = null;
 		SymFunc currFunc = null;
 		Map<String, SymFunc> defFuncs = new HashMap<>();
+		long currOverlay = 0L;
 		
 		while (reader.getPointerIndex() < reader.length()) {
 			long offset = 0;
@@ -84,7 +96,7 @@ public class SymFile {
 			
 			if (tag <= 0x7F) {
 				String name = readString(reader);
-				SymName obj = new SymName(offset, name);
+				SymName obj = new SymName(name, offset, currOverlay);
 				objects.add(obj);
 				continue;
 			}
@@ -127,11 +139,11 @@ public class SymFile {
 				SymFunc func = currFunc = defFuncs.get(funcName);
 				
 				if (func == null) {
-					func = currFunc = new SymFunc(
-							offset,
-							new SymDef(SymDefClass.EXT,
-									new SymDefType(new SymDefTypePrim[] {SymDefTypePrim.FCN, SymDefTypePrim.VOID}), false, 0L, funcName, offset),
-							funcName);
+					func = currFunc = new SymFunc(new SymDef(SymDefClass.EXT,
+									              new SymDefType(new SymDefTypePrim[] {SymDefTypePrim.FCN, SymDefTypePrim.VOID}),
+									                             false, 0L, funcName, offset, currOverlay),
+							                      funcName,
+							                      offset, currOverlay);
 				}
 				
 				func.setFileName(fileName);
@@ -175,7 +187,7 @@ public class SymFile {
 				
 				String defName = readString(reader);
 				
-				SymDef def2 = new SymDef(defClass, defType, tag == 0x96, size, defName, offset);
+				SymDef def2 = new SymDef(defClass, defType, tag == 0x96, size, defName, offset, currOverlay);
 				
 				if (tag == 0x96) {
 					def2.setDims(dims.toArray(Integer[]::new));
@@ -196,10 +208,10 @@ public class SymFile {
 					SymDefTypePrim[] typesList = defType.getTypesList();
 					
 					if (typesList.length >= 1 && typesList[0] == SymDefTypePrim.FCN) {
-						SymFunc func = new SymFunc(offset, def2, defName);
+						SymFunc func = new SymFunc(def2, defName, offset, currOverlay);
 						defFuncs.put(defName, func);
 					} else if (currFunc == null) { // exclude function blocks
-						objects.add(new SymExtStat(offset, def2));
+						objects.add(new SymExtStat(def2, offset, currOverlay));
 					}
 				} break;
 				case TPDEF: {
@@ -249,10 +261,12 @@ public class SymFile {
 				}
 			} break;
 			case 0x98: {
-				reader.readNextUnsignedInt(); // ovr_length
-				reader.readNextUnsignedInt(); // ovr_id
+				long ovrLength = reader.readNextUnsignedInt(); // ovr_length
+				long ovrId = reader.readNextUnsignedInt(); // ovr_id
+				overlays.add(new SymOverlay(offset, ovrId, ovrLength));
 			} break;
 			case 0x9A: {
+				currOverlay = offset;
 			} break;
 			case 0x9E: {
 				readString(reader); // mangled name1
@@ -260,12 +274,42 @@ public class SymFile {
 			} break;
 			}
 		}
-		
+
 		objects.addAll(defFuncs.values());
 	}
 	
-	public void applySymbols(SymbolTable st, FlatProgramAPI fpa, MessageLog log, TaskMonitor monitor) {
-		DataTypeManager mgr = fpa.getCurrentProgram().getDataTypeManager();
+	public void createOverlays(Program program, MessageLog log, TaskMonitor monitor) {
+		monitor.setMessage("Creating overlays..");
+		monitor.setMaximum(overlays.size());
+		
+		Memory mem = program.getMemory();
+		AddressSpace defAddressSpace = program.getAddressFactory().getDefaultAddressSpace();
+		
+		for (int i = 0; i < overlays.size(); ++i) {
+			if (monitor.isCancelled()) {
+				break;
+			}
+			
+			SymOverlay ovr = overlays.get(i);
+			try {
+				MemoryBlock block = mem.createUninitializedBlock(SymOverlay.getBlockName(ovr.getId()), defAddressSpace.getAddress(ovr.getOffset()), ovr.getSize(), true);
+				block.setExecute(true);
+				block.setRead(true);
+				block.setWrite(true);
+			} catch (LockException | DuplicateNameException | MemoryConflictException | AddressOverflowException | AddressOutOfBoundsException e) {
+				log.appendException(e);
+				return;
+			}
+			
+			monitor.setProgress(i + 1);
+		}
+		
+		monitor.setMessage("Overlays created.");
+	}
+	
+	public void applySymbols(Program program, MessageLog log, TaskMonitor monitor) {
+		DataTypeManager mgr = program.getDataTypeManager();
+		AddressFactory addrFact = program.getAddressFactory();
 		
 		List<SymObject> tryAgain = new ArrayList<>();
 		
@@ -279,9 +323,15 @@ public class SymFile {
 			
 			SymObject obj = objects.get(i);
 			
-			Address addr = fpa.toAddr(obj.getOffset());
+			AddressSpace addrSpace = addrFact.getAddressSpace(SymOverlay.getBlockName(obj.getOverlayId()));
 			
-			if (!applySymbol(obj, addr, st, fpa, mgr, log)) {
+			if (addrSpace == null) {
+				addrSpace = addrFact.getDefaultAddressSpace();
+			}
+			
+			Address addr = addrSpace.getAddress(obj.getOffset());
+			
+			if (!applySymbol(program, obj, addr, mgr, log)) {
 				tryAgain.add(obj);
 			}
 			
@@ -301,9 +351,16 @@ public class SymFile {
 			}
 			
 			SymObject obj = i.next();
-			Address addr = fpa.toAddr(obj.getOffset());
 			
-			if (applySymbol(obj, addr, st, fpa, mgr, log)) {
+			AddressSpace addrSpace = addrFact.getAddressSpace(SymOverlay.getBlockName(obj.getOverlayId()));
+			
+			if (addrSpace == null) {
+				addrSpace = addrFact.getDefaultAddressSpace();
+			}
+			
+			Address addr = addrSpace.getAddress(obj.getOffset());
+			
+			if (applySymbol(program, obj, addr, mgr, log)) {
 				i.remove();
 				c++;
 				
@@ -313,13 +370,15 @@ public class SymFile {
 	}
 	
 	@SuppressWarnings("incomplete-switch")
-	private static boolean applySymbol(SymObject obj, Address addr, SymbolTable st, FlatProgramAPI fpa,
-			DataTypeManager mgr, MessageLog log) {
+	private static boolean applySymbol(Program program, SymObject obj, Address addr, DataTypeManager mgr, MessageLog log) {
+		SymbolTable st = program.getSymbolTable();
+		
 		if (obj instanceof SymFunc) {
 			SymFunc sf = (SymFunc)obj;
-			PsxLoader.setFunction(st, fpa, addr, sf.getFuncName(), true, false, log);
-			setFunctionArguments(fpa, st, sf, log);
-			fpa.setPlateComment(addr, String.format("File: %s", sf.getFileName()));
+			PsxLoader.setFunction(program, addr, sf.getFuncName(), true, false, log);
+			setFunctionArguments(program, addr, sf, log);
+			SetCommentCmd cmd = new SetCommentCmd(addr, CodeUnit.PLATE_COMMENT, String.format("File: %s", sf.getFileName()));
+			cmd.applyTo(program);
 		} else if (obj instanceof SymName) {
 			SymName sn = (SymName)obj;
 			try {
@@ -357,7 +416,7 @@ public class SymFile {
 			}
 
 			try {
-				DataUtilities.createData(fpa.getCurrentProgram(), addr, dt, -1, false, ClearDataMode.CLEAR_ALL_CONFLICT_DATA);
+				DataUtilities.createData(program, addr, dt, -1, false, ClearDataMode.CLEAR_ALL_CONFLICT_DATA);
 			} catch (CodeUnitInsertionException e) {
 				log.appendException(e);
 			}
@@ -418,12 +477,10 @@ public class SymFile {
 		return true;
 	}
 	
-	private static void setFunctionArguments(FlatProgramAPI fpa, SymbolTable st, SymFunc funcDef, MessageLog log) {
+	private static void setFunctionArguments(Program program, Address funcAddr, SymFunc funcDef, MessageLog log) {
 		try {
-			Program program = fpa.getCurrentProgram();
 			DataTypeManager mgr = program.getDataTypeManager();
-			Address funcAddr = fpa.toAddr(funcDef.getOffset());
-			Function func = fpa.getFunctionAt(funcAddr);
+			Function func = program.getListing().getFunctionAt(funcAddr);
 			
 			if (func == null) {
 				System.out.println(String.format("Cannot get function at: 0x%08X", funcAddr.getOffset()));
@@ -442,8 +499,7 @@ public class SymFile {
 				params.add(new ParameterImpl(args[i].getName(), args[i].getDataType(mgr), program));
 			}
 			
-			func.updateFunction("__stdcall", null, FunctionUpdateType.DYNAMIC_STORAGE_ALL_PARAMS, true,
-					SourceType.ANALYSIS, params.toArray(ParameterImpl[]::new));
+			func.updateFunction("__stdcall", null, FunctionUpdateType.DYNAMIC_STORAGE_ALL_PARAMS, true, SourceType.ANALYSIS, params.toArray(ParameterImpl[]::new));
 		} catch (Exception e) {
 			log.appendException(e);
 		}
