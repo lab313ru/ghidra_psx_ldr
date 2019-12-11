@@ -1,11 +1,7 @@
 # ghidra_psx_ldr
 Sony Playstation PSX executables loader for GHIDRA
 
-# Usage
-You must enable FunctionID feature to use PsyQ signatures finder.
-You can find it in binary database menu: *File* -> *Configure* -> *FunctionID* (enable checkbox).
-
-Also enable:
 ![Screen1](/imgs/screen1.png?raw=true)
-![Screen2](/imgs/screen2.png?raw=true)
-![Screen3](/imgs/screen3.png?raw=true)
+![Screen4](/imgs/screen4.png?raw=true)
+![Screen5](/imgs/screen5.png?raw=true)
+![Screen6](/imgs/screen6.png?raw=true)
