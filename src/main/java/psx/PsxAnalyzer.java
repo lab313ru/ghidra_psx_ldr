@@ -22,7 +22,7 @@ import psyq.DetectPsyQ;
 public class PsxAnalyzer extends AbstractAnalyzer {
 	private static PatParser pat = null;
 	
-	private static boolean isPsxLoader(Program program) {
+	public static boolean isPsxLoader(Program program) {
 		return program.getExecutableFormat().equalsIgnoreCase(PsxLoader.PSX_LOADER);
 	}
 	

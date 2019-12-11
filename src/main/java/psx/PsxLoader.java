@@ -214,10 +214,17 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 		if (OptionDialog.YES_OPTION == OptionDialog.showYesNoDialogWithNoAsDefaultButton(null,
 				"Question", "Do you have .SYM file for this executable?")) {
 			String symPath = showSelectFile("Select file...", program.getExecutablePath());
+			
+			if (symPath == null) {
+				return;
+			}
+			
+			int transId = program.startTransaction("Load and apply SYM file...");
 			SymFile symFile = SymFile.fromBinary(symPath);
 			
 			symFile.createOverlays(program, log, monitor);
 			symFile.applySymbols(program, log, monitor);
+			program.endTransaction(transId, true);
 		}
 	}
 	

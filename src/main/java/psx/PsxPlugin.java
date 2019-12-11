@@ -16,6 +16,9 @@
 package psx;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.HashMap;
@@ -27,17 +30,22 @@ import docking.ActionContext;
 import docking.ComponentProvider;
 import docking.action.DockingAction;
 import docking.action.MenuData;
+import docking.action.ToolBarData;
 import docking.tool.ToolConstants;
 import ghidra.app.plugin.PluginCategoryNames;
 import ghidra.app.plugin.ProgramPlugin;
 import ghidra.framework.plugintool.*;
 import ghidra.framework.plugintool.util.PluginStatus;
+import ghidra.framework.store.LockException;
 import ghidra.program.model.listing.Program;
 import ghidra.program.model.mem.Memory;
 import ghidra.program.model.mem.MemoryAccessException;
 import ghidra.program.model.mem.MemoryBlock;
 import ghidra.program.model.mem.MemoryBlockType;
 import ghidra.util.Msg;
+import ghidra.util.exception.NotFoundException;
+import ghidra.util.layout.VerticalLayout;
+import resources.Icons;
 import ghidra.MiscellaneousPluginPackage;
 
 //@formatter:off
@@ -52,108 +60,150 @@ import ghidra.MiscellaneousPluginPackage;
 public class PsxPlugin extends ProgramPlugin {
 
 	MyProvider provider;
+	DockingAction action;
 
 	public PsxPlugin(PluginTool tool) {
 		super(tool, false, false);
 	}
-
-	@Override
-	public void init() {
-		super.init();
-	}
 	
 	@Override
-	public void programOpened(Program program) {
-		super.programOpened(program);
+	public void programActivated(Program program) {
+		super.programActivated(program);
 		
-		provider = new MyProvider(this, program);
+		if (PsxAnalyzer.isPsxLoader(program)) {
+			createAction();
+		}
+	}
+	
+	private void createAction() {
+		action = new DockingAction("PsxLoadOverlay", getName()) {
+			
+			@Override
+			public void actionPerformed(ActionContext context) {
+				if (provider == null) {
+					provider = new MyProvider(PsxPlugin.this, currentProgram);
+				}
+				
+				if (provider.isVisible()) {
+					provider.toFront();
+				} else {
+					provider.setVisible(true);
+				}
+			}
+		};
+		
+		action.setMenuBarData(new MenuData(new String[] {ToolConstants.MENU_TOOLS, "PSX", "Load Overlay Binary..."}));
+		tool.addAction(action);
 	}
 
 	private static class MyProvider extends ComponentProvider {
 
 		private Program program;
 		private JPanel panel;
-		private JFileChooser jfc;
-		private DockingAction action;
+		private JButton browse;
 		private JComboBox<String> blockChooser = new JComboBox<>();
-		
 		private Map<Integer, String> overlays = new HashMap<>();
 
 		public MyProvider(Plugin plugin, Program program) {
-			super(plugin.getTool(), plugin.getName(), plugin.getName());
+			super(plugin.getTool(), "PSX Overlay Loader", plugin.getName());
 			this.program = program;
 			
 			buildPanel();
-			createActions();
+			addRefresh();
+		}
+		
+		private void addRefresh() {
+			DockingAction refreshAction = new DockingAction("PsxLoadOverlayRefresh", getName()) {
+				
+				@Override
+				public void actionPerformed(ActionContext context1) {
+					refreshBlocks();
+				}
+			};
+			refreshAction.setToolBarData(new ToolBarData(Icons.REFRESH_ICON, null));
+			refreshAction.setDescription("Refreshes overlayed blocks list");
+			
+			this.getTool().addLocalAction(this, refreshAction);
+		}
+		
+		private void refreshBlocks() {
+			blockChooser.removeAllItems();
+			overlays.clear();
+			
+			Memory mem = program.getMemory();
+			MemoryBlock[] memBlocks = mem.getBlocks();
+			for (MemoryBlock block : memBlocks) {
+				if (block.getType() == MemoryBlockType.OVERLAY) {
+					overlays.put(overlays.size(), block.getName());
+					blockChooser.addItem(String.format("%s: 0x%08X-0x%08X", block.getName(), block.getStart().getOffset(), block.getEnd().getOffset()));
+				}
+			}
+			
+			browse.setEnabled(overlays.size() > 0);
 		}
 
 		private void buildPanel() {
 			panel = new JPanel();
 			panel.setLayout(new BorderLayout());
 			
-			jfc = new JFileChooser((String)null);
+			JFileChooser jfc = new JFileChooser(program.getExecutablePath());
 			jfc.setDialogTitle("Please, select overlay file...");
 			jfc.setMultiSelectionEnabled(false);
 			
-			blockChooser.removeAllItems();
-			overlays.clear();
+			browse = new JButton("Choose overlay data...");
 			
-			Memory mem = program.getMemory();
-			MemoryBlock[] memBlocks = mem.getBlocks();
-			for (int i = 0; i < memBlocks.length; ++i) {
-				MemoryBlock block = memBlocks[i];
-				if (block.getType() == MemoryBlockType.OVERLAY) {
-					overlays.put(i, block.getName());
-					blockChooser.addItem(String.format("%s: 0x%08X-0x%08X", block.getName(), block.getStart().getOffset(), block.getEnd().getOffset()));
-				}
-			}
+			refreshBlocks();
 			
 			if (overlays.size() > 0) {
 				blockChooser.setSelectedIndex(0);
 			}
 			
-			JPanel tablePanel = new JPanel(new BorderLayout());
-			tablePanel.add(blockChooser);
-			panel.add(tablePanel, BorderLayout.CENTER);
-			
-			setVisible(true);
-		}
-
-		private void createActions() {
-			if (blockChooser.getItemCount() == 0) {
-				return;
-			}
-			
-			action = new DockingAction("PsxLoadOverlay", getName()) {
+			browse.addActionListener(new ActionListener() {
 				@Override
-				public void actionPerformed(ActionContext context) {
+				public void actionPerformed(ActionEvent e) {
 					if (jfc.showOpenDialog(panel) == JFileChooser.APPROVE_OPTION) {
 						try {
 							FileInputStream fis = new FileInputStream(jfc.getSelectedFile().getAbsolutePath());
 							byte[] fileData = fis.readAllBytes();
+							fis.close();
 							
 							int index = blockChooser.getSelectedIndex();
-							MemoryBlock block = program.getMemory().getBlock(overlays.get(index));
-							block.putBytes(block.getStart(), fileData);
+							Memory mem = program.getMemory();
+							MemoryBlock block = mem.getBlock(overlays.get(index));
 							
-							fis.close();
-						} catch (IOException e) {
-							Msg.showError(this, panel, "Error", "Cannot read overlay file!", e);
-						} catch (MemoryAccessException e) {
-							Msg.showError(this, panel, "Error", "Cannot set overlay block data!", e);
+							int transId = program.startTransaction(String.format("Applying overlayed binary to %s", block.getName()));
+							
+							if (block.isInitialized()) {
+								mem.convertToUninitialized(block);
+							}
+							mem.convertToInitialized(block, (byte) 0x00);
+							mem.setBytes(block.getStart(), fileData);
+							
+							program.endTransaction(transId, true);
+							
+							Msg.showInfo(this, panel, "Information", "Overlay data has been applied!");
+						} catch (IOException e1) {
+							Msg.showError(this, panel, "Error", "Cannot read overlay file!", e1);
+						} catch (MemoryAccessException | LockException | NotFoundException e2) {
+							Msg.showError(this, panel, "Error", "Cannot set overlay block data!", e2);
 						}
 					}
 				}
-				
-				@Override
-				public boolean isEnabledForContext(ActionContext context) {
-					return super.isEnabledForContext(context);
-				}
-			};
-			action.setMenuBarData(new MenuData(new String[] {ToolConstants.MENU_TOOLS, "Load PSX Overlay..."}));
-			action.setEnabled(true);
-			action.markHelpUnnecessary();
-			dockingTool.addAction(action);
+			});
+			
+			JPanel tablePanel = new JPanel(new VerticalLayout(10));
+			tablePanel.add(blockChooser);
+			tablePanel.add(browse);
+			panel.add(tablePanel, BorderLayout.CENTER);
+			panel.setMinimumSize(new Dimension(200, tablePanel.getPreferredSize().height + 50));
+			
+			setVisible(true);
+		}
+		
+		@Override
+		public void componentActivated() {
+			super.componentActivated();
+			refreshBlocks();
 		}
 
 		@Override
