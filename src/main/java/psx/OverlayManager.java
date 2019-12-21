@@ -183,15 +183,15 @@ public class OverlayManager extends JPanel {
 		gbc_pnlFillBlock.gridy = 2;
 		add(pnlFillBlock, gbc_pnlFillBlock);
 		GridBagLayout gbl_pnlFillBlock = new GridBagLayout();
-		gbl_pnlFillBlock.columnWidths = new int[]{0, 0};
-		gbl_pnlFillBlock.rowHeights = new int[]{0, 0, 0};
-		gbl_pnlFillBlock.columnWeights = new double[]{1.0, Double.MIN_VALUE};
-		gbl_pnlFillBlock.rowWeights = new double[]{0.0, 0.0, Double.MIN_VALUE};
+		gbl_pnlFillBlock.columnWidths = new int[]{157, 0, 0};
+		gbl_pnlFillBlock.rowHeights = new int[]{0, 0};
+		gbl_pnlFillBlock.columnWeights = new double[]{1.0, 1.0, Double.MIN_VALUE};
+		gbl_pnlFillBlock.rowWeights = new double[]{0.0, Double.MIN_VALUE};
 		pnlFillBlock.setLayout(gbl_pnlFillBlock);
 		
 		overlaysList = new JComboBox<String>();
 		GridBagConstraints gbc_overlaysList = new GridBagConstraints();
-		gbc_overlaysList.insets = new Insets(0, 0, 5, 0);
+		gbc_overlaysList.insets = new Insets(0, 0, 0, 5);
 		gbc_overlaysList.fill = GridBagConstraints.HORIZONTAL;
 		gbc_overlaysList.gridx = 0;
 		gbc_overlaysList.gridy = 0;
@@ -200,8 +200,9 @@ public class OverlayManager extends JPanel {
 		btnFillBlock = new JButton("Fill with a binary...");
 		GridBagConstraints gbc_loadBinary = new GridBagConstraints();
 		gbc_loadBinary.fill = GridBagConstraints.HORIZONTAL;
-		gbc_loadBinary.gridx = 0;
-		gbc_loadBinary.gridy = 1;
+		gbc_loadBinary.gridwidth = 2;
+		gbc_loadBinary.gridx = 1;
+		gbc_loadBinary.gridy = 0;
 		pnlFillBlock.add(btnFillBlock, gbc_loadBinary);
 		blockStart.addChangeListener(ev -> checkNameAndAddress());
 		
