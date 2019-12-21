@@ -38,7 +38,7 @@ import ghidra.MiscellaneousPluginPackage;
 //@formatter:on
 public class PsxPlugin extends ProgramPlugin {
 
-	private NewOverlayProvider provider;
+	private OverlayManagerProvider provider;
 
 	public PsxPlugin(PluginTool tool) {
 		super(tool, false, false);
@@ -54,25 +54,26 @@ public class PsxPlugin extends ProgramPlugin {
 	}
 	
 	private void createAction() {
-		DockingAction createOverlayFromBinAction = new DockingAction("PsxNewOverlay", getName()) {
+		DockingAction openOverlayManagerAction = new DockingAction("PsxOverlayManager", getName()) {
 
 			@Override
 			public void actionPerformed(ActionContext context) {
-				if (provider == null) {
-					provider = new NewOverlayProvider(currentProgram);
+				if (provider != null) {
+					provider.close();
 				}
 				
+				provider = new OverlayManagerProvider(currentProgram);
 				provider.showDialog(getTool());
 			}
 		};
 		
-		createOverlayFromBinAction.setMenuBarData(new MenuData(new String[] {ToolConstants.MENU_TOOLS, "PSX", "Overlay Manager..."}));
-		tool.addAction(createOverlayFromBinAction);
+		openOverlayManagerAction.setMenuBarData(new MenuData(new String[] {ToolConstants.MENU_TOOLS, "PSX Overlay Manager..."}, "PsxOverlayManager"));
+		tool.addAction(openOverlayManagerAction);
 	}
 	
-	private static class NewOverlayProvider extends DialogComponentProvider {
+	private static class OverlayManagerProvider extends DialogComponentProvider {
 
-		public NewOverlayProvider(Program program) {
+		public OverlayManagerProvider(Program program) {
 			super("New Overlay from Data", true, true, true, false);
 			
 			addWorkPanel(new OverlayManager(program, this));
