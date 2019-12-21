@@ -10,6 +10,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 import docking.DialogComponentProvider;
+import docking.widgets.OptionDialog;
 import ghidra.app.cmd.memory.AddInitializedMemoryBlockCmd;
 import ghidra.app.util.AddressInput;
 import ghidra.framework.store.LockException;
@@ -24,6 +25,7 @@ import ghidra.util.MessageType;
 import ghidra.util.Msg;
 import ghidra.util.NamingUtilities;
 import ghidra.util.exception.NotFoundException;
+import ghidra.util.task.TaskMonitor;
 
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
@@ -58,6 +60,8 @@ public class OverlayManager extends JPanel {
 	private final JButton btnFillBlock;
 	private Map<Integer, String> overlays = new HashMap<>();
 	private final ButtonGroup buttonGroup = new ButtonGroup();
+	private JRadioButton chkDeleteBlock;
+	private JButton btnDeleteBlock;
 	
 	/**
 	 * Create the panel.
@@ -69,23 +73,15 @@ public class OverlayManager extends JPanel {
 		
 		setBorder(new EmptyBorder(5, 5, 5, 5));
 		GridBagLayout gridBagLayout = new GridBagLayout();
-		gridBagLayout.columnWidths = new int[]{81, 110, 0};
-		gridBagLayout.rowHeights = new int[]{29, 0, 0, 0};
-		gridBagLayout.columnWeights = new double[]{1.0, 1.0, Double.MIN_VALUE};
-		gridBagLayout.rowWeights = new double[]{0.0, 0.0, 0.0, Double.MIN_VALUE};
+		gridBagLayout.columnWidths = new int[]{81, 110, 0, 0};
+		gridBagLayout.rowHeights = new int[]{0, 0, 0, 0, 0};
+		gridBagLayout.columnWeights = new double[]{1.0, 1.0, 0.0, Double.MIN_VALUE};
+		gridBagLayout.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
 		setLayout(gridBagLayout);
 		
 		chkNewBlock = new JRadioButton("New Block");
-		chkNewBlock.addActionListener(new ActionListener() {
-			
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				setEnabledFillBlock(false);
-				setEnabledNewBlock(true);
-			}
-		});
+		
 		buttonGroup.add(chkNewBlock);
-		chkNewBlock.setSelected(true);
 		GridBagConstraints gbc_createNewBlock = new GridBagConstraints();
 		gbc_createNewBlock.anchor = GridBagConstraints.NORTHWEST;
 		gbc_createNewBlock.insets = new Insets(0, 0, 5, 5);
@@ -93,33 +89,83 @@ public class OverlayManager extends JPanel {
 		gbc_createNewBlock.gridy = 0;
 		add(chkNewBlock, gbc_createNewBlock);
 		
+		chkFillBlock = new JRadioButton("Fill Block");
+		GridBagConstraints gbc_chkFillBlock = new GridBagConstraints();
+		gbc_chkFillBlock.anchor = GridBagConstraints.WEST;
+		gbc_chkFillBlock.insets = new Insets(0, 0, 5, 5);
+		gbc_chkFillBlock.gridx = 1;
+		gbc_chkFillBlock.gridy = 0;
+		add(chkFillBlock, gbc_chkFillBlock);
+		buttonGroup.add(chkFillBlock);
+		
+		chkDeleteBlock = new JRadioButton("Delete Block");
+		GridBagConstraints gbc_chkDeleteBlock = new GridBagConstraints();
+		gbc_chkDeleteBlock.anchor = GridBagConstraints.WEST;
+		gbc_chkDeleteBlock.insets = new Insets(0, 0, 5, 0);
+		gbc_chkDeleteBlock.gridx = 2;
+		gbc_chkDeleteBlock.gridy = 0;
+		add(chkDeleteBlock, gbc_chkDeleteBlock);
+		buttonGroup.add(chkDeleteBlock);
+		
+		btnNewBlock = new JButton("Create from a binary...");
+		GridBagConstraints gbc_btnNewBlock = new GridBagConstraints();
+		gbc_btnNewBlock.fill = GridBagConstraints.HORIZONTAL;
+		gbc_btnNewBlock.insets = new Insets(0, 0, 5, 5);
+		gbc_btnNewBlock.gridx = 0;
+		gbc_btnNewBlock.gridy = 1;
+		add(btnNewBlock, gbc_btnNewBlock);
+		
+		btnFillBlock = new JButton("Fill with a binary...");
+		GridBagConstraints gbc_btnFillBlock = new GridBagConstraints();
+		gbc_btnFillBlock.insets = new Insets(0, 0, 5, 5);
+		gbc_btnFillBlock.gridx = 1;
+		gbc_btnFillBlock.gridy = 1;
+		add(btnFillBlock, gbc_btnFillBlock);
+		
+		btnDeleteBlock = new JButton("Delete block");
+		GridBagConstraints gbc_btnDeleteBlock = new GridBagConstraints();
+		gbc_btnDeleteBlock.insets = new Insets(0, 0, 5, 0);
+		gbc_btnDeleteBlock.gridx = 2;
+		gbc_btnDeleteBlock.gridy = 1;
+		add(btnDeleteBlock, gbc_btnDeleteBlock);
+		
+		overlaysList = new JComboBox<String>();
+		GridBagConstraints gbc_overlaysList = new GridBagConstraints();
+		gbc_overlaysList.fill = GridBagConstraints.HORIZONTAL;
+		gbc_overlaysList.gridwidth = 3;
+		gbc_overlaysList.insets = new Insets(0, 0, 5, 0);
+		gbc_overlaysList.gridx = 0;
+		gbc_overlaysList.gridy = 2;
+		add(overlaysList, gbc_overlaysList);
+		
 		pnlNewBlock = new JPanel();
 		GridBagConstraints gbc_pnlNewBlock = new GridBagConstraints();
-		gbc_pnlNewBlock.gridheight = 2;
-		gbc_pnlNewBlock.gridwidth = 2;
-		gbc_pnlNewBlock.fill = GridBagConstraints.BOTH;
+		gbc_pnlNewBlock.fill = GridBagConstraints.HORIZONTAL;
+		gbc_pnlNewBlock.gridwidth = 3;
+		gbc_pnlNewBlock.anchor = GridBagConstraints.NORTH;
+		gbc_pnlNewBlock.insets = new Insets(0, 0, 0, 5);
 		gbc_pnlNewBlock.gridx = 0;
-		gbc_pnlNewBlock.gridy = 1;
+		gbc_pnlNewBlock.gridy = 3;
 		add(pnlNewBlock, gbc_pnlNewBlock);
 		GridBagLayout gbl_pnlNewBlock = new GridBagLayout();
-		gbl_pnlNewBlock.columnWidths = new int[]{0, 121, 0, 0};
-		gbl_pnlNewBlock.rowHeights = new int[]{0, 0, 0, 0, 0, 0};
-		gbl_pnlNewBlock.columnWeights = new double[]{1.0, 0.0, 0.0, Double.MIN_VALUE};
-		gbl_pnlNewBlock.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 1.0, Double.MIN_VALUE};
+		gbl_pnlNewBlock.columnWidths = new int[]{72, 88, 0, 0, 0};
+		gbl_pnlNewBlock.rowHeights = new int[]{0, 0, 0};
+		gbl_pnlNewBlock.columnWeights = new double[]{0.0, 0.0, 0.0, 1.0, Double.MIN_VALUE};
+		gbl_pnlNewBlock.rowWeights = new double[]{0.0, 1.0, Double.MIN_VALUE};
 		pnlNewBlock.setLayout(gbl_pnlNewBlock);
 		
 		lblBlockName = new JLabel("Block Name:");
 		GridBagConstraints gbc_lblBlockName = new GridBagConstraints();
-		gbc_lblBlockName.insets = new Insets(0, 0, 5, 5);
 		gbc_lblBlockName.anchor = GridBagConstraints.EAST;
+		gbc_lblBlockName.insets = new Insets(0, 0, 5, 5);
 		gbc_lblBlockName.gridx = 0;
 		gbc_lblBlockName.gridy = 0;
 		pnlNewBlock.add(lblBlockName, gbc_lblBlockName);
 		lblBlockName.setHorizontalAlignment(SwingConstants.RIGHT);
 		
-		blockName = new JTextField();
+		blockName = new JTextField("OVR1");
 		GridBagConstraints gbc_blockName = new GridBagConstraints();
-		gbc_blockName.fill = GridBagConstraints.HORIZONTAL;
+		gbc_blockName.anchor = GridBagConstraints.WEST;
 		gbc_blockName.insets = new Insets(0, 0, 5, 5);
 		gbc_blockName.gridx = 1;
 		gbc_blockName.gridy = 0;
@@ -127,79 +173,72 @@ public class OverlayManager extends JPanel {
 		blockName.setColumns(10);
 		lblBlockName.setLabelFor(blockName);
 		
-		btnNewBlock = new JButton("Create from a binary...");
-		GridBagConstraints gbc_browse = new GridBagConstraints();
-		gbc_browse.insets = new Insets(0, 0, 5, 0);
-		gbc_browse.anchor = GridBagConstraints.EAST;
-		gbc_browse.fill = GridBagConstraints.VERTICAL;
-		gbc_browse.gridheight = 2;
-		gbc_browse.gridx = 2;
-		gbc_browse.gridy = 0;
-		pnlNewBlock.add(btnNewBlock, gbc_browse);
-		
 		lblBlockStart = new JLabel("Start Address:");
 		GridBagConstraints gbc_lblBlockStart = new GridBagConstraints();
 		gbc_lblBlockStart.anchor = GridBagConstraints.EAST;
 		gbc_lblBlockStart.insets = new Insets(0, 0, 5, 5);
-		gbc_lblBlockStart.gridx = 0;
-		gbc_lblBlockStart.gridy = 1;
+		gbc_lblBlockStart.gridx = 2;
+		gbc_lblBlockStart.gridy = 0;
 		pnlNewBlock.add(lblBlockStart, gbc_lblBlockStart);
 		lblBlockStart.setHorizontalAlignment(SwingConstants.RIGHT);
 		
 		blockStart = new AddressInput();
 		GridBagConstraints gbc_blockStart = new GridBagConstraints();
 		gbc_blockStart.fill = GridBagConstraints.HORIZONTAL;
-		gbc_blockStart.insets = new Insets(0, 0, 5, 5);
-		gbc_blockStart.gridx = 1;
-		gbc_blockStart.gridy = 1;
+		gbc_blockStart.insets = new Insets(0, 0, 5, 0);
+		gbc_blockStart.gridx = 3;
+		gbc_blockStart.gridy = 0;
 		pnlNewBlock.add(blockStart, gbc_blockStart);
 		
 		AddressFactory addrFactory = program.getAddressFactory();
 		blockStart.setAddressFactory(addrFactory, true, false);
 		blockStart.setAddress(program.getImageBase());
+		blockStart.addChangeListener(ev -> checkNameAndAddress());
 		
-		chkFillBlock = new JRadioButton("Fill Block");
-		GridBagConstraints gbc_chkFillBlock = new GridBagConstraints();
-		gbc_chkFillBlock.anchor = GridBagConstraints.WEST;
-		gbc_chkFillBlock.insets = new Insets(0, 0, 5, 5);
-		gbc_chkFillBlock.gridx = 0;
-		gbc_chkFillBlock.gridy = 2;
-		pnlNewBlock.add(chkFillBlock, gbc_chkFillBlock);
+		chkNewBlock.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				setEnabledDeleteBlock(false);
+				setEnabledFillBlock(false);
+				setEnabledNewBlock(true);
+				
+				checkNameAndAddress();
+			}
+		});
+		
 		chkFillBlock.addActionListener(new ActionListener() {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				setEnabledNewBlock(false);
+				setEnabledDeleteBlock(false);
 				setEnabledFillBlock(true);
+				
+				refreshBlocks();
 			}
 		});
-		buttonGroup.add(chkFillBlock);
 		
-		overlaysList = new JComboBox<String>();
-		GridBagConstraints gbc_overlaysList = new GridBagConstraints();
-		gbc_overlaysList.gridwidth = 2;
-		gbc_overlaysList.fill = GridBagConstraints.HORIZONTAL;
-		gbc_overlaysList.insets = new Insets(0, 0, 5, 5);
-		gbc_overlaysList.gridx = 0;
-		gbc_overlaysList.gridy = 3;
-		pnlNewBlock.add(overlaysList, gbc_overlaysList);
-		
-		btnFillBlock = new JButton("Fill with a binary...");
-		GridBagConstraints gbc_btnFillBlock = new GridBagConstraints();
-		gbc_btnFillBlock.fill = GridBagConstraints.HORIZONTAL;
-		gbc_btnFillBlock.insets = new Insets(0, 0, 5, 0);
-		gbc_btnFillBlock.gridx = 2;
-		gbc_btnFillBlock.gridy = 3;
-		pnlNewBlock.add(btnFillBlock, gbc_btnFillBlock);
-		blockStart.addChangeListener(ev -> checkNameAndAddress());
+		chkDeleteBlock.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				setEnabledNewBlock(false);
+				setEnabledFillBlock(false);
+				setEnabledDeleteBlock(true);
+				
+				refreshBlocks();
+			}
+		});
 		
 		setBlockNameListener();
 		setNewBlockListener();
 		setFillBlockListener();
+		setDeleteBlockListener();
 		
 		chkNewBlock.doClick();
 		
-		setMinimumSize(new Dimension(220, 50));
+		setMinimumSize(new Dimension(130, 50));
 	}
 	
 	private void setEnabledNewBlock(boolean enabled) {
@@ -208,16 +247,27 @@ public class OverlayManager extends JPanel {
 		lblBlockStart.setEnabled(enabled);
 		blockStart.setEnabled(enabled);
 		btnNewBlock.setEnabled(enabled);
-		
-		checkNameAndAddress();
+	}
+	
+	private void refreshOverlaysList() {
+		refreshBlocks();
+		overlaysList.setSelectedIndex((overlays.size() > 0) ? 0 : -1);
 	}
 	
 	private void setEnabledFillBlock(boolean enabled) {
-		refreshBlocks();
-		overlaysList.setSelectedIndex((overlays.size() > 0) ? 0 : -1);
+		refreshOverlaysList();
+		btnFillBlock.setEnabled(overlays.size() > 0);
 		
 		overlaysList.setEnabled(enabled);
 		btnFillBlock.setEnabled(enabled);
+		provider.clearStatusText();
+	}
+	
+	private void setEnabledDeleteBlock(boolean enabled) {
+		refreshOverlaysList();
+		
+		overlaysList.setEnabled(enabled);
+		btnDeleteBlock.setEnabled(enabled);
 		provider.clearStatusText();
 	}
 	
@@ -232,48 +282,6 @@ public class OverlayManager extends JPanel {
 				overlaysList.addItem(String.format("%s: 0x%08X-0x%08X", block.getName(), block.getStart().getOffset(), block.getEnd().getOffset()));
 			}
 		}
-		
-		btnFillBlock.setEnabled(overlays.size() > 0);
-	}
-	
-	private void setFillBlockListener() {
-		JFileChooser jfc = new JFileChooser(program.getExecutablePath());
-		jfc.setDialogTitle("Please, select overlay file...");
-		jfc.setMultiSelectionEnabled(false);
-		
-		btnFillBlock.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				if (jfc.showOpenDialog(OverlayManager.this) != JFileChooser.APPROVE_OPTION) {
-					return;
-				}
-				
-				try {
-					FileInputStream fis = new FileInputStream(jfc.getSelectedFile().getAbsolutePath());
-					byte[] fileData = fis.readAllBytes();
-					fis.close();
-					
-					int index = overlaysList.getSelectedIndex();
-					MemoryBlock block = memory.getBlock(overlays.get(index));
-					
-					int transId = program.startTransaction(String.format("Applying overlayed binary to %s", block.getName()));
-					
-					if (block.isInitialized()) {
-						memory.convertToUninitialized(block);
-					}
-					memory.convertToInitialized(block, (byte) 0x00);
-					memory.setBytes(block.getStart(), fileData);
-					
-					program.endTransaction(transId, true);
-					
-					Msg.showInfo(this, OverlayManager.this, "Information", "Overlay data has been applied!");
-				} catch (IOException e1) {
-					Msg.showError(this, OverlayManager.this, "Error", "Cannot read overlay file!", e1);
-				} catch (MemoryAccessException | LockException | NotFoundException e2) {
-					Msg.showError(this, OverlayManager.this, "Error", "Cannot set overlay block data!", e2);
-				}
-			}
-		});
 	}
 	
 	private void checkNameAndAddress() {
@@ -361,7 +369,7 @@ public class OverlayManager extends JPanel {
 					byte[] fileData = fis.readAllBytes();
 					fis.close();
 
-					int tranId = program.startTransaction(String.format("Create overlayed block %s from a binary", blockName.getText()));
+					int tranId = program.startTransaction(String.format("Creating overlayed block %s from a binary", blockName.getText()));
 					AddInitializedMemoryBlockCmd cmd = new AddInitializedMemoryBlockCmd(
 							blockName.getText(), null, filePath, blockStart.getAddress(),
 							fileData.length,
@@ -369,10 +377,81 @@ public class OverlayManager extends JPanel {
 					cmd.applyTo(program);
 					program.endTransaction(tranId, true);
 					
-					Msg.showInfo(this, OverlayManager.this, "Information", "Overlay block has been created!");
 					refreshBlocks();
+					checkNameAndAddress();
+					
+					Msg.showInfo(this, OverlayManager.this, "Information", "Overlay block has been created!");
 				} catch (IOException e1) {
 					Msg.showError(this, OverlayManager.this, "Error", "Cannot read overlay file!", e1);
+				}
+			}
+		});
+	}
+	
+	private void setFillBlockListener() {
+		JFileChooser jfc = new JFileChooser(program.getExecutablePath());
+		jfc.setDialogTitle("Please, select overlay file...");
+		jfc.setMultiSelectionEnabled(false);
+		
+		btnFillBlock.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (jfc.showOpenDialog(OverlayManager.this) != JFileChooser.APPROVE_OPTION) {
+					return;
+				}
+				
+				try {
+					FileInputStream fis = new FileInputStream(jfc.getSelectedFile().getAbsolutePath());
+					byte[] fileData = fis.readAllBytes();
+					fis.close();
+					
+					int index = overlaysList.getSelectedIndex();
+					MemoryBlock block = memory.getBlock(overlays.get(index));
+					
+					int transId = program.startTransaction(String.format("Applying overlayed binary to %s", block.getName()));
+					
+					if (block.isInitialized()) {
+						memory.convertToUninitialized(block);
+					}
+					memory.convertToInitialized(block, (byte) 0x00);
+					memory.setBytes(block.getStart(), fileData);
+					
+					program.endTransaction(transId, true);
+					
+					refreshBlocks();
+					
+					Msg.showInfo(this, OverlayManager.this, "Information", "Overlay data has been applied!");
+				} catch (IOException e1) {
+					Msg.showError(this, OverlayManager.this, "Error", "Cannot read overlay file!", e1);
+				} catch (MemoryAccessException | LockException | NotFoundException e2) {
+					Msg.showError(this, OverlayManager.this, "Error", "Cannot set overlay block data!", e2);
+				}
+			}
+		});
+	}
+	
+	private void setDeleteBlockListener() {
+		btnDeleteBlock.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				int index = overlaysList.getSelectedIndex();
+				MemoryBlock block = memory.getBlock(overlays.get(index));
+				
+				if (OptionDialog.YES_OPTION == OptionDialog.showYesNoDialogWithNoAsDefaultButton(null,
+						"Question", String.format("Are you sure you want to delete %s block?", block.getName()))) {
+					try {
+						
+						int transId = program.startTransaction(String.format("Removing block %s", block.getName()));
+						memory.removeBlock(block, TaskMonitor.DUMMY);
+						program.endTransaction(transId, true);
+						
+						refreshBlocks();
+						
+						Msg.showInfo(this, OverlayManager.this, "Information", "Overlay block has been deleted!");
+					} catch (LockException e1) {
+						Msg.showError(this, OverlayManager.this, "Error", "Cannot remove memory block!", e1);
+					}
 				}
 			}
 		});
