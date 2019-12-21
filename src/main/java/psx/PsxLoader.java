@@ -39,6 +39,7 @@ import ghidra.framework.model.DomainObject;
 import ghidra.framework.store.LockException;
 import ghidra.program.flatapi.FlatProgramAPI;
 import ghidra.program.model.address.Address;
+import ghidra.program.model.address.AddressOverflowException;
 import ghidra.program.model.data.DataType;
 import ghidra.program.model.data.DataUtilities;
 import ghidra.program.model.data.PointerDataType;
@@ -66,7 +67,7 @@ import psyq.sym.SymFile;
 public class PsxLoader extends AbstractLibrarySupportLoader {
 	
 	private static final long DEF_RAM_BASE = 0x80000000L;
-	private static final long RAM_SIZE = 0x200000L;
+	public static final long RAM_SIZE = 0x200000L;
 	private static final long __heapbase_off = -0x30;
 	private static final long _sbss_off = -0x28;
 	private static final long _sdata_off = -0x20;
@@ -193,6 +194,14 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 				}
 			}
 		}
+		
+		try {
+			program.setImageBase(fpa.toAddr(ramBase), true);
+		} catch (AddressOverflowException | LockException | IllegalStateException e1) {
+			log.appendException(e1);
+			return;
+		}
+		
 		
 		createSegments(provider, fpa, log);
 		
