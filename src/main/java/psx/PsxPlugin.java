@@ -38,10 +38,11 @@ import ghidra.MiscellaneousPluginPackage;
 //@formatter:on
 public class PsxPlugin extends ProgramPlugin {
 
-	private OverlayManagerProvider provider;
+	private DebuggerProvider dbgProvider;
+	private OverlayManagerProvider omProvider;
 
 	public PsxPlugin(PluginTool tool) {
-		super(tool, false, false);
+		super(tool, true, false);
 	}
 	
 	@Override
@@ -49,6 +50,7 @@ public class PsxPlugin extends ProgramPlugin {
 		super.programActivated(program);
 		
 		if (PsxAnalyzer.isPsxLoader(program)) {
+			dbgProvider = new DebuggerProvider(tool, "PsxDebugger");
 			createAction();
 		}
 	}
@@ -58,12 +60,12 @@ public class PsxPlugin extends ProgramPlugin {
 
 			@Override
 			public void actionPerformed(ActionContext context) {
-				if (provider != null) {
-					provider.close();
+				if (omProvider != null) {
+					omProvider.close();
 				}
 				
-				provider = new OverlayManagerProvider(currentProgram);
-				provider.showDialog(getTool());
+				omProvider = new OverlayManagerProvider(currentProgram);
+				omProvider.showDialog(getTool());
 			}
 		};
 		
