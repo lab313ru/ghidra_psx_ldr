@@ -1,9 +1,11 @@
-package psx;
+package psx.debug;
 
 import javax.swing.JPanel;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
+import java.awt.event.ActionListener;
+
 import javax.swing.JLabel;
 import javax.swing.JTabbedPane;
 import javax.swing.JButton;
@@ -13,6 +15,7 @@ import javax.swing.SwingConstants;
 import javax.swing.border.TitledBorder;
 import java.awt.Color;
 import javax.swing.border.LineBorder;
+import javax.swing.JComboBox;
 
 public class DebuggerGui extends JPanel {
 	private JTextField edtPc;
@@ -143,67 +146,83 @@ public class DebuggerGui extends JPanel {
 	private JTextField textField_125;
 	private JTextField textField_126;
 	private JTextField textField_127;
+	
+	private final JComboBox<String> cbbAddressSpaces;
+	
+	private final JButton btnStartDebugger;
+	private final JButton btnStopDebugger;
+	private final JButton btnStepInto;
+	private final JButton btnStepOver;
+	private final JButton btnPause;
+	private final JButton btnRun;
 
 	/**
 	 * Create the panel.
 	 */
 	public DebuggerGui() {
 		GridBagLayout gridBagLayout = new GridBagLayout();
-		gridBagLayout.columnWidths = new int[]{123, 248, 0};
-		gridBagLayout.rowHeights = new int[]{0, 0};
+		gridBagLayout.columnWidths = new int[]{113, 248, 0};
+		gridBagLayout.rowHeights = new int[]{98, 0, 0, 0};
 		gridBagLayout.columnWeights = new double[]{0.0, 1.0, Double.MIN_VALUE};
-		gridBagLayout.rowWeights = new double[]{1.0, Double.MIN_VALUE};
+		gridBagLayout.rowWeights = new double[]{1.0, 0.0, 1.0, Double.MIN_VALUE};
 		setLayout(gridBagLayout);
 		
-		JPanel pnlCpuCtrl = new JPanel();
-		pnlCpuCtrl.setBorder(new TitledBorder(new LineBorder(new Color(0, 0, 0), 1, true), "CPU Control", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-		GridBagConstraints gbc_pnlCpuCtrl = new GridBagConstraints();
-		gbc_pnlCpuCtrl.fill = GridBagConstraints.HORIZONTAL;
-		gbc_pnlCpuCtrl.anchor = GridBagConstraints.NORTH;
-		gbc_pnlCpuCtrl.insets = new Insets(0, 0, 0, 5);
-		gbc_pnlCpuCtrl.gridx = 0;
-		gbc_pnlCpuCtrl.gridy = 0;
-		add(pnlCpuCtrl, gbc_pnlCpuCtrl);
-		GridBagLayout gbl_pnlCpuCtrl = new GridBagLayout();
-		gbl_pnlCpuCtrl.columnWidths = new int[]{107, 0};
-		gbl_pnlCpuCtrl.rowHeights = new int[]{0, 0, 0, 0, 0};
-		gbl_pnlCpuCtrl.columnWeights = new double[]{0.0, Double.MIN_VALUE};
-		gbl_pnlCpuCtrl.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
-		pnlCpuCtrl.setLayout(gbl_pnlCpuCtrl);
+		JPanel pnlDbgControls = new JPanel();
+		pnlDbgControls.setBorder(new TitledBorder(new LineBorder(new Color(0, 0, 0), 1, true), "Debugger Control", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		GridBagConstraints gbc_pnlDbgControls = new GridBagConstraints();
+		gbc_pnlDbgControls.insets = new Insets(0, 0, 5, 5);
+		gbc_pnlDbgControls.fill = GridBagConstraints.BOTH;
+		gbc_pnlDbgControls.gridx = 0;
+		gbc_pnlDbgControls.gridy = 0;
+		add(pnlDbgControls, gbc_pnlDbgControls);
+		GridBagLayout gbl_pnlDbgControls = new GridBagLayout();
+		gbl_pnlDbgControls.columnWidths = new int[]{0, 0};
+		gbl_pnlDbgControls.rowHeights = new int[]{0, 0, 0};
+		gbl_pnlDbgControls.columnWeights = new double[]{1.0, Double.MIN_VALUE};
+		gbl_pnlDbgControls.rowWeights = new double[]{0.0, 0.0, Double.MIN_VALUE};
+		pnlDbgControls.setLayout(gbl_pnlDbgControls);
 		
-		JButton btnStepInto = new JButton("Step Into");
-		GridBagConstraints gbc_btnStepInto = new GridBagConstraints();
-		gbc_btnStepInto.insets = new Insets(0, 0, 5, 0);
-		gbc_btnStepInto.fill = GridBagConstraints.HORIZONTAL;
-		gbc_btnStepInto.gridx = 0;
-		gbc_btnStepInto.gridy = 0;
-		pnlCpuCtrl.add(btnStepInto, gbc_btnStepInto);
+		btnStartDebugger = new JButton("Start Debugger");
+		GridBagConstraints gbc_btnStartDebugger = new GridBagConstraints();
+		gbc_btnStartDebugger.fill = GridBagConstraints.HORIZONTAL;
+		gbc_btnStartDebugger.insets = new Insets(0, 0, 5, 0);
+		gbc_btnStartDebugger.gridx = 0;
+		gbc_btnStartDebugger.gridy = 0;
+		pnlDbgControls.add(btnStartDebugger, gbc_btnStartDebugger);
 		
-		JButton btnStepOver = new JButton("Step Over");
-		GridBagConstraints gbc_btnStepOver = new GridBagConstraints();
-		gbc_btnStepOver.fill = GridBagConstraints.HORIZONTAL;
-		gbc_btnStepOver.insets = new Insets(0, 0, 5, 0);
-		gbc_btnStepOver.gridx = 0;
-		gbc_btnStepOver.gridy = 1;
-		pnlCpuCtrl.add(btnStepOver, gbc_btnStepOver);
+		btnStopDebugger = new JButton("Stop Debugger");
+		GridBagConstraints gbc_btnStopDebugger = new GridBagConstraints();
+		gbc_btnStopDebugger.fill = GridBagConstraints.HORIZONTAL;
+		gbc_btnStopDebugger.gridx = 0;
+		gbc_btnStopDebugger.gridy = 1;
+		pnlDbgControls.add(btnStopDebugger, gbc_btnStopDebugger);
+		btnStopDebugger.setEnabled(false);
 		
-		JButton btnPause = new JButton("Pause");
-		GridBagConstraints gbc_btnPause = new GridBagConstraints();
-		gbc_btnPause.insets = new Insets(0, 0, 5, 0);
-		gbc_btnPause.fill = GridBagConstraints.HORIZONTAL;
-		gbc_btnPause.gridx = 0;
-		gbc_btnPause.gridy = 2;
-		pnlCpuCtrl.add(btnPause, gbc_btnPause);
+		JPanel pnlAddressSpace = new JPanel();
+		pnlAddressSpace.setBorder(new TitledBorder(new LineBorder(new Color(0, 0, 0), 1, true), "Goto Address Space", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
+		GridBagConstraints gbc_pnlAddressSpace = new GridBagConstraints();
+		gbc_pnlAddressSpace.insets = new Insets(0, 0, 5, 5);
+		gbc_pnlAddressSpace.fill = GridBagConstraints.HORIZONTAL;
+		gbc_pnlAddressSpace.gridx = 0;
+		gbc_pnlAddressSpace.gridy = 1;
+		add(pnlAddressSpace, gbc_pnlAddressSpace);
+		GridBagLayout gbl_pnlAddressSpace = new GridBagLayout();
+		gbl_pnlAddressSpace.columnWidths = new int[]{0, 0};
+		gbl_pnlAddressSpace.rowHeights = new int[]{0, 0};
+		gbl_pnlAddressSpace.columnWeights = new double[]{1.0, Double.MIN_VALUE};
+		gbl_pnlAddressSpace.rowWeights = new double[]{0.0, Double.MIN_VALUE};
+		pnlAddressSpace.setLayout(gbl_pnlAddressSpace);
 		
-		JButton btnRun = new JButton("Run");
-		GridBagConstraints gbc_btnRun = new GridBagConstraints();
-		gbc_btnRun.fill = GridBagConstraints.HORIZONTAL;
-		gbc_btnRun.gridx = 0;
-		gbc_btnRun.gridy = 3;
-		pnlCpuCtrl.add(btnRun, gbc_btnRun);
+		cbbAddressSpaces = new JComboBox<>();
+		GridBagConstraints gbc_cbbAddressSpaces = new GridBagConstraints();
+		gbc_cbbAddressSpaces.fill = GridBagConstraints.HORIZONTAL;
+		gbc_cbbAddressSpaces.gridx = 0;
+		gbc_cbbAddressSpaces.gridy = 0;
+		pnlAddressSpace.add(cbbAddressSpaces, gbc_cbbAddressSpaces);
 		
 		JTabbedPane tbbRegs = new JTabbedPane(SwingConstants.TOP);
 		GridBagConstraints gbc_tbbRegs = new GridBagConstraints();
+		gbc_tbbRegs.gridheight = 3;
 		gbc_tbbRegs.fill = GridBagConstraints.BOTH;
 		gbc_tbbRegs.gridx = 1;
 		gbc_tbbRegs.gridy = 0;
@@ -225,9 +244,9 @@ public class DebuggerGui extends JPanel {
 		gbc_pnlGprRegs1.gridy = 0;
 		pnlGprRegs.add(pnlGprRegs1, gbc_pnlGprRegs1);
 		GridBagLayout gbl_pnlGprRegs1 = new GridBagLayout();
-		gbl_pnlGprRegs1.columnWidths = new int[]{0, 134, 17, 0, 145, 0};
+		gbl_pnlGprRegs1.columnWidths = new int[]{53, 143, 17, 46, 145, 0};
 		gbl_pnlGprRegs1.rowHeights = new int[]{0, 0, 25, 0, 0, 25, 0, 0, 0, 25, 25, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-		gbl_pnlGprRegs1.columnWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
+		gbl_pnlGprRegs1.columnWeights = new double[]{1.0, 0.0, 0.0, 1.0, 0.0, Double.MIN_VALUE};
 		gbl_pnlGprRegs1.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
 		pnlGprRegs1.setLayout(gbl_pnlGprRegs1);
 		
@@ -685,7 +704,8 @@ public class DebuggerGui extends JPanel {
 		JPanel panel = new JPanel();
 		panel.setBorder(new LineBorder(new Color(0, 0, 0), 1, true));
 		GridBagConstraints gbc_panel = new GridBagConstraints();
-		gbc_panel.fill = GridBagConstraints.BOTH;
+		gbc_panel.anchor = GridBagConstraints.EAST;
+		gbc_panel.fill = GridBagConstraints.VERTICAL;
 		gbc_panel.gridheight = 2;
 		gbc_panel.gridwidth = 2;
 		gbc_panel.insets = new Insets(0, 0, 5, 0);
@@ -800,7 +820,8 @@ public class DebuggerGui extends JPanel {
 		JPanel panel_1 = new JPanel();
 		panel_1.setBorder(new LineBorder(new Color(0, 0, 0), 1, true));
 		GridBagConstraints gbc_panel_1 = new GridBagConstraints();
-		gbc_panel_1.fill = GridBagConstraints.BOTH;
+		gbc_panel_1.anchor = GridBagConstraints.EAST;
+		gbc_panel_1.fill = GridBagConstraints.VERTICAL;
 		gbc_panel_1.gridheight = 2;
 		gbc_panel_1.gridwidth = 2;
 		gbc_panel_1.insets = new Insets(0, 0, 5, 5);
@@ -2548,7 +2569,119 @@ public class DebuggerGui extends JPanel {
 		textField_120.setColumns(10);
 		
 		tbbRegs.setSelectedIndex(0);
+		
+		JPanel pnlCpuCtrl = new JPanel();
+		pnlCpuCtrl.setBorder(new TitledBorder(new LineBorder(new Color(0, 0, 0), 1, true), "CPU Control", TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		GridBagConstraints gbc_pnlCpuCtrl = new GridBagConstraints();
+		gbc_pnlCpuCtrl.fill = GridBagConstraints.HORIZONTAL;
+		gbc_pnlCpuCtrl.anchor = GridBagConstraints.NORTH;
+		gbc_pnlCpuCtrl.insets = new Insets(0, 0, 0, 5);
+		gbc_pnlCpuCtrl.gridx = 0;
+		gbc_pnlCpuCtrl.gridy = 2;
+		add(pnlCpuCtrl, gbc_pnlCpuCtrl);
+		GridBagLayout gbl_pnlCpuCtrl = new GridBagLayout();
+		gbl_pnlCpuCtrl.columnWidths = new int[]{107, 0};
+		gbl_pnlCpuCtrl.rowHeights = new int[]{0, 0, 0, 0, 0};
+		gbl_pnlCpuCtrl.columnWeights = new double[]{1.0, Double.MIN_VALUE};
+		gbl_pnlCpuCtrl.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
+		pnlCpuCtrl.setLayout(gbl_pnlCpuCtrl);
+		
+		btnStepInto = new JButton("Step Into");
+		GridBagConstraints gbc_btnStepInto = new GridBagConstraints();
+		gbc_btnStepInto.fill = GridBagConstraints.HORIZONTAL;
+		gbc_btnStepInto.insets = new Insets(0, 0, 5, 0);
+		gbc_btnStepInto.gridx = 0;
+		gbc_btnStepInto.gridy = 0;
+		pnlCpuCtrl.add(btnStepInto, gbc_btnStepInto);
+		btnStepInto.setEnabled(false);
+		
+		btnStepOver = new JButton("Step Over");
+		GridBagConstraints gbc_btnStepOver = new GridBagConstraints();
+		gbc_btnStepOver.fill = GridBagConstraints.HORIZONTAL;
+		gbc_btnStepOver.insets = new Insets(0, 0, 5, 0);
+		gbc_btnStepOver.gridx = 0;
+		gbc_btnStepOver.gridy = 1;
+		pnlCpuCtrl.add(btnStepOver, gbc_btnStepOver);
+		btnStepOver.setEnabled(false);
+		
+		btnPause = new JButton("Pause");
+		GridBagConstraints gbc_btnPause = new GridBagConstraints();
+		gbc_btnPause.fill = GridBagConstraints.HORIZONTAL;
+		gbc_btnPause.insets = new Insets(0, 0, 5, 0);
+		gbc_btnPause.gridx = 0;
+		gbc_btnPause.gridy = 2;
+		pnlCpuCtrl.add(btnPause, gbc_btnPause);
+		btnPause.setEnabled(false);
+		
+		btnRun = new JButton("Run");
+		GridBagConstraints gbc_btnRun = new GridBagConstraints();
+		gbc_btnRun.fill = GridBagConstraints.HORIZONTAL;
+		gbc_btnRun.gridx = 0;
+		gbc_btnRun.gridy = 3;
+		pnlCpuCtrl.add(btnRun, gbc_btnRun);
+		btnRun.setEnabled(false);
 
 	}
 
+	public void setStartDebuggerAction(ActionListener listener) {
+		btnStartDebugger.addActionListener(listener);
+		btnStartDebugger.addActionListener(a-> {
+			btnStartDebugger.setEnabled(false);
+			btnStopDebugger.setEnabled(true);
+			
+			btnStepInto.setEnabled(true);
+			btnStepOver.setEnabled(true);
+			btnPause.setEnabled(false);
+			btnRun.setEnabled(true);
+			});
+	}
+	
+	public void setStopDebuggerAction(ActionListener listener) {
+		btnStopDebugger.addActionListener(listener);
+		btnStopDebugger.addActionListener(a-> initButtonsState());
+	}
+	
+	public void setStepIntoAction(ActionListener listener) {
+		btnStepInto.addActionListener(listener);
+	}
+	
+	public void setStepOverAction(ActionListener listener) {
+		btnStepOver.addActionListener(listener);
+	}
+	
+	public void setPauseAction(ActionListener listener) {
+		btnPause.addActionListener(listener);
+	}
+	
+	public void setRunAction(ActionListener listener) {
+		btnRun.addActionListener(listener);
+	}
+	
+	public void initButtonsState() {
+		btnStartDebugger.setEnabled(true);
+		btnStopDebugger.setEnabled(false);
+		
+		btnStepInto.setEnabled(false);
+		btnStepOver.setEnabled(false);
+		btnPause.setEnabled(false);
+		btnRun.setEnabled(false);
+	}
+	
+	public void updateAddressSpacesList(String[] list) {
+		cbbAddressSpaces.removeAllItems();
+		
+		cbbAddressSpaces.addItem("DEFAULT");
+		
+		for (String as : list) {
+			cbbAddressSpaces.addItem(as);
+		}
+	}
+	
+	public String getAddressSpace() {
+		return (String)cbbAddressSpaces.getSelectedItem();
+	}
+	
+	public void setPcRegDisplay(long value) {
+		edtPc.setText(String.format("%08X", value));
+	}
 }

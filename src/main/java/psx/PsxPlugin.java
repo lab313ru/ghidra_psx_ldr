@@ -22,9 +22,11 @@ import docking.action.MenuData;
 import docking.tool.ToolConstants;
 import ghidra.app.plugin.PluginCategoryNames;
 import ghidra.app.plugin.ProgramPlugin;
+import ghidra.app.services.GoToService;
 import ghidra.framework.plugintool.*;
 import ghidra.framework.plugintool.util.PluginStatus;
 import ghidra.program.model.listing.Program;
+import psx.debug.DebuggerProvider;
 import ghidra.MiscellaneousPluginPackage;
 
 //@formatter:off
@@ -33,7 +35,8 @@ import ghidra.MiscellaneousPluginPackage;
 	packageName = MiscellaneousPluginPackage.NAME,
 	category = PluginCategoryNames.COMMON,
 	shortDescription = "This plugin creates/imports overlayed binaries for PSX.",
-	description = "This plugin gives an ability to create/import binaries into an overlayed blocks for PSX."
+	description = "This plugin gives an ability to create/import binaries into an overlayed blocks for PSX.",
+	servicesRequired = { GoToService.class }
 )
 //@formatter:on
 public class PsxPlugin extends ProgramPlugin {
@@ -50,12 +53,21 @@ public class PsxPlugin extends ProgramPlugin {
 		super.programActivated(program);
 		
 		if (PsxAnalyzer.isPsxLoader(program)) {
-			dbgProvider = new DebuggerProvider(tool, "PsxDebugger");
-			createAction();
+			createOmAction();
+			createDbgAction();
 		}
 	}
 	
-	private void createAction() {
+	@Override
+	protected void dispose() {
+		if (dbgProvider == null) {
+			return;
+		}
+		
+		dbgProvider.close();
+	}
+	
+	private void createOmAction() {
 		DockingAction openOverlayManagerAction = new DockingAction("PsxOverlayManager", getName()) {
 
 			@Override
@@ -69,8 +81,29 @@ public class PsxPlugin extends ProgramPlugin {
 			}
 		};
 		
-		openOverlayManagerAction.setMenuBarData(new MenuData(new String[] {ToolConstants.MENU_TOOLS, "PSX Overlay Manager..."}, "PsxOverlayManager"));
+		openOverlayManagerAction.setMenuBarData(new MenuData(new String[] {ToolConstants.MENU_TOOLS, "PSX Overlay Manager..."}, "Psx"));
 		tool.addAction(openOverlayManagerAction);
+	}
+	
+	private void createDbgAction() {
+		DockingAction createDebuggerAction = new DockingAction("PsxDebugger", getName()) {
+
+			@Override
+			public void actionPerformed(ActionContext context) {
+				if (dbgProvider == null) {
+					dbgProvider = new DebuggerProvider(getTool(), getName(), currentProgram);
+				}
+				
+				if (!dbgProvider.isVisible()) {
+					dbgProvider.setVisible(true);
+				}
+				
+				dbgProvider.toFront();
+			}
+		};
+		
+		createDebuggerAction.setMenuBarData(new MenuData(new String[] {ToolConstants.MENU_TOOLS, "PSX Debugger..."}, "Psx"));
+		tool.addAction(createDebuggerAction);
 	}
 	
 	private static class OverlayManagerProvider extends DialogComponentProvider {
