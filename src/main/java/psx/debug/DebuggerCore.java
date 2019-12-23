@@ -37,12 +37,17 @@ public class DebuggerCore {
 		try {
 			int b;
 			while ((b = in.read()) > 0) {
+				if ((char)b == '\r') {
+					in.read();
+					break;
+				}
+				
 				result += (char)b;
 			}
 		} catch (IOException ignored) {
 		}
 		
-		return result.trim();
+		return result;
 	}
 	
 	private void writeRequest(String request) throws IOException {
@@ -72,11 +77,11 @@ public class DebuggerCore {
 			return 0L;
 		}
 		
-		int regIndex = Integer.parseInt(gprMatcher.group(1));
-		String regName = gprMatcher.group(2);
+		// int regIndex = Integer.parseInt(gprMatcher.group(1), 16);
+		// String regName = gprMatcher.group(2);
 		long regValue = Long.parseLong(gprMatcher.group(3), 16) & 0xFFFFFFFFL;
 		
-		System.out.println(String.format("Register get \"%s(%d)\"=>%08X", regName, regIndex, regValue));
+		// System.out.println(String.format("Register get \"%s(%d)\"=>%08X", regName, regIndex, regValue));
 		
 		return regValue;
 	}
@@ -104,9 +109,38 @@ public class DebuggerCore {
 		
 		long regValue = Long.parseLong(gprMatcher.group(1), 16) & 0xFFFFFFFFL;
 		
-		System.out.println(String.format("PC=>%08X", regValue));
+		// System.out.println(String.format("PC=>%08X", regValue));
 		
 		return regValue;
+	}
+	
+	public long[] getLoHiRegisters() throws IOException {
+		if (in == null || out == null) {
+			return new long[] {0L, 0L};
+		}
+		
+		DebuggerCmd cmd = DebuggerCmd.CMD_GET_LO_HI_REGS;
+		writeRequest(String.format(cmd.getSendFormat(), cmd.getInt()));
+		
+		String response = readResponse();
+		
+		if (response == null || response.isEmpty()) {
+			return new long[] {0L, 0L};
+		}
+		
+		Pattern gprPattern = Pattern.compile(cmd.getRecvFormat());
+		Matcher gprMatcher = gprPattern.matcher(response);
+		
+		if (!gprMatcher.matches()) {
+			return new long[] {0L, 0L};
+		}
+		
+		long loValue = Long.parseLong(gprMatcher.group(1), 16) & 0xFFFFFFFFL;
+		long hiValue = Long.parseLong(gprMatcher.group(2), 16) & 0xFFFFFFFFL;
+		
+		// System.out.println(String.format("LO=>%08X, HI=>%08X", loValue, hiValue));
+		
+		return new long[] {loValue, hiValue};
 	}
 	
 	public boolean stepInto() throws IOException {
@@ -124,7 +158,7 @@ public class DebuggerCore {
 		}
 		
 		String format = cmd.getRecvFormat();
-		System.out.println("Step into");
+		// System.out.println("Step into");
 		
 		if (format == null) {
 			return true;
@@ -155,7 +189,7 @@ public class DebuggerCore {
 		}
 		
 		String format = cmd.getRecvFormat();
-		System.out.println("Step over");
+		// System.out.println("Step over");
 		
 		if (format == null) {
 			return true;
@@ -186,7 +220,7 @@ public class DebuggerCore {
 		}
 		
 		String format = cmd.getRecvFormat();
-		System.out.println("Run to");
+		// System.out.println("Run to");
 		
 		if (format == null) {
 			return true;
@@ -213,7 +247,7 @@ public class DebuggerCore {
 		}
 		
 		String format = cmd.getRecvFormat();
-		System.out.println("Pause");
+		// System.out.println("Pause");
 		
 		if (format == null) {
 			return true;
@@ -240,7 +274,7 @@ public class DebuggerCore {
 		}
 		
 		String format = cmd.getRecvFormat();
-		System.out.println("Resume");
+		// System.out.println("Resume");
 		
 		if (format == null) {
 			return true;

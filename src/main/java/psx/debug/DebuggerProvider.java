@@ -50,7 +50,7 @@ public class DebuggerProvider extends ComponentProviderAdapter {
 	private void startDebugger() {
 		try {
 			core = new DebuggerCore("localhost");
-			showPcReg();
+			showRegisters();
 		} catch (IOException e) {
 			gui.initButtonsState();
 			Msg.showError(this, gui, "Error", "Cannot connect to debugger server!", e);
@@ -94,6 +94,44 @@ public class DebuggerProvider extends ComponentProviderAdapter {
 		}
 	}
 	
+	private void showGprRegs() {
+		if (core == null) {
+			return;
+		}
+		
+		DebuggerGprRegister[] regs = DebuggerGprRegister.values();
+		
+		for (int i = 0; i < regs.length; ++i) {
+			long gprRegValue = 0L;
+			
+			try {
+				gprRegValue = core.getGprRegister(regs[i]);
+				gui.setGprRegDisplay(regs[i].getInt(), gprRegValue);
+			} catch (IOException e) {
+				Msg.showWarn(this, gui, "Warning", String.format("Cannot get GPR:%s register!", regs[i].getName()));
+				break;
+			}
+		}
+	}
+	
+	private void showLoHiRegs() {
+		long[] loHiValues = new long[] {0L, 0L};
+		
+		try {
+			loHiValues = core.getLoHiRegisters();
+			gui.setLoHiRegsDisplay(loHiValues[0], loHiValues[1]);
+		} catch (IOException e) {
+			Msg.showError(this, gui, "Error", "Cannot get LO/HI values!", e);
+			return;
+		}
+	}
+	
+	private void showRegisters() {
+		showPcReg();
+		showGprRegs();
+		showLoHiRegs();
+	}
+	
 	private void stepInto() {
 		if (core == null) {
 			return;
@@ -107,7 +145,7 @@ public class DebuggerProvider extends ComponentProviderAdapter {
 			Msg.showWarn(this, gui, "Warning", "Cannot step into!");
 		}
 		
-		showPcReg();
+		showRegisters();
 	}
 	
 	private void stepOver() {
@@ -123,7 +161,7 @@ public class DebuggerProvider extends ComponentProviderAdapter {
 			Msg.showWarn(this, gui, "Warning", "Cannot step over!");
 		}
 		
-		showPcReg();
+		showRegisters();
 	}
 	
 	private void pause() {
@@ -137,7 +175,7 @@ public class DebuggerProvider extends ComponentProviderAdapter {
 			Msg.showWarn(this, gui, "Warning", "Cannot pause!");
 		}
 		
-		showPcReg();
+		showRegisters();
 	}
 	
 	private void resume() {

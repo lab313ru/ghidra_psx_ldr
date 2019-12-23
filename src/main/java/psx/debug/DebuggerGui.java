@@ -5,6 +5,8 @@ import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
 import java.awt.event.ActionListener;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.JLabel;
 import javax.swing.JTabbedPane;
@@ -14,15 +16,16 @@ import javax.swing.JSeparator;
 import javax.swing.SwingConstants;
 import javax.swing.border.TitledBorder;
 import java.awt.Color;
+
 import javax.swing.border.LineBorder;
 import javax.swing.JComboBox;
 
 public class DebuggerGui extends JPanel {
-	private JTextField edtPc;
-	private JTextField edtLo;
-	private JTextField edtHi;
+	private JTextField edtPC;
+	private JTextField edtLO;
+	private JTextField edtHI;
 	private JTextField edtR0;
-	private JTextField edtAt;
+	private JTextField edtAT;
 	private JTextField edtV0;
 	private JTextField edtV1;
 	private JTextField edtA0;
@@ -50,9 +53,9 @@ public class DebuggerGui extends JPanel {
 	private JTextField edtT7;
 	private JTextField edtT8;
 	private JTextField edtT9;
-	private JTextField edtGp;
-	private JTextField edtSp;
-	private JTextField edtRa;
+	private JTextField edtGP;
+	private JTextField edtSP;
+	private JTextField edtRA;
 	private JTextField textField_35;
 	private JTextField textField_36;
 	private JTextField textField_37;
@@ -155,6 +158,8 @@ public class DebuggerGui extends JPanel {
 	private final JButton btnStepOver;
 	private final JButton btnPause;
 	private final JButton btnRun;
+	
+	private final Map<String, JTextField> edtGprRegs = new HashMap<>();
 
 	/**
 	 * Create the panel.
@@ -231,7 +236,7 @@ public class DebuggerGui extends JPanel {
 		JPanel pnlGprRegs = new JPanel();
 		tbbRegs.addTab("GPR", null, pnlGprRegs, null);
 		GridBagLayout gbl_pnlGprRegs = new GridBagLayout();
-		gbl_pnlGprRegs.columnWidths = new int[]{143, 0};
+		gbl_pnlGprRegs.columnWidths = new int[]{326, 0};
 		gbl_pnlGprRegs.rowHeights = new int[]{560, 0};
 		gbl_pnlGprRegs.columnWeights = new double[]{0.0, Double.MIN_VALUE};
 		gbl_pnlGprRegs.rowWeights = new double[]{1.0, Double.MIN_VALUE};
@@ -244,7 +249,7 @@ public class DebuggerGui extends JPanel {
 		gbc_pnlGprRegs1.gridy = 0;
 		pnlGprRegs.add(pnlGprRegs1, gbc_pnlGprRegs1);
 		GridBagLayout gbl_pnlGprRegs1 = new GridBagLayout();
-		gbl_pnlGprRegs1.columnWidths = new int[]{53, 143, 17, 46, 145, 0};
+		gbl_pnlGprRegs1.columnWidths = new int[]{53, 97, 17, 38, 109, 0};
 		gbl_pnlGprRegs1.rowHeights = new int[]{0, 0, 25, 0, 0, 25, 0, 0, 0, 25, 25, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 		gbl_pnlGprRegs1.columnWeights = new double[]{1.0, 0.0, 0.0, 1.0, 0.0, Double.MIN_VALUE};
 		gbl_pnlGprRegs1.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
@@ -259,10 +264,11 @@ public class DebuggerGui extends JPanel {
 		pnlGprRegs1.add(lbR0, gbc_lbR0);
 		
 		edtR0 = new JTextField();
+		edtGprRegs.put(DebuggerGprRegister.GPR_R0.getName(), edtR0);
 		lbR0.setLabelFor(edtR0);
 		GridBagConstraints gbc_edtR0 = new GridBagConstraints();
-		gbc_edtR0.insets = new Insets(0, 0, 5, 5);
 		gbc_edtR0.fill = GridBagConstraints.HORIZONTAL;
+		gbc_edtR0.insets = new Insets(0, 0, 5, 5);
 		gbc_edtR0.gridx = 1;
 		gbc_edtR0.gridy = 0;
 		pnlGprRegs1.add(edtR0, gbc_edtR0);
@@ -287,6 +293,7 @@ public class DebuggerGui extends JPanel {
 		pnlGprRegs1.add(lbS0, gbc_lbS0);
 		
 		edtS0 = new JTextField();
+		edtGprRegs.put(DebuggerGprRegister.GPR_S0.getName(), edtS0);
 		lbS0.setLabelFor(edtS0);
 		GridBagConstraints gbc_edtS0 = new GridBagConstraints();
 		gbc_edtS0.fill = GridBagConstraints.HORIZONTAL;
@@ -304,15 +311,16 @@ public class DebuggerGui extends JPanel {
 		gbc_lbAt.gridy = 1;
 		pnlGprRegs1.add(lbAt, gbc_lbAt);
 		
-		edtAt = new JTextField();
-		lbAt.setLabelFor(edtAt);
-		GridBagConstraints gbc_edtAt = new GridBagConstraints();
-		gbc_edtAt.insets = new Insets(0, 0, 5, 5);
-		gbc_edtAt.fill = GridBagConstraints.HORIZONTAL;
-		gbc_edtAt.gridx = 1;
-		gbc_edtAt.gridy = 1;
-		pnlGprRegs1.add(edtAt, gbc_edtAt);
-		edtAt.setColumns(10);
+		edtAT = new JTextField();
+		edtGprRegs.put(DebuggerGprRegister.GPR_AT.getName(), edtAT);
+		lbAt.setLabelFor(edtAT);
+		GridBagConstraints gbc_edtAT = new GridBagConstraints();
+		gbc_edtAT.fill = GridBagConstraints.HORIZONTAL;
+		gbc_edtAT.insets = new Insets(0, 0, 5, 5);
+		gbc_edtAT.gridx = 1;
+		gbc_edtAT.gridy = 1;
+		pnlGprRegs1.add(edtAT, gbc_edtAT);
+		edtAT.setColumns(10);
 		
 		JLabel lbS1 = new JLabel("$s1");
 		GridBagConstraints gbc_lbS1 = new GridBagConstraints();
@@ -323,10 +331,11 @@ public class DebuggerGui extends JPanel {
 		pnlGprRegs1.add(lbS1, gbc_lbS1);
 		
 		edtS1 = new JTextField();
+		edtGprRegs.put(DebuggerGprRegister.GPR_S1.getName(), edtS1);
 		lbS1.setLabelFor(edtS1);
 		GridBagConstraints gbc_edtS1 = new GridBagConstraints();
-		gbc_edtS1.insets = new Insets(0, 0, 5, 0);
 		gbc_edtS1.fill = GridBagConstraints.HORIZONTAL;
+		gbc_edtS1.insets = new Insets(0, 0, 5, 0);
 		gbc_edtS1.gridx = 4;
 		gbc_edtS1.gridy = 1;
 		pnlGprRegs1.add(edtS1, gbc_edtS1);
@@ -350,10 +359,11 @@ public class DebuggerGui extends JPanel {
 		pnlGprRegs1.add(lbS2, gbc_lbS2);
 		
 		edtS2 = new JTextField();
+		edtGprRegs.put(DebuggerGprRegister.GPR_S2.getName(), edtS2);
 		lbS2.setLabelFor(edtS2);
 		GridBagConstraints gbc_edtS2 = new GridBagConstraints();
-		gbc_edtS2.insets = new Insets(0, 0, 5, 0);
 		gbc_edtS2.fill = GridBagConstraints.HORIZONTAL;
+		gbc_edtS2.insets = new Insets(0, 0, 5, 0);
 		gbc_edtS2.gridx = 4;
 		gbc_edtS2.gridy = 2;
 		pnlGprRegs1.add(edtS2, gbc_edtS2);
@@ -368,10 +378,11 @@ public class DebuggerGui extends JPanel {
 		pnlGprRegs1.add(lbV0, gbc_lbV0);
 		
 		edtV0 = new JTextField();
+		edtGprRegs.put(DebuggerGprRegister.GPR_V0.getName(), edtV0);
 		lbV0.setLabelFor(edtV0);
 		GridBagConstraints gbc_edtV0 = new GridBagConstraints();
-		gbc_edtV0.insets = new Insets(0, 0, 5, 5);
 		gbc_edtV0.fill = GridBagConstraints.HORIZONTAL;
+		gbc_edtV0.insets = new Insets(0, 0, 5, 5);
 		gbc_edtV0.gridx = 1;
 		gbc_edtV0.gridy = 3;
 		pnlGprRegs1.add(edtV0, gbc_edtV0);
@@ -386,10 +397,11 @@ public class DebuggerGui extends JPanel {
 		pnlGprRegs1.add(lbS3, gbc_lbS3);
 		
 		edtS3 = new JTextField();
+		edtGprRegs.put(DebuggerGprRegister.GPR_S3.getName(), edtS3);
 		lbS3.setLabelFor(edtS3);
 		GridBagConstraints gbc_edtS3 = new GridBagConstraints();
-		gbc_edtS3.insets = new Insets(0, 0, 5, 0);
 		gbc_edtS3.fill = GridBagConstraints.HORIZONTAL;
+		gbc_edtS3.insets = new Insets(0, 0, 5, 0);
 		gbc_edtS3.gridx = 4;
 		gbc_edtS3.gridy = 3;
 		pnlGprRegs1.add(edtS3, gbc_edtS3);
@@ -404,10 +416,11 @@ public class DebuggerGui extends JPanel {
 		pnlGprRegs1.add(lbV1, gbc_lbV1);
 		
 		edtV1 = new JTextField();
+		edtGprRegs.put(DebuggerGprRegister.GPR_V1.getName(), edtV1);
 		lbV1.setLabelFor(edtV1);
 		GridBagConstraints gbc_edtV1 = new GridBagConstraints();
-		gbc_edtV1.insets = new Insets(0, 0, 5, 5);
 		gbc_edtV1.fill = GridBagConstraints.HORIZONTAL;
+		gbc_edtV1.insets = new Insets(0, 0, 5, 5);
 		gbc_edtV1.gridx = 1;
 		gbc_edtV1.gridy = 4;
 		pnlGprRegs1.add(edtV1, gbc_edtV1);
@@ -422,10 +435,11 @@ public class DebuggerGui extends JPanel {
 		pnlGprRegs1.add(lbS4, gbc_lbS4);
 		
 		edtS4 = new JTextField();
+		edtGprRegs.put(DebuggerGprRegister.GPR_S4.getName(), edtS4);
 		lbS4.setLabelFor(edtS4);
 		GridBagConstraints gbc_edtS4 = new GridBagConstraints();
-		gbc_edtS4.insets = new Insets(0, 0, 5, 0);
 		gbc_edtS4.fill = GridBagConstraints.HORIZONTAL;
+		gbc_edtS4.insets = new Insets(0, 0, 5, 0);
 		gbc_edtS4.gridx = 4;
 		gbc_edtS4.gridy = 4;
 		pnlGprRegs1.add(edtS4, gbc_edtS4);
@@ -449,10 +463,11 @@ public class DebuggerGui extends JPanel {
 		pnlGprRegs1.add(lbS5, gbc_lbS5);
 		
 		edtS5 = new JTextField();
+		edtGprRegs.put(DebuggerGprRegister.GPR_S5.getName(), edtS5);
 		lbS5.setLabelFor(edtS5);
 		GridBagConstraints gbc_edtS5 = new GridBagConstraints();
-		gbc_edtS5.insets = new Insets(0, 0, 5, 0);
 		gbc_edtS5.fill = GridBagConstraints.HORIZONTAL;
+		gbc_edtS5.insets = new Insets(0, 0, 5, 0);
 		gbc_edtS5.gridx = 4;
 		gbc_edtS5.gridy = 5;
 		pnlGprRegs1.add(edtS5, gbc_edtS5);
@@ -467,10 +482,11 @@ public class DebuggerGui extends JPanel {
 		pnlGprRegs1.add(lbA0, gbc_lbA0);
 		
 		edtA0 = new JTextField();
+		edtGprRegs.put(DebuggerGprRegister.GPR_A0.getName(), edtA0);
 		lbA0.setLabelFor(edtA0);
 		GridBagConstraints gbc_edtA0 = new GridBagConstraints();
-		gbc_edtA0.insets = new Insets(0, 0, 5, 5);
 		gbc_edtA0.fill = GridBagConstraints.HORIZONTAL;
+		gbc_edtA0.insets = new Insets(0, 0, 5, 5);
 		gbc_edtA0.gridx = 1;
 		gbc_edtA0.gridy = 6;
 		pnlGprRegs1.add(edtA0, gbc_edtA0);
@@ -485,10 +501,11 @@ public class DebuggerGui extends JPanel {
 		pnlGprRegs1.add(lbS6, gbc_lbS6);
 		
 		edtS6 = new JTextField();
+		edtGprRegs.put(DebuggerGprRegister.GPR_S6.getName(), edtS6);
 		lbS6.setLabelFor(edtS6);
 		GridBagConstraints gbc_edtS6 = new GridBagConstraints();
-		gbc_edtS6.insets = new Insets(0, 0, 5, 0);
 		gbc_edtS6.fill = GridBagConstraints.HORIZONTAL;
+		gbc_edtS6.insets = new Insets(0, 0, 5, 0);
 		gbc_edtS6.gridx = 4;
 		gbc_edtS6.gridy = 6;
 		pnlGprRegs1.add(edtS6, gbc_edtS6);
@@ -503,10 +520,11 @@ public class DebuggerGui extends JPanel {
 		pnlGprRegs1.add(lbA1, gbc_lbA1);
 		
 		edtA1 = new JTextField();
+		edtGprRegs.put(DebuggerGprRegister.GPR_A1.getName(), edtA1);
 		lbA1.setLabelFor(edtA1);
 		GridBagConstraints gbc_edtA1 = new GridBagConstraints();
-		gbc_edtA1.insets = new Insets(0, 0, 5, 5);
 		gbc_edtA1.fill = GridBagConstraints.HORIZONTAL;
+		gbc_edtA1.insets = new Insets(0, 0, 5, 5);
 		gbc_edtA1.gridx = 1;
 		gbc_edtA1.gridy = 7;
 		pnlGprRegs1.add(edtA1, gbc_edtA1);
@@ -521,10 +539,11 @@ public class DebuggerGui extends JPanel {
 		pnlGprRegs1.add(lbS7, gbc_lbS7);
 		
 		edtS7 = new JTextField();
+		edtGprRegs.put(DebuggerGprRegister.GPR_S7.getName(), edtS7);
 		lbS7.setLabelFor(edtS7);
 		GridBagConstraints gbc_edtS7 = new GridBagConstraints();
-		gbc_edtS7.insets = new Insets(0, 0, 5, 0);
 		gbc_edtS7.fill = GridBagConstraints.HORIZONTAL;
+		gbc_edtS7.insets = new Insets(0, 0, 5, 0);
 		gbc_edtS7.gridx = 4;
 		gbc_edtS7.gridy = 7;
 		pnlGprRegs1.add(edtS7, gbc_edtS7);
@@ -539,10 +558,11 @@ public class DebuggerGui extends JPanel {
 		pnlGprRegs1.add(lbA2, gbc_lbA2);
 		
 		edtA2 = new JTextField();
+		edtGprRegs.put(DebuggerGprRegister.GPR_A2.getName(), edtA2);
 		lbA2.setLabelFor(edtA2);
 		GridBagConstraints gbc_edtA2 = new GridBagConstraints();
-		gbc_edtA2.insets = new Insets(0, 0, 5, 5);
 		gbc_edtA2.fill = GridBagConstraints.HORIZONTAL;
+		gbc_edtA2.insets = new Insets(0, 0, 5, 5);
 		gbc_edtA2.gridx = 1;
 		gbc_edtA2.gridy = 8;
 		pnlGprRegs1.add(edtA2, gbc_edtA2);
@@ -557,10 +577,11 @@ public class DebuggerGui extends JPanel {
 		pnlGprRegs1.add(lbS8, gbc_lbS8);
 		
 		edtS8 = new JTextField();
+		edtGprRegs.put(DebuggerGprRegister.GPR_S8.getName(), edtS8);
 		lbS8.setLabelFor(edtS8);
 		GridBagConstraints gbc_edtS8 = new GridBagConstraints();
-		gbc_edtS8.insets = new Insets(0, 0, 5, 0);
 		gbc_edtS8.fill = GridBagConstraints.HORIZONTAL;
+		gbc_edtS8.insets = new Insets(0, 0, 5, 0);
 		gbc_edtS8.gridx = 4;
 		gbc_edtS8.gridy = 8;
 		pnlGprRegs1.add(edtS8, gbc_edtS8);
@@ -575,10 +596,11 @@ public class DebuggerGui extends JPanel {
 		pnlGprRegs1.add(lbA3, gbc_lbA3);
 		
 		edtA3 = new JTextField();
+		edtGprRegs.put(DebuggerGprRegister.GPR_A3.getName(), edtA3);
 		lbA3.setLabelFor(edtA3);
 		GridBagConstraints gbc_edtA3 = new GridBagConstraints();
-		gbc_edtA3.insets = new Insets(0, 0, 5, 5);
 		gbc_edtA3.fill = GridBagConstraints.HORIZONTAL;
+		gbc_edtA3.insets = new Insets(0, 0, 5, 5);
 		gbc_edtA3.gridx = 1;
 		gbc_edtA3.gridy = 9;
 		pnlGprRegs1.add(edtA3, gbc_edtA3);
@@ -611,10 +633,11 @@ public class DebuggerGui extends JPanel {
 		pnlGprRegs1.add(lbK0, gbc_lbK0);
 		
 		edtK0 = new JTextField();
+		edtGprRegs.put(DebuggerGprRegister.GPR_K0.getName(), edtK0);
 		lbK0.setLabelFor(edtK0);
 		GridBagConstraints gbc_edtK0 = new GridBagConstraints();
-		gbc_edtK0.insets = new Insets(0, 0, 5, 0);
 		gbc_edtK0.fill = GridBagConstraints.HORIZONTAL;
+		gbc_edtK0.insets = new Insets(0, 0, 5, 0);
 		gbc_edtK0.gridx = 4;
 		gbc_edtK0.gridy = 10;
 		pnlGprRegs1.add(edtK0, gbc_edtK0);
@@ -629,10 +652,11 @@ public class DebuggerGui extends JPanel {
 		pnlGprRegs1.add(lbT0, gbc_lbT0);
 		
 		edtT0 = new JTextField();
+		edtGprRegs.put(DebuggerGprRegister.GPR_T0.getName(), edtT0);
 		lbT0.setLabelFor(edtT0);
 		GridBagConstraints gbc_edtT0 = new GridBagConstraints();
-		gbc_edtT0.insets = new Insets(0, 0, 5, 5);
 		gbc_edtT0.fill = GridBagConstraints.HORIZONTAL;
+		gbc_edtT0.insets = new Insets(0, 0, 5, 5);
 		gbc_edtT0.gridx = 1;
 		gbc_edtT0.gridy = 11;
 		pnlGprRegs1.add(edtT0, gbc_edtT0);
@@ -647,10 +671,11 @@ public class DebuggerGui extends JPanel {
 		pnlGprRegs1.add(lbK1, gbc_lbK1);
 		
 		edtK1 = new JTextField();
+		edtGprRegs.put(DebuggerGprRegister.GPR_K1.getName(), edtK1);
 		lbK1.setLabelFor(edtK1);
 		GridBagConstraints gbc_edtK1 = new GridBagConstraints();
-		gbc_edtK1.insets = new Insets(0, 0, 5, 0);
 		gbc_edtK1.fill = GridBagConstraints.HORIZONTAL;
+		gbc_edtK1.insets = new Insets(0, 0, 5, 0);
 		gbc_edtK1.gridx = 4;
 		gbc_edtK1.gridy = 11;
 		pnlGprRegs1.add(edtK1, gbc_edtK1);
@@ -665,10 +690,11 @@ public class DebuggerGui extends JPanel {
 		pnlGprRegs1.add(lbT1, gbc_lbT1);
 		
 		edtT1 = new JTextField();
+		edtGprRegs.put(DebuggerGprRegister.GPR_T1.getName(), edtT1);
 		lbT1.setLabelFor(edtT1);
 		GridBagConstraints gbc_edtT1 = new GridBagConstraints();
-		gbc_edtT1.insets = new Insets(0, 0, 5, 5);
 		gbc_edtT1.fill = GridBagConstraints.HORIZONTAL;
+		gbc_edtT1.insets = new Insets(0, 0, 5, 5);
 		gbc_edtT1.gridx = 1;
 		gbc_edtT1.gridy = 12;
 		pnlGprRegs1.add(edtT1, gbc_edtT1);
@@ -692,67 +718,35 @@ public class DebuggerGui extends JPanel {
 		pnlGprRegs1.add(lbT2, gbc_lbT2);
 		
 		edtT2 = new JTextField();
+		edtGprRegs.put(DebuggerGprRegister.GPR_T2.getName(), edtT2);
 		lbT2.setLabelFor(edtT2);
 		GridBagConstraints gbc_edtT2 = new GridBagConstraints();
-		gbc_edtT2.insets = new Insets(0, 0, 5, 5);
 		gbc_edtT2.fill = GridBagConstraints.HORIZONTAL;
+		gbc_edtT2.insets = new Insets(0, 0, 5, 5);
 		gbc_edtT2.gridx = 1;
 		gbc_edtT2.gridy = 13;
 		pnlGprRegs1.add(edtT2, gbc_edtT2);
 		edtT2.setColumns(10);
 		
-		JPanel panel = new JPanel();
-		panel.setBorder(new LineBorder(new Color(0, 0, 0), 1, true));
-		GridBagConstraints gbc_panel = new GridBagConstraints();
-		gbc_panel.anchor = GridBagConstraints.EAST;
-		gbc_panel.fill = GridBagConstraints.VERTICAL;
-		gbc_panel.gridheight = 2;
-		gbc_panel.gridwidth = 2;
-		gbc_panel.insets = new Insets(0, 0, 5, 0);
-		gbc_panel.gridx = 3;
-		gbc_panel.gridy = 13;
-		pnlGprRegs1.add(panel, gbc_panel);
-		GridBagLayout gbl_panel = new GridBagLayout();
-		gbl_panel.columnWidths = new int[]{0, 145, 0};
-		gbl_panel.rowHeights = new int[]{0, 0, 0};
-		gbl_panel.columnWeights = new double[]{0.0, 0.0, Double.MIN_VALUE};
-		gbl_panel.rowWeights = new double[]{0.0, 0.0, Double.MIN_VALUE};
-		panel.setLayout(gbl_panel);
-		
 		JLabel lbGp = new JLabel("$gp");
 		GridBagConstraints gbc_lbGp = new GridBagConstraints();
 		gbc_lbGp.anchor = GridBagConstraints.EAST;
 		gbc_lbGp.insets = new Insets(0, 0, 5, 5);
-		gbc_lbGp.gridx = 0;
-		gbc_lbGp.gridy = 0;
-		panel.add(lbGp, gbc_lbGp);
+		gbc_lbGp.gridx = 3;
+		gbc_lbGp.gridy = 13;
+		pnlGprRegs1.add(lbGp, gbc_lbGp);
 		
-		edtGp = new JTextField();
-		lbGp.setLabelFor(edtGp);
-		GridBagConstraints gbc_edtGp = new GridBagConstraints();
-		gbc_edtGp.fill = GridBagConstraints.HORIZONTAL;
-		gbc_edtGp.insets = new Insets(0, 0, 5, 0);
-		gbc_edtGp.gridx = 1;
-		gbc_edtGp.gridy = 0;
-		panel.add(edtGp, gbc_edtGp);
-		edtGp.setColumns(10);
-		
-		JLabel lbSp = new JLabel("$sp");
-		GridBagConstraints gbc_lbSp = new GridBagConstraints();
-		gbc_lbSp.anchor = GridBagConstraints.EAST;
-		gbc_lbSp.insets = new Insets(0, 0, 0, 5);
-		gbc_lbSp.gridx = 0;
-		gbc_lbSp.gridy = 1;
-		panel.add(lbSp, gbc_lbSp);
-		
-		edtSp = new JTextField();
-		lbSp.setLabelFor(edtSp);
-		GridBagConstraints gbc_edtSp = new GridBagConstraints();
-		gbc_edtSp.fill = GridBagConstraints.HORIZONTAL;
-		gbc_edtSp.gridx = 1;
-		gbc_edtSp.gridy = 1;
-		panel.add(edtSp, gbc_edtSp);
-		edtSp.setColumns(10);
+		edtGP = new JTextField();
+		edtGP.setBackground(Color.PINK);
+		lbGp.setLabelFor(edtGP);
+		GridBagConstraints gbc_edtGP = new GridBagConstraints();
+		gbc_edtGP.fill = GridBagConstraints.HORIZONTAL;
+		gbc_edtGP.insets = new Insets(0, 0, 5, 0);
+		gbc_edtGP.gridx = 4;
+		gbc_edtGP.gridy = 13;
+		pnlGprRegs1.add(edtGP, gbc_edtGP);
+		edtGprRegs.put(DebuggerGprRegister.GPR_GP.getName(), edtGP);
+		edtGP.setColumns(10);
 		
 		JLabel lbT3 = new JLabel("$t3");
 		GridBagConstraints gbc_lbT3 = new GridBagConstraints();
@@ -763,14 +757,35 @@ public class DebuggerGui extends JPanel {
 		pnlGprRegs1.add(lbT3, gbc_lbT3);
 		
 		edtT3 = new JTextField();
+		edtGprRegs.put(DebuggerGprRegister.GPR_T3.getName(), edtT3);
 		lbT3.setLabelFor(edtT3);
 		GridBagConstraints gbc_edtT3 = new GridBagConstraints();
-		gbc_edtT3.insets = new Insets(0, 0, 5, 5);
 		gbc_edtT3.fill = GridBagConstraints.HORIZONTAL;
+		gbc_edtT3.insets = new Insets(0, 0, 5, 5);
 		gbc_edtT3.gridx = 1;
 		gbc_edtT3.gridy = 14;
 		pnlGprRegs1.add(edtT3, gbc_edtT3);
 		edtT3.setColumns(10);
+		
+		JLabel lbSp = new JLabel("$sp");
+		GridBagConstraints gbc_lbSp = new GridBagConstraints();
+		gbc_lbSp.anchor = GridBagConstraints.EAST;
+		gbc_lbSp.insets = new Insets(0, 0, 5, 5);
+		gbc_lbSp.gridx = 3;
+		gbc_lbSp.gridy = 14;
+		pnlGprRegs1.add(lbSp, gbc_lbSp);
+		
+		edtSP = new JTextField();
+		edtSP.setBackground(Color.PINK);
+		lbSp.setLabelFor(edtSP);
+		GridBagConstraints gbc_edtSP = new GridBagConstraints();
+		gbc_edtSP.fill = GridBagConstraints.HORIZONTAL;
+		gbc_edtSP.insets = new Insets(0, 0, 5, 0);
+		gbc_edtSP.gridx = 4;
+		gbc_edtSP.gridy = 14;
+		pnlGprRegs1.add(edtSP, gbc_edtSP);
+		edtGprRegs.put(DebuggerGprRegister.GPR_SP.getName(), edtSP);
+		edtSP.setColumns(10);
 		
 		JLabel lbT4 = new JLabel("$t4");
 		GridBagConstraints gbc_lbT4 = new GridBagConstraints();
@@ -781,10 +796,11 @@ public class DebuggerGui extends JPanel {
 		pnlGprRegs1.add(lbT4, gbc_lbT4);
 		
 		edtT4 = new JTextField();
+		edtGprRegs.put(DebuggerGprRegister.GPR_T4.getName(), edtT4);
 		lbT4.setLabelFor(edtT4);
 		GridBagConstraints gbc_edtT4 = new GridBagConstraints();
-		gbc_edtT4.insets = new Insets(0, 0, 5, 5);
 		gbc_edtT4.fill = GridBagConstraints.HORIZONTAL;
+		gbc_edtT4.insets = new Insets(0, 0, 5, 5);
 		gbc_edtT4.gridx = 1;
 		gbc_edtT4.gridy = 15;
 		pnlGprRegs1.add(edtT4, gbc_edtT4);
@@ -808,67 +824,34 @@ public class DebuggerGui extends JPanel {
 		pnlGprRegs1.add(lbT5, gbc_lbT5);
 		
 		edtT5 = new JTextField();
+		edtGprRegs.put(DebuggerGprRegister.GPR_T5.getName(), edtT5);
 		lbT5.setLabelFor(edtT5);
 		GridBagConstraints gbc_edtT5 = new GridBagConstraints();
-		gbc_edtT5.insets = new Insets(0, 0, 5, 5);
 		gbc_edtT5.fill = GridBagConstraints.HORIZONTAL;
+		gbc_edtT5.insets = new Insets(0, 0, 5, 5);
 		gbc_edtT5.gridx = 1;
 		gbc_edtT5.gridy = 16;
 		pnlGprRegs1.add(edtT5, gbc_edtT5);
 		edtT5.setColumns(10);
 		
-		JPanel panel_1 = new JPanel();
-		panel_1.setBorder(new LineBorder(new Color(0, 0, 0), 1, true));
-		GridBagConstraints gbc_panel_1 = new GridBagConstraints();
-		gbc_panel_1.anchor = GridBagConstraints.EAST;
-		gbc_panel_1.fill = GridBagConstraints.VERTICAL;
-		gbc_panel_1.gridheight = 2;
-		gbc_panel_1.gridwidth = 2;
-		gbc_panel_1.insets = new Insets(0, 0, 5, 5);
-		gbc_panel_1.gridx = 3;
-		gbc_panel_1.gridy = 16;
-		pnlGprRegs1.add(panel_1, gbc_panel_1);
-		GridBagLayout gbl_panel_1 = new GridBagLayout();
-		gbl_panel_1.columnWidths = new int[]{0, 145, 0};
-		gbl_panel_1.rowHeights = new int[]{0, 0, 0};
-		gbl_panel_1.columnWeights = new double[]{0.0, 0.0, Double.MIN_VALUE};
-		gbl_panel_1.rowWeights = new double[]{0.0, 0.0, Double.MIN_VALUE};
-		panel_1.setLayout(gbl_panel_1);
-		
 		JLabel lbPc = new JLabel("$pc");
 		GridBagConstraints gbc_lbPc = new GridBagConstraints();
 		gbc_lbPc.anchor = GridBagConstraints.EAST;
 		gbc_lbPc.insets = new Insets(0, 0, 5, 5);
-		gbc_lbPc.gridx = 0;
-		gbc_lbPc.gridy = 0;
-		panel_1.add(lbPc, gbc_lbPc);
+		gbc_lbPc.gridx = 3;
+		gbc_lbPc.gridy = 16;
+		pnlGprRegs1.add(lbPc, gbc_lbPc);
 		
-		edtPc = new JTextField();
-		lbPc.setLabelFor(edtPc);
-		GridBagConstraints gbc_edtPc = new GridBagConstraints();
-		gbc_edtPc.fill = GridBagConstraints.HORIZONTAL;
-		gbc_edtPc.insets = new Insets(0, 0, 5, 0);
-		gbc_edtPc.gridx = 1;
-		gbc_edtPc.gridy = 0;
-		panel_1.add(edtPc, gbc_edtPc);
-		edtPc.setColumns(10);
-		
-		JLabel lbRa = new JLabel("$ra");
-		GridBagConstraints gbc_lbRa = new GridBagConstraints();
-		gbc_lbRa.anchor = GridBagConstraints.EAST;
-		gbc_lbRa.insets = new Insets(0, 0, 0, 5);
-		gbc_lbRa.gridx = 0;
-		gbc_lbRa.gridy = 1;
-		panel_1.add(lbRa, gbc_lbRa);
-		
-		edtRa = new JTextField();
-		lbRa.setLabelFor(edtRa);
-		GridBagConstraints gbc_edtRa = new GridBagConstraints();
-		gbc_edtRa.fill = GridBagConstraints.HORIZONTAL;
-		gbc_edtRa.gridx = 1;
-		gbc_edtRa.gridy = 1;
-		panel_1.add(edtRa, gbc_edtRa);
-		edtRa.setColumns(10);
+		edtPC = new JTextField();
+		edtPC.setBackground(Color.PINK);
+		GridBagConstraints gbc_edtPC = new GridBagConstraints();
+		gbc_edtPC.fill = GridBagConstraints.HORIZONTAL;
+		gbc_edtPC.insets = new Insets(0, 0, 5, 0);
+		gbc_edtPC.gridx = 4;
+		gbc_edtPC.gridy = 16;
+		pnlGprRegs1.add(edtPC, gbc_edtPC);
+		edtPC.setColumns(10);
+		lbPc.setLabelFor(edtPC);
 		
 		JLabel lbT6 = new JLabel("$t6");
 		GridBagConstraints gbc_lbT6 = new GridBagConstraints();
@@ -879,14 +862,35 @@ public class DebuggerGui extends JPanel {
 		pnlGprRegs1.add(lbT6, gbc_lbT6);
 		
 		edtT6 = new JTextField();
+		edtGprRegs.put(DebuggerGprRegister.GPR_T6.getName(), edtT6);
 		lbT6.setLabelFor(edtT6);
 		GridBagConstraints gbc_edtT6 = new GridBagConstraints();
-		gbc_edtT6.insets = new Insets(0, 0, 5, 5);
 		gbc_edtT6.fill = GridBagConstraints.HORIZONTAL;
+		gbc_edtT6.insets = new Insets(0, 0, 5, 5);
 		gbc_edtT6.gridx = 1;
 		gbc_edtT6.gridy = 17;
 		pnlGprRegs1.add(edtT6, gbc_edtT6);
 		edtT6.setColumns(10);
+		
+		JLabel lbRa = new JLabel("$ra");
+		GridBagConstraints gbc_lbRa = new GridBagConstraints();
+		gbc_lbRa.anchor = GridBagConstraints.EAST;
+		gbc_lbRa.insets = new Insets(0, 0, 5, 5);
+		gbc_lbRa.gridx = 3;
+		gbc_lbRa.gridy = 17;
+		pnlGprRegs1.add(lbRa, gbc_lbRa);
+		lbRa.setLabelFor(edtRA);
+		
+		edtRA = new JTextField();
+		edtRA.setBackground(Color.PINK);
+		GridBagConstraints gbc_edtRA = new GridBagConstraints();
+		gbc_edtRA.fill = GridBagConstraints.HORIZONTAL;
+		gbc_edtRA.insets = new Insets(0, 0, 5, 0);
+		gbc_edtRA.gridx = 4;
+		gbc_edtRA.gridy = 17;
+		pnlGprRegs1.add(edtRA, gbc_edtRA);
+		edtGprRegs.put(DebuggerGprRegister.GPR_RA.getName(), edtRA);
+		edtRA.setColumns(10);
 		
 		JLabel lbT7 = new JLabel("$t7");
 		GridBagConstraints gbc_lbT7 = new GridBagConstraints();
@@ -897,10 +901,11 @@ public class DebuggerGui extends JPanel {
 		pnlGprRegs1.add(lbT7, gbc_lbT7);
 		
 		edtT7 = new JTextField();
+		edtGprRegs.put(DebuggerGprRegister.GPR_T7.getName(), edtT7);
 		lbT7.setLabelFor(edtT7);
 		GridBagConstraints gbc_edtT7 = new GridBagConstraints();
-		gbc_edtT7.insets = new Insets(0, 0, 5, 5);
 		gbc_edtT7.fill = GridBagConstraints.HORIZONTAL;
+		gbc_edtT7.insets = new Insets(0, 0, 5, 5);
 		gbc_edtT7.gridx = 1;
 		gbc_edtT7.gridy = 18;
 		pnlGprRegs1.add(edtT7, gbc_edtT7);
@@ -924,10 +929,11 @@ public class DebuggerGui extends JPanel {
 		pnlGprRegs1.add(lbT8, gbc_lbT8);
 		
 		edtT8 = new JTextField();
+		edtGprRegs.put(DebuggerGprRegister.GPR_T8.getName(), edtT8);
 		lbT8.setLabelFor(edtT8);
 		GridBagConstraints gbc_edtT8 = new GridBagConstraints();
-		gbc_edtT8.insets = new Insets(0, 0, 5, 5);
 		gbc_edtT8.fill = GridBagConstraints.HORIZONTAL;
+		gbc_edtT8.insets = new Insets(0, 0, 5, 5);
 		gbc_edtT8.gridx = 1;
 		gbc_edtT8.gridy = 19;
 		pnlGprRegs1.add(edtT8, gbc_edtT8);
@@ -941,15 +947,15 @@ public class DebuggerGui extends JPanel {
 		gbc_lbLo.gridy = 19;
 		pnlGprRegs1.add(lbLo, gbc_lbLo);
 		
-		edtLo = new JTextField();
-		lbLo.setLabelFor(edtLo);
-		GridBagConstraints gbc_edtLo = new GridBagConstraints();
-		gbc_edtLo.fill = GridBagConstraints.HORIZONTAL;
-		gbc_edtLo.insets = new Insets(0, 0, 5, 0);
-		gbc_edtLo.gridx = 4;
-		gbc_edtLo.gridy = 19;
-		pnlGprRegs1.add(edtLo, gbc_edtLo);
-		edtLo.setColumns(10);
+		edtLO = new JTextField();
+		lbLo.setLabelFor(edtLO);
+		GridBagConstraints gbc_edtLO = new GridBagConstraints();
+		gbc_edtLO.fill = GridBagConstraints.HORIZONTAL;
+		gbc_edtLO.insets = new Insets(0, 0, 5, 0);
+		gbc_edtLO.gridx = 4;
+		gbc_edtLO.gridy = 19;
+		pnlGprRegs1.add(edtLO, gbc_edtLO);
+		edtLO.setColumns(10);
 		
 		JLabel lbT9 = new JLabel("$t9");
 		GridBagConstraints gbc_lbT9 = new GridBagConstraints();
@@ -960,10 +966,11 @@ public class DebuggerGui extends JPanel {
 		pnlGprRegs1.add(lbT9, gbc_lbT9);
 		
 		edtT9 = new JTextField();
+		edtGprRegs.put(DebuggerGprRegister.GPR_T9.getName(), edtT9);
 		lbT9.setLabelFor(edtT9);
 		GridBagConstraints gbc_edtT9 = new GridBagConstraints();
-		gbc_edtT9.insets = new Insets(0, 0, 0, 5);
 		gbc_edtT9.fill = GridBagConstraints.HORIZONTAL;
+		gbc_edtT9.insets = new Insets(0, 0, 0, 5);
 		gbc_edtT9.gridx = 1;
 		gbc_edtT9.gridy = 20;
 		pnlGprRegs1.add(edtT9, gbc_edtT9);
@@ -977,14 +984,14 @@ public class DebuggerGui extends JPanel {
 		gbc_lbHi.gridy = 20;
 		pnlGprRegs1.add(lbHi, gbc_lbHi);
 		
-		edtHi = new JTextField();
-		lbHi.setLabelFor(edtHi);
-		GridBagConstraints gbc_edtHi = new GridBagConstraints();
-		gbc_edtHi.fill = GridBagConstraints.HORIZONTAL;
-		gbc_edtHi.gridx = 4;
-		gbc_edtHi.gridy = 20;
-		pnlGprRegs1.add(edtHi, gbc_edtHi);
-		edtHi.setColumns(10);
+		edtHI = new JTextField();
+		lbHi.setLabelFor(edtHI);
+		GridBagConstraints gbc_edtHI = new GridBagConstraints();
+		gbc_edtHI.fill = GridBagConstraints.HORIZONTAL;
+		gbc_edtHI.gridx = 4;
+		gbc_edtHI.gridy = 20;
+		pnlGprRegs1.add(edtHI, gbc_edtHI);
+		edtHI.setColumns(10);
 		
 		JPanel pnlCop0Regs = new JPanel();
 		tbbRegs.addTab("COP0", null, pnlCop0Regs, null);
@@ -2682,6 +2689,21 @@ public class DebuggerGui extends JPanel {
 	}
 	
 	public void setPcRegDisplay(long value) {
-		edtPc.setText(String.format("%08X", value));
+		edtPC.setText(String.format("%08X", value));
+	}
+	
+	public void setGprRegDisplay(int index, long value) {
+		DebuggerGprRegister[] regs = DebuggerGprRegister.values();
+		if (index >= regs.length) {
+			return;
+		}
+		
+		JTextField f = edtGprRegs.get(regs[index].getName());
+		f.setText(String.format("%08X", value));
+	}
+	
+	public void setLoHiRegsDisplay(long loValue, long hiValue) {
+		edtLO.setText(String.format("%08X", loValue));
+		edtHI.setText(String.format("%08X", hiValue));
 	}
 }
