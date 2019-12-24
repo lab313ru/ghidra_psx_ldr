@@ -3,6 +3,7 @@ package psx.debug;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
@@ -51,7 +52,7 @@ public class DebuggerProvider extends ComponentProviderAdapter {
 		try {
 			core = new DebuggerCore("localhost");
 			showRegisters();
-		} catch (IOException e) {
+		} catch (InterruptedException | ExecutionException | IOException e) {
 			gui.initButtonsState();
 			Msg.showError(this, gui, "Error", "Cannot connect to debugger server!", e);
 		}
@@ -75,7 +76,7 @@ public class DebuggerProvider extends ComponentProviderAdapter {
 		try {
 			pc = core.getPcRegister();
 			gui.setPcRegDisplay(pc);
-		} catch (IOException e) {
+		} catch (InterruptedException | ExecutionException e) {
 			Msg.showError(this, gui, "Error", "Cannot get PC value!", e);
 			return;
 		}
@@ -107,7 +108,7 @@ public class DebuggerProvider extends ComponentProviderAdapter {
 			try {
 				gprRegValue = core.getGprRegister(regs[i]);
 				gui.setGprRegDisplay(regs[i].getInt(), gprRegValue);
-			} catch (IOException e) {
+			} catch (InterruptedException | ExecutionException e) {
 				Msg.showWarn(this, gui, "Warning", String.format("Cannot get GPR:%s register!", regs[i].getName()));
 				break;
 			}
@@ -120,7 +121,7 @@ public class DebuggerProvider extends ComponentProviderAdapter {
 		try {
 			loHiValues = core.getLoHiRegisters();
 			gui.setLoHiRegsDisplay(loHiValues[0], loHiValues[1]);
-		} catch (IOException e) {
+		} catch (InterruptedException | ExecutionException e) {
 			Msg.showError(this, gui, "Error", "Cannot get LO/HI values!", e);
 			return;
 		}
@@ -139,9 +140,9 @@ public class DebuggerProvider extends ComponentProviderAdapter {
 		
 		try {
 			if (!core.stepInto()) {
-				throw new IOException();
+				throw new InterruptedException();
 			}
-		} catch (IOException e) {
+		} catch (InterruptedException | ExecutionException e) {
 			Msg.showWarn(this, gui, "Warning", "Cannot step into!");
 		}
 		
@@ -155,9 +156,9 @@ public class DebuggerProvider extends ComponentProviderAdapter {
 		
 		try {
 			if (!core.stepOver()) {
-				throw new IOException();
+				throw new InterruptedException();
 			}
-		} catch (IOException e) {
+		} catch (InterruptedException | ExecutionException e) {
 			Msg.showWarn(this, gui, "Warning", "Cannot step over!");
 		}
 		
@@ -171,7 +172,7 @@ public class DebuggerProvider extends ComponentProviderAdapter {
 		
 		try {
 			core.pause();
-		} catch (IOException e) {
+		} catch (InterruptedException | ExecutionException e) {
 			Msg.showWarn(this, gui, "Warning", "Cannot pause!");
 		}
 		
@@ -185,7 +186,7 @@ public class DebuggerProvider extends ComponentProviderAdapter {
 		
 		try {
 			core.resume();
-		} catch (IOException e) {
+		} catch (InterruptedException | ExecutionException e) {
 			Msg.showWarn(this, gui, "Warning", "Cannot resume!");
 		}
 	}

@@ -47,13 +47,13 @@ public enum DebuggerCmd {
 	
 	CMD_PAUSE_EXECUTION(0x390, noArgs(), ""),
 	CMD_RESUME_EXECUTION(0x391, noArgs(), ""),
-	CMD_TRACE_EXECUTION(0x395, noArgs(), null),
+	CMD_TRACE_EXECUTION(0x395, noArgs(), ""),
 	
 	CMD_SOFT_RESET(0x398, noArgs(), ""),
 	CMD_HARD_RESET(0x399, noArgs(), ""),
 	
-	CMD_RUN_TO(0x3A0, oneLongArg(), null),
-	CMD_STEP_OVER(0x3A1, noArgs(), null);
+	CMD_RUN_TO(0x3A0, oneLongArg(), ""),
+	CMD_STEP_OVER(0x3A1, noArgs(), "");
 	
 	private static final String NO_ARGS = "%03X ";
 	private static final String ONE_WORD_ARG = "%03X %02X";

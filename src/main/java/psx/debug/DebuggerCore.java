@@ -1,66 +1,67 @@
 package psx.debug;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
-import java.net.Socket;
-import java.net.UnknownHostException;
+import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
+import java.nio.channels.AsynchronousSocketChannel;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class DebuggerCore {
 
 	public static final int DEBUG_PORT = 12345;
-	private final Socket socket;
-	private DataInputStream in = null;
-	private DataOutputStream out = null;
+	private final AsynchronousSocketChannel client;
 	
-	public DebuggerCore(String debugHost) throws UnknownHostException, IOException {
-		socket = new Socket(debugHost, DEBUG_PORT);
+	public DebuggerCore(String debugHost) throws InterruptedException, ExecutionException, IOException {
+		client = AsynchronousSocketChannel.open();
+		InetSocketAddress hostAddress = new InetSocketAddress(debugHost, DEBUG_PORT);
+		Future<Void> future = client.connect(hostAddress);
 		
-		if (socket == null) {
-			return;
-		}
+		future.get();
 		
-		socket.setSoTimeout(100);
-		
-		in = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
-		out = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()));
-		System.out.println(readResponse());
+		readResponse(this::printToConsole);
 	}
 	
-	private String readResponse() {
-		String result = "";
-		
-		try {
-			int b;
-			while ((b = in.read()) > 0) {
-				if ((char)b == '\r') {
-					in.read();
-					break;
-				}
-				
-				result += (char)b;
+	private String printToConsole(String line) {
+		System.out.println(line);
+		return null;
+	}
+	
+	@SuppressWarnings("unchecked")
+	private void readResponse(Function<String, String> fn) {
+		CompletableFuture<String> future = CompletableFuture.supplyAsync(() -> {
+			ByteBuffer buffer = ByteBuffer.allocate(256); 
+			try {
+				client.read(buffer).get();
+			} catch (InterruptedException | ExecutionException e) {
+				return null;
 			}
-		} catch (IOException ignored) {
-		}
+			return new String(buffer.array()).trim();
+		});
 		
-		return result;
+		future.thenApplyAsync(res -> fn.apply(res));
 	}
 	
-	private void writeRequest(String request) throws IOException {
+	private void writeRequest(String request) throws InterruptedException, ExecutionException {
 		request += "\r\n";
-		out.writeBytes(request);
-		out.flush();
+		ByteBuffer buffer = ByteBuffer.wrap(request.getBytes());
+		Future<Integer> write = client.write(buffer);
+		write.get();
 	}
 	
-	public long getGprRegister(DebuggerGprRegister gpr) throws IOException {
-		if (in == null || out == null) {
-			return 0L;
-		}
-		
+	public long getGprRegister(DebuggerGprRegister gpr, Function<String, String> callback) throws InterruptedException, ExecutionException {
 		DebuggerCmd cmd = DebuggerCmd.CMD_GET_GPR_REG;
 		writeRequest(String.format(cmd.getSendFormat(), cmd.getInt(), gpr.getInt()));
 		
@@ -86,11 +87,7 @@ public class DebuggerCore {
 		return regValue;
 	}
 	
-	public long getPcRegister() throws IOException {
-		if (in == null || out == null) {
-			return 0L;
-		}
-		
+	public long getPcRegister() throws InterruptedException, ExecutionException {
 		DebuggerCmd cmd = DebuggerCmd.CMD_GET_PC_REG;
 		writeRequest(String.format(cmd.getSendFormat(), cmd.getInt()));
 		
@@ -114,11 +111,7 @@ public class DebuggerCore {
 		return regValue;
 	}
 	
-	public long[] getLoHiRegisters() throws IOException {
-		if (in == null || out == null) {
-			return new long[] {0L, 0L};
-		}
-		
+	public long[] getLoHiRegisters() throws InterruptedException, ExecutionException {
 		DebuggerCmd cmd = DebuggerCmd.CMD_GET_LO_HI_REGS;
 		writeRequest(String.format(cmd.getSendFormat(), cmd.getInt()));
 		
@@ -143,150 +136,59 @@ public class DebuggerCore {
 		return new long[] {loValue, hiValue};
 	}
 	
-	public boolean stepInto() throws IOException {
-		if (in == null || out == null) {
-			return false;
-		}
-		
+	public boolean stepInto() throws InterruptedException, ExecutionException {
 		DebuggerCmd cmd = DebuggerCmd.CMD_TRACE_EXECUTION;
 		writeRequest(String.format(cmd.getSendFormat(), cmd.getInt()));
 		
 		String response = readResponse();
-		
-		if (response == null || response.isEmpty()) {
-			return false;
-		}
-		
-		String format = cmd.getRecvFormat();
-		// System.out.println("Step into");
-		
-		if (format == null) {
-			return true;
-		}
-		
-		Pattern gprPattern = Pattern.compile(format);
-		Matcher gprMatcher = gprPattern.matcher(response);
-		
-		if (!gprMatcher.matches()) {
-			return false;
-		}
 
-		return true;
+		return !(response == null || response.isEmpty());
 	}
 	
-	public boolean stepOver() throws IOException {
-		if (in == null || out == null) {
-			return false;
-		}
-		
+	public boolean stepOver() throws InterruptedException, ExecutionException {
 		DebuggerCmd cmd = DebuggerCmd.CMD_STEP_OVER;
 		writeRequest(String.format(cmd.getSendFormat(), cmd.getInt()));
 		
 		String response = readResponse();
-		
-		if (response == null || response.isEmpty()) {
-			return false;
-		}
-		
-		String format = cmd.getRecvFormat();
-		// System.out.println("Step over");
-		
-		if (format == null) {
-			return true;
-		}
-		
-		Pattern gprPattern = Pattern.compile(format);
-		Matcher gprMatcher = gprPattern.matcher(response);
-		
-		if (!gprMatcher.matches()) {
-			return false;
-		}
-		
-		return true;
+
+		return !(response == null || response.isEmpty());
 	}
 	
-	public boolean runTo() throws IOException {
-		if (in == null || out == null) {
-			return false;
-		}
-		
+	public boolean runTo() throws InterruptedException, ExecutionException {
 		DebuggerCmd cmd = DebuggerCmd.CMD_RUN_TO;
 		writeRequest(String.format(cmd.getSendFormat(), cmd.getInt()));
 		
 		String response = readResponse();
-		
-		if (response == null || response.isEmpty()) {
-			return false;
-		}
-		
-		String format = cmd.getRecvFormat();
-		// System.out.println("Run to");
-		
-		if (format == null) {
-			return true;
-		}
-		
-		Pattern gprPattern = Pattern.compile(format);
-		Matcher gprMatcher = gprPattern.matcher(response);
-		
-		return gprMatcher.matches();
+
+		return !(response == null || response.isEmpty());
 	}
 	
-	public boolean pause() throws IOException {
-		if (in == null || out == null) {
-			return false;
-		}
-		
+	public boolean pause() throws InterruptedException, ExecutionException {
 		DebuggerCmd cmd = DebuggerCmd.CMD_PAUSE_EXECUTION;
 		writeRequest(String.format(cmd.getSendFormat(), cmd.getInt()));
 
 		String response = readResponse();
-		
-		if (response == null || response.isEmpty()) {
-			return false;
-		}
-		
-		String format = cmd.getRecvFormat();
-		// System.out.println("Pause");
-		
-		if (format == null) {
-			return true;
-		}
-		
-		Pattern gprPattern = Pattern.compile(format);
-		Matcher gprMatcher = gprPattern.matcher(response);
-		
-		return gprMatcher.matches();
+
+		return !(response == null || response.isEmpty());
 	}
 	
-	public boolean resume() throws IOException {
-		if (in == null || out == null) {
-			return false;
-		}
-		
+	public boolean resume() throws InterruptedException, ExecutionException {
 		DebuggerCmd cmd = DebuggerCmd.CMD_RESUME_EXECUTION;
 		writeRequest(String.format(cmd.getSendFormat(), cmd.getInt()));
 		
 		String response = readResponse();
 
-		if (response == null || response.isEmpty()) {
-			return false;
-		}
-		
-		String format = cmd.getRecvFormat();
-		// System.out.println("Resume");
-		
-		if (format == null) {
-			return true;
-		}
-		
-		Pattern gprPattern = Pattern.compile(format);
-		Matcher gprMatcher = gprPattern.matcher(response);
-		
-		return gprMatcher.matches();
+		return !(response == null || response.isEmpty());
 	}
 	
 	public void closeSocket() throws IOException {
-		socket.close();
+		client.close();
+	}
+	
+	@FunctionalInterface
+	public interface AcceptString {
+	 
+	    void apply(String result);
+	 
 	}
 }
