@@ -4,18 +4,8 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousSocketChannel;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Queue;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -31,27 +21,17 @@ public class DebuggerCore {
 		
 		future.get();
 		
-		readResponse(this::printToConsole);
+		System.out.println(readResponse());
 	}
 	
-	private String printToConsole(String line) {
-		System.out.println(line);
-		return null;
-	}
-	
-	@SuppressWarnings("unchecked")
-	private void readResponse(Function<String, String> fn) {
-		CompletableFuture<String> future = CompletableFuture.supplyAsync(() -> {
-			ByteBuffer buffer = ByteBuffer.allocate(256); 
-			try {
-				client.read(buffer).get();
-			} catch (InterruptedException | ExecutionException e) {
-				return null;
-			}
-			return new String(buffer.array()).trim();
-		});
-		
-		future.thenApplyAsync(res -> fn.apply(res));
+	private String readResponse() {
+		ByteBuffer buffer = ByteBuffer.allocate(256); 
+		try {
+			client.read(buffer).get();
+		} catch (InterruptedException | ExecutionException e) {
+			return null;
+		}
+		return new String(buffer.array()).trim();
 	}
 	
 	private void writeRequest(String request) throws InterruptedException, ExecutionException {
@@ -61,7 +41,7 @@ public class DebuggerCore {
 		write.get();
 	}
 	
-	public long getGprRegister(DebuggerGprRegister gpr, Function<String, String> callback) throws InterruptedException, ExecutionException {
+	public long getGprRegister(DebuggerGprRegister gpr) throws InterruptedException, ExecutionException {
 		DebuggerCmd cmd = DebuggerCmd.CMD_GET_GPR_REG;
 		writeRequest(String.format(cmd.getSendFormat(), cmd.getInt(), gpr.getInt()));
 		

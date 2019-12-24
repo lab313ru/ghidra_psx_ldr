@@ -12,6 +12,7 @@ import docking.WindowPosition;
 import ghidra.app.services.GoToService;
 import ghidra.framework.plugintool.ComponentProviderAdapter;
 import ghidra.framework.plugintool.PluginTool;
+import ghidra.program.model.address.Address;
 import ghidra.program.model.address.AddressFactory;
 import ghidra.program.model.address.AddressSpace;
 import ghidra.program.model.listing.Program;
@@ -91,7 +92,8 @@ public class DebuggerProvider extends ComponentProviderAdapter {
 		}
 		
 		if (gotoService != null) {
-			gotoService.goTo(as.getAddress(pc));
+			Address addr = as.getAddress(pc);
+			gotoService.goTo(addr);
 		}
 	}
 	
