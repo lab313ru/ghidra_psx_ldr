@@ -34,7 +34,7 @@ public class PatParser {
 	private static final Pattern linePat = Pattern.compile("^((?:[0-9A-F\\.]{2})+) ([0-9A-F]{2}) ([0-9A-F]{4}) ([0-9A-F]{4}) ((?:[:\\^][0-9A-F]{4}@? [\\.\\w]+ )+)((?:[0-9A-F\\.]{2})+)?$");
 
 	private List<SignatureData> signatures = null;
-	private TaskMonitor monitor;
+	private final TaskMonitor monitor;
 
 	public PatParser(File file, TaskMonitor monitor) throws IOException {
 		BufferedReader reader;
