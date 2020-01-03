@@ -53,7 +53,6 @@ public class PsxAnalyzer extends AbstractAnalyzer {
 
 	@Override
 	public boolean added(Program program, AddressSetView set, TaskMonitor monitor, MessageLog log) {
-		monitor.clearCanceled();
 		Memory mem = program.getMemory();
 		
 		try {

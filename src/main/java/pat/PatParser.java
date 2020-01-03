@@ -61,6 +61,7 @@ public class PatParser {
 		
 		monitor.initialize(getModulesCount(true));
 		monitor.setMessage("Applying global symbols...");
+		monitor.clearCanceled();
 		
 		for (SignatureData sig : signatures) {
 			if (monitor.isCancelled()) {
@@ -125,6 +126,7 @@ public class PatParser {
 		
 		monitor.initialize(getModulesCount(false));
 		monitor.setMessage("Applying referenced symbols...");
+		monitor.clearCanceled();
 		
 		for (SignatureData sig : signatures) {
 			if (monitor.isCancelled()) {

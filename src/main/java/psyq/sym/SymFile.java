@@ -279,8 +279,9 @@ public class SymFile {
 	}
 	
 	public void createOverlays(Program program, MessageLog log, TaskMonitor monitor) {
+		monitor.initialize(overlays.size());
 		monitor.setMessage("Creating overlays..");
-		monitor.setMaximum(overlays.size());
+		monitor.clearCanceled();
 		
 		Memory mem = program.getMemory();
 		AddressSpace defAddressSpace = program.getAddressFactory().getDefaultAddressSpace();
@@ -313,8 +314,9 @@ public class SymFile {
 		
 		List<SymObject> tryAgain = new ArrayList<>();
 		
+		monitor.initialize(objects.size());
 		monitor.setMessage("Applying SYM objects...");
-		monitor.setMaximum(objects.size());
+		monitor.clearCanceled();
 		
 		for (int i = 0; i < objects.size(); ++i) {
 			if (monitor.isCancelled()) {
@@ -339,8 +341,10 @@ public class SymFile {
 		}
 		
 		monitor.setMessage("Applying SYM objects: done");
+		
+		monitor.initialize(tryAgain.size());
 		monitor.setMessage("Applying SYM forward usage objects...");
-		monitor.setMaximum(tryAgain.size());
+		monitor.clearCanceled();
 		
 		int c = 0;
 		Iterator<SymObject> i = tryAgain.iterator();
