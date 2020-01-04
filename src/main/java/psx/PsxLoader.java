@@ -295,6 +295,7 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 			
 			for (DataTypeManager mgr : mgrs) {
 				if (mgr.getName().equals(gdtName)) {
+					applyDataTypes(program, set, mgr, monitor);
 					return;
 				}
 			}
