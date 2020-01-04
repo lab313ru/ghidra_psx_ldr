@@ -15,18 +15,14 @@ import ghidra.app.services.AnalyzerType;
 import ghidra.app.services.DataTypeManagerService;
 import ghidra.app.util.importer.MessageLog;
 import ghidra.framework.Application;
-import ghidra.program.model.address.AddressOutOfBoundsException;
 import ghidra.program.model.address.AddressRange;
 import ghidra.program.model.address.AddressRangeIterator;
 import ghidra.program.model.address.AddressSetView;
 import ghidra.program.model.data.DataTypeManager;
 import ghidra.program.model.listing.Program;
-import ghidra.program.model.mem.Memory;
-import ghidra.program.model.mem.MemoryAccessException;
 import ghidra.program.model.symbol.SourceType;
 import ghidra.util.task.TaskMonitor;
 import pat.PatParser;
-import psyq.DetectPsyQ;
 
 
 public class PsxAnalyzer extends AbstractAnalyzer {
@@ -54,23 +50,21 @@ public class PsxAnalyzer extends AbstractAnalyzer {
 
 	@Override
 	public boolean added(Program program, AddressSetView set, TaskMonitor monitor, MessageLog log) {
-		Memory mem = program.getMemory();
-		
 		try {
-			String psyVersion = DetectPsyQ.getPsyqVersion(mem, program.getAddressFactory().getDefaultAddressSpace().getAddress(PsxLoader.ramBase));
+			String psyqVersion = PsxLoader.getProgramPsyqVersion(program);
 			
-			if (psyVersion == null) {
+			if (psyqVersion.isEmpty()) {
 				return false;
 			}
 			
 			PatParser pat;
-			if (parsers.containsKey(psyVersion)) {
-				pat = parsers.get(psyVersion);
+			if (parsers.containsKey(psyqVersion)) {
+				pat = parsers.get(psyqVersion);
 			} else {
-				File patFile = Application.getModuleDataFile(String.format("psyq%s.pat", psyVersion)).getFile(false);
+				File patFile = Application.getModuleDataFile(String.format("psyq%s.pat", psyqVersion)).getFile(false);
 				pat = new PatParser(patFile, monitor);
 				
-				parsers.put(psyVersion, pat);
+				parsers.put(psyqVersion, pat);
 			}
 			
 			AddressRangeIterator i = set.getAddressRanges();
@@ -84,11 +78,11 @@ public class PsxAnalyzer extends AbstractAnalyzer {
 			monitor.setMessage("Applying PsyQ functions and data types...");
 			monitor.clearCanceled();
 
-			String gdtName = String.format("psyq%s", psyVersion);
+			String gdtName = String.format("psyq%s", psyqVersion);
+			
+			closePsyqDataTypeArchives(program, gdtName);
 			
 			DataTypeManagerService srv = AutoAnalysisManager.getAnalysisManager(program).getDataTypeManagerService();
-			closePsyqDataTypeArchives(srv, gdtName);
-			
 			DataTypeManager mgrPsyq = srv.openDataTypeArchive(gdtName);
 			
 			if (mgrPsyq != null) {
@@ -96,7 +90,7 @@ public class PsxAnalyzer extends AbstractAnalyzer {
 			}
 			
 			monitor.setMessage("Applying PsyQ functions and data types done.");
-		} catch (MemoryAccessException | AddressOutOfBoundsException | IOException e) {
+		} catch (IOException e) {
 			log.appendException(e);
 			return false;
 		} catch (DuplicateIdException e) {
@@ -106,11 +100,12 @@ public class PsxAnalyzer extends AbstractAnalyzer {
 		return true;
 	}
 	
-	public static void closePsyqDataTypeArchives(DataTypeManagerService srv, String currArch) {
+	public static void closePsyqDataTypeArchives(Program program, String currVer) {
+		DataTypeManagerService srv = AutoAnalysisManager.getAnalysisManager(program).getDataTypeManagerService();
 		DataTypeManager[] mgrs = srv.getDataTypeManagers();
 
 		for (DataTypeManager mgr : mgrs) {
-			if (!mgr.getName().contains(currArch)) {
+			if (!mgr.getName().contains(currVer)) {
 				srv.closeArchive(mgr);
 			}
 		}

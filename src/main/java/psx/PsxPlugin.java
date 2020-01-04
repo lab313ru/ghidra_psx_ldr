@@ -22,8 +22,6 @@ import docking.action.MenuData;
 import docking.tool.ToolConstants;
 import ghidra.app.plugin.PluginCategoryNames;
 import ghidra.app.plugin.ProgramPlugin;
-import ghidra.app.plugin.core.analysis.AutoAnalysisManager;
-import ghidra.app.services.DataTypeManagerService;
 import ghidra.app.services.GoToService;
 import ghidra.framework.plugintool.*;
 import ghidra.framework.plugintool.util.PluginStatus;
@@ -58,8 +56,7 @@ public class PsxPlugin extends ProgramPlugin {
 			createOmAction();
 			createDbgAction();
 			
-			DataTypeManagerService srv = AutoAnalysisManager.getAnalysisManager(program).getDataTypeManagerService();
-			PsxAnalyzer.closePsyqDataTypeArchives(srv, "psyq");
+			PsxAnalyzer.closePsyqDataTypeArchives(program, PsxLoader.getProgramPsyqVersion(program));
 		}
 	}
 	

@@ -36,9 +36,11 @@ import ghidra.app.util.opinion.AbstractLibrarySupportLoader;
 import ghidra.app.util.opinion.LoadSpec;
 import ghidra.app.util.opinion.Loader;
 import ghidra.framework.model.DomainObject;
+import ghidra.framework.options.Options;
 import ghidra.framework.store.LockException;
 import ghidra.program.flatapi.FlatProgramAPI;
 import ghidra.program.model.address.Address;
+import ghidra.program.model.address.AddressOutOfBoundsException;
 import ghidra.program.model.address.AddressOverflowException;
 import ghidra.program.model.data.DataType;
 import ghidra.program.model.data.DataUtilities;
@@ -51,6 +53,7 @@ import ghidra.program.model.listing.Instruction;
 import ghidra.program.model.listing.Listing;
 import ghidra.program.model.listing.Program;
 import ghidra.program.model.mem.Memory;
+import ghidra.program.model.mem.MemoryAccessException;
 import ghidra.program.model.mem.MemoryBlock;
 import ghidra.program.model.mem.MemoryBlockException;
 import ghidra.program.model.scalar.Scalar;
@@ -62,9 +65,12 @@ import ghidra.util.exception.DuplicateNameException;
 import ghidra.util.exception.InvalidInputException;
 import ghidra.util.exception.NotFoundException;
 import ghidra.util.task.TaskMonitor;
+import psyq.DetectPsyQ;
 import psyq.sym.SymFile;
 
 public class PsxLoader extends AbstractLibrarySupportLoader {
+	
+	public static final String PSYQ_VER_OPTION = "PsyQ Version";
 	
 	private static final long DEF_RAM_BASE = 0x80000000L;
 	public static final long RAM_SIZE = 0x200000L;
@@ -234,6 +240,31 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 			symFile.applySymbols(program, log, monitor);
 			program.endTransaction(transId, true);
 		}
+		
+		addPsyqVerOption(program, ramBase, log);
+	}
+	
+	private static void addPsyqVerOption(Program program, long searchBase, MessageLog log) {
+		Memory mem = program.getMemory();
+
+		try {
+			String psyqVersion = DetectPsyQ.getPsyqVersion(mem, program.getAddressFactory().getDefaultAddressSpace().getAddress(searchBase));
+			
+			Options opts = program.getOptions(Program.PROGRAM_INFO);
+			opts.registerOption(PSYQ_VER_OPTION, "", null, "PsyQ version");
+
+			if (!psyqVersion.isEmpty()) {
+				String ver = String.format("%s.%s", psyqVersion.charAt(0), psyqVersion.charAt(1));
+				opts.setString(PSYQ_VER_OPTION, ver);
+			}
+		} catch (MemoryAccessException | AddressOutOfBoundsException ignored) {
+			
+		}
+	}
+	
+	public static String getProgramPsyqVersion(Program program) {
+		Options opts = program.getOptions(Program.PROGRAM_INFO);
+		return opts.getString(PsxLoader.PSYQ_VER_OPTION, "").replace(".", "");
 	}
 	
 	private static String showSelectFile(String title, String baseDir) {

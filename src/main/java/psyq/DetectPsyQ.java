@@ -15,7 +15,7 @@ public class DetectPsyQ {
 		Address result = mem.findBytes(startAddress, VERSION_BYTES, VERSION_MASK, true, TaskMonitor.DUMMY);
 		
 		if (result == null) {
-			return null;
+			return "";
 		}
 		
 		byte version = mem.getByte(result.add(VERSION_OFFSET));
