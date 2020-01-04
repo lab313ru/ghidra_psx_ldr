@@ -34,7 +34,6 @@ public class PatParser {
 	private static final Pattern linePat = Pattern.compile("^((?:[0-9A-F\\.]{2})+) ([0-9A-F]{2}) ([0-9A-F]{4}) ([0-9A-F]{4}) ((?:[:\\^][0-9A-F]{4}@? [\\.\\w]+ )+)((?:[0-9A-F\\.]{2})+)?$");
 
 	private List<SignatureData> signatures = null;
-	private final TaskMonitor monitor;
 
 	public PatParser(File file, TaskMonitor monitor) throws IOException {
 		BufferedReader reader;
@@ -47,13 +46,11 @@ public class PatParser {
 			line = reader.readLine();
 		}
 		reader.close();
-		
-		this.monitor = monitor;
 
-		parse(lines);
+		parse(lines, monitor);
 	}
 	
-	public void applySignatures(Program program, Address startAddr, Address endAddr, MessageLog log) {
+	public void applySignatures(Program program, Address startAddr, Address endAddr, TaskMonitor monitor, MessageLog log) {
 		FlatProgramAPI fpa = new FlatProgramAPI(program);
 		Listing listing = program.getListing();
 		SymbolTable symbolTable = program.getSymbolTable();
@@ -82,8 +79,9 @@ public class PatParser {
 					break;
 				}
 	
-				if (checkCrc(memory, sig, addr, tmpl.getLength(), gModules.length)) {
+				if (!checkCrc(memory, sig, addr, tmpl.getLength(), gModules.length)) {
 					searchAddr = addr.add(4);
+					monitor.incrementProgress(gModules.length);
 					continue;
 				}
 	
@@ -116,7 +114,6 @@ public class PatParser {
 					}
 					
 					monitor.setMessage(String.format("%s symbol %s at 0x%08X", data.getType(), data.getName(), _addr.getOffset()));
-					
 					monitor.incrementProgress(1);
 				}
 				
@@ -147,8 +144,9 @@ public class PatParser {
 					break;
 				}
 				
-				if (checkCrc(memory, sig, addr, tmpl.getLength(), lModules.length)) {
+				if (!checkCrc(memory, sig, addr, tmpl.getLength(), lModules.length)) {
 					searchAddr = addr.add(4);
+					monitor.incrementProgress(lModules.length);
 					continue;
 				}
 				
@@ -242,35 +240,38 @@ public class PatParser {
 	}
 	
 	private boolean checkCrc(Memory mem, SignatureData sig, Address addr, int tmplLength, int modulesLength) {
-		if (sig.getCrc16Length() != 0) {
-			byte[] crcBytes = new byte[sig.getCrc16Length()];
-			try {
-				int crcBytesRead = mem.getBytes(addr.add(tmplLength), crcBytes);
-				
-				if (crcBytesRead != crcBytes.length) {
-					monitor.incrementProgress(modulesLength);
-					return true;
-				}
-			} catch (MemoryAccessException | AddressOutOfBoundsException e1) {
-				monitor.incrementProgress(modulesLength);
-				return true;
-			}
-
-			return !PatParser.checkCrc16(crcBytes, sig.getCrc16());
+		if (sig.getCrc16Length() == 0) {
+			return true;
 		}
 		
-		return false;
+		byte[] crcBytes = new byte[sig.getCrc16Length()];
+		try {
+			int crcBytesRead = mem.getBytes(addr.add(tmplLength), crcBytes);
+			
+			if (crcBytesRead != crcBytes.length) {
+				return false;
+			}
+		} catch (MemoryAccessException | AddressOutOfBoundsException e1) {
+			return false;
+		}
+
+		return PatParser.checkCrc16(crcBytes, sig.getCrc16());
 	}
 	
-	private void parse(List<String> lines) {
+	private void parse(List<String> lines, TaskMonitor monitor) {
 		signatures = new ArrayList<>();
 		
 		int linesCount = lines.size();
 		
 		monitor.initialize(linesCount);
 		monitor.setMessage("Reading signatures...");
+		monitor.clearCanceled();
 
 		for (String line : lines) {
+			if (monitor.isCancelled()) {
+				break;
+			}
+			
 			Matcher m = linePat.matcher(line);
 
 			if (m.matches()) {

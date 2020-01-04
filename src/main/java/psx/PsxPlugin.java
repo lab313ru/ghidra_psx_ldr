@@ -15,9 +15,6 @@
  */
 package psx;
 
-import java.util.Iterator;
-import java.util.List;
-
 import docking.ActionContext;
 import docking.DialogComponentProvider;
 import docking.action.DockingAction;
@@ -25,7 +22,6 @@ import docking.action.MenuData;
 import docking.tool.ToolConstants;
 import ghidra.app.plugin.PluginCategoryNames;
 import ghidra.app.plugin.ProgramPlugin;
-import ghidra.app.plugin.core.datamgr.DataTypeManagerPlugin;
 import ghidra.app.services.GoToService;
 import ghidra.framework.plugintool.*;
 import ghidra.framework.plugintool.util.PluginStatus;
@@ -47,7 +43,6 @@ public class PsxPlugin extends ProgramPlugin {
 
 	private DebuggerProvider dbgProvider;
 	private OverlayManagerProvider omProvider;
-	private static DataTypeManagerPlugin mgr = null;
 
 	public PsxPlugin(PluginTool tool) {
 		super(tool, true, false);
@@ -60,17 +55,6 @@ public class PsxPlugin extends ProgramPlugin {
 		if (PsxAnalyzer.isPsxLoader(program)) {
 			createOmAction();
 			createDbgAction();
-			
-			List<Plugin> plugins = tool.getManagedPlugins();
-			Iterator<Plugin> it = plugins.iterator();
-			
-			while (it.hasNext()) {
-				Plugin p = it.next();
-				if (p.getClass() == DataTypeManagerPlugin.class) {
-					mgr = DataTypeManagerPlugin.class.cast(p);
-					break;
-				}
-			}
 		}
 	}
 	
@@ -82,11 +66,6 @@ public class PsxPlugin extends ProgramPlugin {
 		
 		dbgProvider.close();
 	}
-	
-	public static DataTypeManagerPlugin getDataTypeManagerPlugin() {
-		return mgr;
-	}
-	
 	private void createOmAction() {
 		DockingAction openOverlayManagerAction = new DockingAction("PsxOverlayManager", getName()) {
 

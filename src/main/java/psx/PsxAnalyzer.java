@@ -6,11 +6,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ghidra.app.cmd.function.ApplyFunctionDataTypesCmd;
-import ghidra.app.plugin.core.datamgr.DataTypeManagerPlugin;
-import ghidra.app.plugin.core.datamgr.archive.Archive;
+import ghidra.app.plugin.core.analysis.AutoAnalysisManager;
 import ghidra.app.plugin.core.datamgr.archive.DuplicateIdException;
 import ghidra.app.services.AbstractAnalyzer;
 import ghidra.app.services.AnalyzerType;
+import ghidra.app.services.DataTypeManagerService;
 import ghidra.app.util.importer.MessageLog;
 import ghidra.framework.Application;
 import ghidra.program.model.address.AddressOutOfBoundsException;
@@ -18,7 +18,6 @@ import ghidra.program.model.address.AddressRange;
 import ghidra.program.model.address.AddressRangeIterator;
 import ghidra.program.model.address.AddressSetView;
 import ghidra.program.model.data.DataTypeManager;
-import ghidra.program.model.data.FileDataTypeManager;
 import ghidra.program.model.listing.Program;
 import ghidra.program.model.mem.Memory;
 import ghidra.program.model.mem.MemoryAccessException;
@@ -30,7 +29,6 @@ import psyq.DetectPsyQ;
 
 public class PsxAnalyzer extends AbstractAnalyzer {
 	private static PatParser pat = null;
-	private Archive gdt = null;
 	private static String psyVersion = null;
 	
 	public static boolean isPsxLoader(Program program) {
@@ -74,37 +72,32 @@ public class PsxAnalyzer extends AbstractAnalyzer {
 			while (i.hasNext()) {
 				AddressRange next = i.next();
 				
-				pat.applySignatures(program, next.getMinAddress(), next.getMaxAddress(), log);
+				pat.applySignatures(program, next.getMinAddress(), next.getMaxAddress(), monitor, log);
 			}
+			
+			monitor.setMessage("Applying PsyQ functions and data types...");
+			monitor.setIndeterminate(true);
+			monitor.clearCanceled();
 
-			DataTypeManagerPlugin mgr = PsxPlugin.getDataTypeManagerPlugin();
-			
-			if (mgr == null) {
-				return true;
-			}
-			
 			String gdtName = String.format("psyq%s", psyVersion);
-			DataTypeManager[] arches = mgr.getDataTypeManagers();
 			
-			for (DataTypeManager dtm : arches) {
-				if (dtm.getName().equals("generic_clib")) {
-					mgr.closeArchive(dtm);
-					break;
+			DataTypeManagerService srv = AutoAnalysisManager.getAnalysisManager(program).getDataTypeManagerService();
+			DataTypeManager[] mgrs = srv.getDataTypeManagers();
+			
+			for (DataTypeManager mgr : mgrs) {
+				if (mgr.getName().equals("generic_clib")) {
+					srv.closeArchive(mgr);
 				}
 			}
 			
-			for (DataTypeManager dtm : arches) {
-				if (dtm.getName().equals(gdtName)) {
-					applyDataTypes(program, set, dtm);
-					return true;
-				}
+			DataTypeManager mgrPsyq = srv.openDataTypeArchive(gdtName);
+			
+			if (mgrPsyq != null) {
+				applyDataTypes(program, set, mgrPsyq, monitor);
 			}
 			
-			if (gdt == null) {
-				gdt = mgr.openArchive(Application.getModuleDataFile(String.format("%s.%s", gdtName, FileDataTypeManager.EXTENSION)).getFile(false), false);
-			}
-
-			applyDataTypes(program, set, gdt.getDataTypeManager());
+			monitor.setMessage("Applying PsyQ functions and data types done.");
+			monitor.setIndeterminate(false);
 		} catch (MemoryAccessException | AddressOutOfBoundsException | IOException e) {
 			log.appendException(e);
 			return false;
@@ -115,10 +108,10 @@ public class PsxAnalyzer extends AbstractAnalyzer {
 		return true;
 	}
 	
-	private static void applyDataTypes(Program program, AddressSetView set, DataTypeManager mgr) {
+	private static void applyDataTypes(Program program, AddressSetView set, DataTypeManager mgr, TaskMonitor monitor) {
 		List<DataTypeManager> gdtList = new ArrayList<>();
 		gdtList.add(mgr);
 		ApplyFunctionDataTypesCmd cmd = new ApplyFunctionDataTypesCmd(gdtList, set, SourceType.ANALYSIS, true, false);
-		cmd.applyTo(program);
+		cmd.applyTo(program, monitor);
 	}
 }
