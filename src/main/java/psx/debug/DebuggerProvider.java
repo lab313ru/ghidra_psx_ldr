@@ -9,16 +9,13 @@ import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 
 import docking.WindowPosition;
-import ghidra.app.services.GoToService;
 import ghidra.framework.plugintool.ComponentProviderAdapter;
 import ghidra.framework.plugintool.PluginTool;
-import ghidra.program.model.address.Address;
-import ghidra.program.model.address.AddressFactory;
-import ghidra.program.model.address.AddressSpace;
 import ghidra.program.model.listing.Program;
 import ghidra.program.model.mem.MemoryBlock;
 import ghidra.program.model.mem.MemoryBlockType;
 import ghidra.util.Msg;
+import psx.PsxPlugin;
 import resources.ResourceManager;
 
 public class DebuggerProvider extends ComponentProviderAdapter {
@@ -82,19 +79,7 @@ public class DebuggerProvider extends ComponentProviderAdapter {
 			return;
 		}
 		
-		GoToService gotoService = tool.getService(GoToService.class);
-		
-		AddressFactory af = program.getAddressFactory();
-		AddressSpace as = af.getAddressSpace(gui.getAddressSpace());
-		
-		if (as == null) {
-			as = af.getDefaultAddressSpace();
-		}
-		
-		if (gotoService != null) {
-			Address addr = as.getAddress(pc);
-			gotoService.goTo(addr);
-		}
+		PsxPlugin.gotoPc(tool, program, gui.getAddressSpace(), pc);
 	}
 	
 	private void showGprRegs() {

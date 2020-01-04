@@ -15,6 +15,8 @@
  */
 package psx;
 
+import java.util.List;
+
 import docking.ActionContext;
 import docking.DialogComponentProvider;
 import docking.action.DockingAction;
@@ -26,7 +28,12 @@ import ghidra.app.services.GoToService;
 import ghidra.app.util.importer.MessageLog;
 import ghidra.framework.plugintool.*;
 import ghidra.framework.plugintool.util.PluginStatus;
+import ghidra.program.model.address.Address;
+import ghidra.program.model.address.AddressFactory;
+import ghidra.program.model.address.AddressSpace;
 import ghidra.program.model.listing.Program;
+import ghidra.program.model.symbol.Symbol;
+import ghidra.program.model.symbol.SymbolTable;
 import ghidra.util.task.TaskMonitor;
 import psx.debug.DebuggerProvider;
 import ghidra.MiscellaneousPluginPackage;
@@ -58,9 +65,8 @@ public class PsxPlugin extends ProgramPlugin {
 			createOmAction();
 			createDbgAction();
 			
-			String gdtName = String.format("psyq%s", PsxLoader.getProgramPsyqVersion(program));
-			PsxLoader.closePsyqDataTypeArchives(program, gdtName);
-			PsxLoader.loadPsyqArchive(program, gdtName, null, TaskMonitor.DUMMY, new MessageLog());
+			loadPsyqGdt(program);
+			gotoMain(this.getTool(), program);
 		}
 	}
 	
@@ -72,6 +78,38 @@ public class PsxPlugin extends ProgramPlugin {
 		
 		dbgProvider.close();
 	}
+	
+	private static void loadPsyqGdt(Program program) {
+		String gdtName = String.format("psyq%s", PsxLoader.getProgramPsyqVersion(program));
+		PsxLoader.closePsyqDataTypeArchives(program, gdtName);
+		PsxLoader.loadPsyqArchive(program, gdtName, null, TaskMonitor.DUMMY, new MessageLog());
+	}
+	
+	private static void gotoMain(PluginTool tool, Program program) {
+		SymbolTable st = program.getSymbolTable();
+		List<Symbol> mainSym = st.getGlobalSymbols("main");
+		
+		if (mainSym.size() > 0) {
+			gotoPc(tool, program, "default", mainSym.get(0).getAddress().getOffset());
+		}
+	}
+	
+	public static void gotoPc(PluginTool tool, Program program, String addrSpace, long pcAddr) {
+		GoToService gotoService = tool.getService(GoToService.class);
+		
+		AddressFactory af = program.getAddressFactory();
+		AddressSpace as = af.getAddressSpace(addrSpace);
+		
+		if (as == null) {
+			as = af.getDefaultAddressSpace();
+		}
+		
+		if (gotoService != null) {
+			Address addr = as.getAddress(pcAddr);
+			gotoService.goTo(addr);
+		}
+	}
+	
 	private void createOmAction() {
 		DockingAction openOverlayManagerAction = new DockingAction("PsxOverlayManager", getName()) {
 
