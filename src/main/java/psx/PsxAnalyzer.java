@@ -76,7 +76,6 @@ public class PsxAnalyzer extends AbstractAnalyzer {
 			}
 			
 			monitor.setMessage("Applying PsyQ functions and data types...");
-			monitor.setIndeterminate(true);
 			monitor.clearCanceled();
 
 			String gdtName = String.format("psyq%s", psyVersion);
@@ -86,6 +85,8 @@ public class PsxAnalyzer extends AbstractAnalyzer {
 			
 			for (DataTypeManager mgr : mgrs) {
 				if (mgr.getName().equals("generic_clib")) {
+					srv.closeArchive(mgr);
+				} else if (mgr.getName().equals(gdtName)) {
 					srv.closeArchive(mgr);
 				}
 			}
@@ -97,7 +98,6 @@ public class PsxAnalyzer extends AbstractAnalyzer {
 			}
 			
 			monitor.setMessage("Applying PsyQ functions and data types done.");
-			monitor.setIndeterminate(false);
 		} catch (MemoryAccessException | AddressOutOfBoundsException | IOException e) {
 			log.appendException(e);
 			return false;
