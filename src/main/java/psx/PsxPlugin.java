@@ -23,9 +23,11 @@ import docking.tool.ToolConstants;
 import ghidra.app.plugin.PluginCategoryNames;
 import ghidra.app.plugin.ProgramPlugin;
 import ghidra.app.services.GoToService;
+import ghidra.app.util.importer.MessageLog;
 import ghidra.framework.plugintool.*;
 import ghidra.framework.plugintool.util.PluginStatus;
 import ghidra.program.model.listing.Program;
+import ghidra.util.task.TaskMonitor;
 import psx.debug.DebuggerProvider;
 import ghidra.MiscellaneousPluginPackage;
 
@@ -56,7 +58,9 @@ public class PsxPlugin extends ProgramPlugin {
 			createOmAction();
 			createDbgAction();
 			
-			PsxAnalyzer.closePsyqDataTypeArchives(program, PsxLoader.getProgramPsyqVersion(program));
+			String gdtName = String.format("psyq%s", PsxLoader.getProgramPsyqVersion(program));
+			PsxLoader.closePsyqDataTypeArchives(program, gdtName);
+			PsxLoader.loadPsyqArchive(program, gdtName, null, TaskMonitor.DUMMY, new MessageLog());
 		}
 	}
 	

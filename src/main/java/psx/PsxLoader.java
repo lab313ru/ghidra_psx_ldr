@@ -27,7 +27,11 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 import docking.widgets.OptionDialog;
 import ghidra.app.cmd.disassemble.DisassembleCommand;
+import ghidra.app.cmd.function.ApplyFunctionDataTypesCmd;
 import ghidra.app.cmd.function.CreateFunctionCmd;
+import ghidra.app.plugin.core.analysis.AutoAnalysisManager;
+import ghidra.app.plugin.core.datamgr.archive.DuplicateIdException;
+import ghidra.app.services.DataTypeManagerService;
 import ghidra.app.util.Option;
 import ghidra.app.util.bin.BinaryReader;
 import ghidra.app.util.bin.ByteProvider;
@@ -42,7 +46,9 @@ import ghidra.program.flatapi.FlatProgramAPI;
 import ghidra.program.model.address.Address;
 import ghidra.program.model.address.AddressOutOfBoundsException;
 import ghidra.program.model.address.AddressOverflowException;
+import ghidra.program.model.address.AddressSetView;
 import ghidra.program.model.data.DataType;
+import ghidra.program.model.data.DataTypeManager;
 import ghidra.program.model.data.DataUtilities;
 import ghidra.program.model.data.PointerDataType;
 import ghidra.program.model.data.DataUtilities.ClearDataMode;
@@ -244,6 +250,10 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 		addPsyqVerOption(program, ramBase, log);
 	}
 	
+	public static DataTypeManagerService getDataTypeManagerService(Program program) {
+		return AutoAnalysisManager.getAnalysisManager(program).getDataTypeManagerService();
+	}
+	
 	private static void addPsyqVerOption(Program program, long searchBase, MessageLog log) {
 		Memory mem = program.getMemory();
 
@@ -260,6 +270,54 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 		} catch (MemoryAccessException | AddressOutOfBoundsException ignored) {
 			
 		}
+	}
+	
+	public static void closePsyqDataTypeArchives(Program program, String gdtName) {
+		DataTypeManagerService srv = PsxLoader.getDataTypeManagerService(program);
+		DataTypeManager[] mgrs = srv.getDataTypeManagers();
+
+		for (DataTypeManager mgr : mgrs) {
+			if (!mgr.getName().contains(gdtName)) {
+				srv.closeArchive(mgr);
+			}
+		}
+	}
+	
+	public static void loadPsyqArchive(Program program, String gdtName, AddressSetView set, TaskMonitor monitor, MessageLog log) {
+		DataTypeManagerService srv = getDataTypeManagerService(program);
+		
+		if (gdtName.isEmpty()) {
+			return;
+		}
+		
+		try {
+			DataTypeManager[] mgrs = srv.getDataTypeManagers();
+			
+			for (DataTypeManager mgr : mgrs) {
+				if (mgr.getName().equals(gdtName)) {
+					srv.closeArchive(mgr);
+				}
+			}
+			
+			DataTypeManager mgr = srv.openDataTypeArchive(gdtName);
+			
+			if (mgr == null) {
+				throw new IOException(String.format("Cannot find \"%s\" data type archive!", gdtName));
+			}
+			
+			if (set != null) {
+				applyDataTypes(program, set, mgr, monitor);
+			}
+		} catch (IOException | DuplicateIdException e) {
+			log.appendException(e);
+		}
+	}
+	
+	private static void applyDataTypes(Program program, AddressSetView set, DataTypeManager mgr, TaskMonitor monitor) {
+		List<DataTypeManager> gdtList = new ArrayList<>();
+		gdtList.add(mgr);
+		ApplyFunctionDataTypesCmd cmd = new ApplyFunctionDataTypesCmd(gdtList, set, SourceType.ANALYSIS, true, false);
+		cmd.applyTo(program, monitor);
 	}
 	
 	public static String getProgramPsyqVersion(Program program) {
