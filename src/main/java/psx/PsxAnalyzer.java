@@ -3,7 +3,9 @@ package psx;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import ghidra.app.cmd.function.ApplyFunctionDataTypesCmd;
 import ghidra.app.plugin.core.analysis.AutoAnalysisManager;
@@ -28,8 +30,7 @@ import psyq.DetectPsyQ;
 
 
 public class PsxAnalyzer extends AbstractAnalyzer {
-	private static PatParser pat = null;
-	private static String psyVersion = null;
+	private Map<String, PatParser> parsers = new HashMap<>();
 	
 	public static boolean isPsxLoader(Program program) {
 		return program.getExecutableFormat().equalsIgnoreCase(PsxLoader.PSX_LOADER);
@@ -37,6 +38,8 @@ public class PsxAnalyzer extends AbstractAnalyzer {
 	
 	public PsxAnalyzer() {
 		super("PsyQ Signatures", "PSX signatures applier", AnalyzerType.INSTRUCTION_ANALYZER);
+		
+		setSupportsOneTimeAnalysis();
 	}
 	
 	@Override
@@ -54,17 +57,20 @@ public class PsxAnalyzer extends AbstractAnalyzer {
 		Memory mem = program.getMemory();
 		
 		try {
-			if (psyVersion == null) {
-				psyVersion = DetectPsyQ.getPsyqVersion(mem, program.getAddressFactory().getDefaultAddressSpace().getAddress(PsxLoader.ramBase));
-			}
+			String psyVersion = DetectPsyQ.getPsyqVersion(mem, program.getAddressFactory().getDefaultAddressSpace().getAddress(PsxLoader.ramBase));
 			
 			if (psyVersion == null) {
 				return false;
 			}
 			
-			if (pat == null) {
+			PatParser pat;
+			if (parsers.containsKey(psyVersion)) {
+				pat = parsers.get(psyVersion);
+			} else {
 				File patFile = Application.getModuleDataFile(String.format("psyq%s.pat", psyVersion)).getFile(false);
 				pat = new PatParser(patFile, monitor);
+				
+				parsers.put(psyVersion, pat);
 			}
 			
 			AddressRangeIterator i = set.getAddressRanges();
@@ -81,15 +87,7 @@ public class PsxAnalyzer extends AbstractAnalyzer {
 			String gdtName = String.format("psyq%s", psyVersion);
 			
 			DataTypeManagerService srv = AutoAnalysisManager.getAnalysisManager(program).getDataTypeManagerService();
-			DataTypeManager[] mgrs = srv.getDataTypeManagers();
-			
-			for (DataTypeManager mgr : mgrs) {
-				if (mgr.getName().equals("generic_clib")) {
-					srv.closeArchive(mgr);
-				} else if (mgr.getName().equals(gdtName)) {
-					srv.closeArchive(mgr);
-				}
-			}
+			closePsyqDataTypeArchives(srv, gdtName);
 			
 			DataTypeManager mgrPsyq = srv.openDataTypeArchive(gdtName);
 			
@@ -106,6 +104,16 @@ public class PsxAnalyzer extends AbstractAnalyzer {
 		}
 		
 		return true;
+	}
+	
+	public static void closePsyqDataTypeArchives(DataTypeManagerService srv, String currArch) {
+		DataTypeManager[] mgrs = srv.getDataTypeManagers();
+
+		for (DataTypeManager mgr : mgrs) {
+			if (!mgr.getName().contains(currArch)) {
+				srv.closeArchive(mgr);
+			}
+		}
 	}
 	
 	private static void applyDataTypes(Program program, AddressSetView set, DataTypeManager mgr, TaskMonitor monitor) {

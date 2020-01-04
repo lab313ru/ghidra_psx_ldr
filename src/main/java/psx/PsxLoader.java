@@ -202,7 +202,6 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 			return;
 		}
 		
-		
 		createSegments(provider, fpa, log);
 		
 		setFunction(program, fpa.toAddr(psxExe.getInitPc()), "start", true, true, log);
