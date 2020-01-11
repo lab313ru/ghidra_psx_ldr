@@ -78,6 +78,8 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 	
 	public static final String PSYQ_VER_OPTION = "PsyQ Version";
 	
+	private static final String[] SECT_NAMES_NORM = new String[] { ".rdata", ".text", ".data", ".sdata", ".sbss", ".bss" };
+	private static final String[] SECT_NAMES_SWAP = new String[] { ".text", ".rdata", ".data", ".sdata", ".sbss", ".bss" };
 	private static final long DEF_RAM_BASE = 0x80000000L;
 	public static final long RAM_SIZE = 0x200000L;
 	private static final long __heapbase_off = -0x30;
@@ -222,7 +224,11 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 		setRegisterValue(fpa, "sp", psxExe.getInitPc(), psxExe.getSpBase() + psxExe.getSpOff(), log);
 		
 		Address romStart = fpa.toAddr(psxExe.getRomStart());
-		findAndAppyMain(provider, fpa, romStart, log);
+		Reference mainRef = findAndAppyMain(provider, fpa, romStart, log);
+		
+		if (mainRef != null) {
+			createCompilerSegments(provider, fpa, romStart, mainRef, log);
+		}
 		
 		monitor.setMessage(String.format("%s : Loading done", getName()));
 		
@@ -315,10 +321,14 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 	}
 	
 	private static void applyDataTypes(Program program, AddressSetView set, DataTypeManager mgr, TaskMonitor monitor) {
+		int transId = program.startTransaction("Apply function data types");
+		
 		List<DataTypeManager> gdtList = new ArrayList<>();
 		gdtList.add(mgr);
 		ApplyFunctionDataTypesCmd cmd = new ApplyFunctionDataTypesCmd(gdtList, set, SourceType.ANALYSIS, true, false);
 		cmd.applyTo(program, monitor);
+		
+		program.endTransaction(transId, true);
 	}
 	
 	public static String getProgramPsyqVersion(Program program) {
@@ -383,9 +393,8 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 		}
 	}
 	
-	private void findAndAppyMain(ByteProvider provider, FlatProgramAPI fpa, Address searchAddress, MessageLog log) {
+	private static Reference findAndAppyMain(ByteProvider provider, FlatProgramAPI fpa, Address searchAddress, MessageLog log) {
 		Program program = fpa.getCurrentProgram();
-		BinaryReader reader = new BinaryReader(provider, true);
 		Memory mem = program.getMemory();
 		Listing listing = program.getListing();
 		SymbolTable st = program.getSymbolTable();
@@ -396,7 +405,7 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 			mainRefAddr = program.getMemory().findBytes(searchAddress, MAIN_SIGN_37_46, MAIN_SIGN_MASK_37_46, true, TaskMonitor.DUMMY);
 			
 			if (mainRefAddr == null) {
-				return;
+				return null;
 			}
 			
 			mainRefAddr = mainRefAddr.add(4);
@@ -405,13 +414,13 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 		Instruction jalMain = listing.getInstructionAt(mainRefAddr);
 		
 		if (jalMain == null) {
-			return;
+			return null;
 		}
 		
 		Reference[] jalMainRefs = jalMain.getReferencesFrom();
 		
 		if (jalMainRefs.length != 1) {
-			return;
+			return null;
 		}
 		
 		Address mainAddr = jalMainRefs[0].getToAddress();
@@ -419,9 +428,19 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 			st.createLabel(mainAddr, "main", SourceType.USER_DEFINED);
 		} catch (InvalidInputException e) {
 			log.appendException(e);
-			return;
+			return null;
 		}
 		
+		return jalMainRefs[0];
+	}
+	
+	private static void createCompilerSegments(ByteProvider provider, FlatProgramAPI fpa, Address searchAddress, Reference mainRef, MessageLog log) {
+		Program program = fpa.getCurrentProgram();
+		Memory mem = program.getMemory();
+		Listing listing = program.getListing();
+		BinaryReader reader = new BinaryReader(provider, true);
+		
+		Address mainRefAddr = mainRef.getFromAddress();
 		Instruction heapBaseInstr_1 = listing.getInstructionAt(mainRefAddr.add(__heapbase_off));
 		Instruction heapBaseInstr_2 = listing.getInstructionAt(mainRefAddr.add(__heapbase_off).add(4));
 		Instruction sbssInstr1 = listing.getInstructionAt(mainRefAddr.add(_sbss_off));
@@ -450,12 +469,8 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 		
 		try {
 			Address structPtr = fpa.toAddr((heapBase1.getUnsignedValue() << 16) + ((Scalar)(heapBase2[0])).getSignedValue());
-			createNamedPtr(fpa, structPtr.getOffset(), "__heapbase", log);
-			createNamedDword(fpa, structPtr.add(4).getOffset(), "__heapsize", log);
 
 			Address _text_ptr = structPtr.add(0x08);
-			createNamedPtr(fpa, _text_ptr.getOffset(), "__text", log);
-			createNamedDword(fpa, _text_ptr.add(4).getOffset(), "__textlen", log);
 			long _text = reader.readUnsignedInt(_text_ptr.subtract(searchAddress.subtract(PsxExe.HEADER_SIZE)));
 			long _textlen = reader.readUnsignedInt(_text_ptr.add(4).subtract(searchAddress.subtract(PsxExe.HEADER_SIZE)));
 			
@@ -463,23 +478,40 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 			
 			Address _text_addr = fpa.toAddr(_text);
 			MemoryBlock _text_block = mem.getBlock(_text_addr);
-			mem.split(_text_block, _text_addr);
 			
-			Address _rdata_addr = _text_block.getStart();
-			MemoryBlock _rdata_block = mem.getBlock(_rdata_addr);
-			_rdata_block.setName(".rdata");
-			_rdata_block.setWrite(false);
-			_rdata_block.setExecute(false);
+			boolean normalOrder = false;
+			if (_text_block.getStart().getOffset() < _text_addr.getOffset()) {
+				mem.split(_text_block, _text_addr);
+				normalOrder = true;
+			}
 			
-			_text_block = mem.getBlock(_text_addr);
-			_text_block.setName(".text");
-			_text_block.setWrite(false);
-			_text_block.setExecute(true);
-			mem.split(_text_block, _text_addr.add(_textlen));
+			if (normalOrder) {
+				Address _rdata_addr = _text_block.getStart();
+				MemoryBlock _rdata_block = mem.getBlock(_rdata_addr);
+				_rdata_block.setName(".rdata");
+				_rdata_block.setWrite(false);
+				_rdata_block.setExecute(false);
+				
+				_text_block = mem.getBlock(_text_addr);
+				_text_block.setName(".text");
+				_text_block.setWrite(false);
+				_text_block.setExecute(true);
+				mem.split(_text_block, _text_addr.add(_textlen));
+			} else {
+				Address _rdata_addr = _text_addr.add(_textlen);
+				_text_block = mem.getBlock(_text_addr);
+				_text_block.setName(".text");
+				_text_block.setWrite(false);
+				_text_block.setExecute(true);
+				mem.split(_text_block, _rdata_addr);
+				
+				MemoryBlock _rdata_block = mem.getBlock(_rdata_addr);
+				_rdata_block.setName(".rdata");
+				_rdata_block.setWrite(false);
+				_rdata_block.setExecute(false);
+			}
 
 			Address _data_ptr = structPtr.add(0x10);
-			createNamedPtr(fpa, _data_ptr.getOffset(), "__data", log);
-			createNamedDword(fpa, _data_ptr.add(4).getOffset(), "__datalen", log);
 			long _data = reader.readUnsignedInt(_data_ptr.subtract(searchAddress.subtract(PsxExe.HEADER_SIZE)));
 			long _datalen = reader.readUnsignedInt(_data_ptr.add(4).subtract(searchAddress.subtract(PsxExe.HEADER_SIZE)));
 			
@@ -487,6 +519,12 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 			
 			Address _data_addr = fpa.toAddr(_data);
 			MemoryBlock _data_block = mem.getBlock(_data_addr);
+			
+			if (_data_block.getStart().getOffset() < _data_addr.getOffset()) {
+				mem.split(_data_block, _data_addr);
+				_data_block = mem.getBlock(_data_addr);
+			}
+			
 			_data_block.setName(".data");
 			_data_block.setWrite(true);
 			_data_block.setExecute(false);
@@ -501,7 +539,7 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 			_sdata_block.setWrite(true);
 			_sdata_block.setExecute(false);
 			
-			setRegisterValue(fpa, "gp", mainAddr.getOffset(), _sdata_addr.getOffset(), log);
+			setRegisterValue(fpa, "gp", mainRef.getToAddress().getOffset(), _sdata_addr.getOffset(), log);
 			
 			Address _sbss_addr = fpa.toAddr((sbss1.getUnsignedValue() << 16) + ((Scalar)(sbss2[0])).getSignedValue());
 			MemoryBlock _sbss_block = mem.getBlock(_sbss_addr);
@@ -511,15 +549,15 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 				_sbss_block = mem.getBlock(_sbss_addr);
 				_sbss_block.setName(".sbss");
 			}
+
 			_sbss_block.setWrite(true);
 			_sbss_block.setExecute(false);
+			
 			if (_sbss_block.isInitialized()) {
 				mem.convertToUninitialized(_sbss_block);
 			}
 			
 			Address _bss_ptr = structPtr.add(0x18);
-			createNamedPtr(fpa, _bss_ptr.getOffset(), "__bss", log);
-			createNamedDword(fpa, _bss_ptr.add(4).getOffset(), "__bsslen", log);
 			long _bss = reader.readUnsignedInt(_bss_ptr.subtract(searchAddress.subtract(PsxExe.HEADER_SIZE)));
 			long _bsslen = reader.readUnsignedInt(_bss_ptr.add(4).subtract(searchAddress.subtract(PsxExe.HEADER_SIZE)));
 			
@@ -528,10 +566,12 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 			Address _bss_addr = fpa.toAddr(_bss);
 			MemoryBlock _bss_block = mem.getBlock(_bss_addr);
 			mem.split(_bss_block, _bss_addr);
+			
 			_bss_block = mem.getBlock(_bss_addr);
 			_bss_block.setName(".bss");
 			_bss_block.setWrite(false);
 			_bss_block.setExecute(false);
+			
 			if (_bss_block.isInitialized()) {
 				mem.convertToUninitialized(_bss_block);
 			}
@@ -548,9 +588,6 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 			ram.setName("RAM");
 			ram.setWrite(true);
 			ram.setExecute(true);
-			
-			createNamedDword(fpa, _sdata_addr.getOffset(), "_ramsize", log);
-			createNamedDword(fpa, _sdata_addr.add(4).getOffset(), "_stacksize", log);
 		} catch (IOException | MemoryBlockException | LockException | NotFoundException | DuplicateNameException e) {
 			log.appendException(e);
 		}
