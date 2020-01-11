@@ -47,11 +47,7 @@ import ghidra.program.model.address.Address;
 import ghidra.program.model.address.AddressOutOfBoundsException;
 import ghidra.program.model.address.AddressOverflowException;
 import ghidra.program.model.address.AddressSetView;
-import ghidra.program.model.data.DataType;
 import ghidra.program.model.data.DataTypeManager;
-import ghidra.program.model.data.DataUtilities;
-import ghidra.program.model.data.PointerDataType;
-import ghidra.program.model.data.DataUtilities.ClearDataMode;
 import ghidra.program.model.lang.LanguageCompilerSpecPair;
 import ghidra.program.model.lang.RegisterValue;
 import ghidra.program.model.listing.ContextChangeException;
@@ -66,7 +62,6 @@ import ghidra.program.model.scalar.Scalar;
 import ghidra.program.model.symbol.Reference;
 import ghidra.program.model.symbol.SourceType;
 import ghidra.program.model.symbol.SymbolTable;
-import ghidra.program.model.util.CodeUnitInsertionException;
 import ghidra.util.exception.DuplicateNameException;
 import ghidra.util.exception.InvalidInputException;
 import ghidra.util.exception.NotFoundException;
@@ -77,9 +72,7 @@ import psyq.sym.SymFile;
 public class PsxLoader extends AbstractLibrarySupportLoader {
 	
 	public static final String PSYQ_VER_OPTION = "PsyQ Version";
-	
-	private static final String[] SECT_NAMES_NORM = new String[] { ".rdata", ".text", ".data", ".sdata", ".sbss", ".bss" };
-	private static final String[] SECT_NAMES_SWAP = new String[] { ".text", ".rdata", ".data", ".sdata", ".sbss", ".bss" };
+
 	private static final long DEF_RAM_BASE = 0x80000000L;
 	public static final long RAM_SIZE = 0x200000L;
 	private static final long __heapbase_off = -0x30;
@@ -803,16 +796,6 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 		createNamedWord(fpa, 0x1F801DB8L, "CURR_MAIN_VOL_L", log);
 		createNamedWord(fpa, 0x1F801DBAL, "CURR_MAIN_VOL_R", log);
 		createNamedDword(fpa, 0x1F801DBCL, "SPU_UNKN_1DBC", log);
-	}
-	
-	private static void createNamedPtr(FlatProgramAPI fpa, long addr, String name, MessageLog log) {
-		try {
-			DataType dt = new PointerDataType();
-			DataUtilities.createData(fpa.getCurrentProgram(), fpa.toAddr(addr), dt, dt.getLength(), false, ClearDataMode.CLEAR_ALL_UNDEFINED_CONFLICT_DATA);
-			fpa.getCurrentProgram().getSymbolTable().createLabel(fpa.toAddr(addr), name, SourceType.IMPORTED);
-		} catch (CodeUnitInsertionException | InvalidInputException e) {
-			log.appendException(e);
-		}
 	}
 	
 	private static void createNamedByte(FlatProgramAPI fpa, long address, String name, MessageLog log) {
