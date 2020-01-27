@@ -17,18 +17,17 @@ import ghidra.program.model.data.UnsignedIntegerDataType;
 import ghidra.program.model.data.UnsignedLongDataType;
 import ghidra.program.model.data.UnsignedShortDataType;
 
-public class SymDef extends SymObject {
+public class SymDef extends SymName {
 	private final SymDefClass defClass;
 	private final SymDefType defType;
 	private final long size;
-	private String name;
 	
 	private Integer[] dims;
 	private final boolean hasTag;
 	private String tag;
 	
 	public SymDef(SymDefClass defClass, SymDefType defType, boolean hasTag, long size, String name, long offset, long overlayId) {
-		super(offset, overlayId);
+		super(name, offset, overlayId);
 		
 		this.defClass = defClass;
 		this.defType = defType;
@@ -116,14 +115,6 @@ public class SymDef extends SymObject {
 
 	public long getSize() {
 		return size;
-	}
-	
-	public void setName(String newName) {
-		this.name = newName;
-	}
-
-	public String getName() {
-		return name;
 	}
 	
 	public void setDims(Integer[] dims) {

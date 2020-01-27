@@ -49,7 +49,7 @@ public class SymFile {
 	private List<SymObject> objects = new ArrayList<>();
 	private List<SymOverlay> overlays = new ArrayList<>();
 	
-	public static SymFile fromBinary(String path) {
+	public static SymFile fromBinary(String path, MessageLog log) {
 		try {
 			FileInputStream fis = new FileInputStream(path);
 			byte[] fileData = fis.readAllBytes();
@@ -57,13 +57,14 @@ public class SymFile {
 			
 			ByteArrayProvider provider = new ByteArrayProvider(fileData);
 			BinaryReader reader = new BinaryReader(provider, true);
-			return new SymFile(reader);
+			return new SymFile(reader, log);
 		} catch (IOException e) {
+			log.appendException(e);
 			return null;
 		}
 	}
 
-	private SymFile(BinaryReader reader) throws IOException {
+	private SymFile(BinaryReader reader, MessageLog log) throws IOException {
 		String sig = reader.readNextAsciiString(3);
 		
 		if (!sig.equals("MND")) {
@@ -77,6 +78,7 @@ public class SymFile {
 		SymStructUnionEnum currStructUnion = null;
 		SymFunc currFunc = null;
 		Map<String, SymFunc> defFuncs = new HashMap<>();
+		Map<String, SymStructUnionEnum> fakeObjs = new HashMap<>();
 		long currOverlay = 0L;
 		
 		while (reader.getPointerIndex() < reader.length()) {
@@ -211,11 +213,25 @@ public class SymFile {
 						SymFunc func = new SymFunc(def2, defName, offset, currOverlay);
 						defFuncs.put(defName, func);
 					} else if (currFunc == null) { // exclude function blocks
+						if (fakeObjs.containsKey(defTag)) {
+							def2 = fakeObjs.get(defTag).toSymDef();
+							fakeObjs.remove(defTag);
+						}
+						
 						objects.add(new SymExtStat(def2, offset, currOverlay));
 					}
 				} break;
 				case TPDEF: {
-					objects.add(new SymTypedef(def2));
+					SymObject obj;
+					
+					if (fakeObjs.containsKey(defTag)) {
+						obj = fakeObjs.get(defTag);
+						((SymName)obj).setName(defName);
+					} else {
+						obj = new SymTypedef(def2);
+					}
+					
+					objects.add(obj);
 				} break;
 				// STRUCT, UNION, ENUM begin
 				case STRTAG:
@@ -240,6 +256,12 @@ public class SymFile {
 						throw new IOException("Non-defined struct|union|enum field definition");
 					}
 					
+					if (fakeObjs.containsKey(defTag)) {
+						def2 = fakeObjs.get(defTag).toSymDef();
+						def2.setName(defName);
+						fakeObjs.remove(defTag);
+					}
+					
 					currStructUnion.addField(def2);
 				} break;
 				// STRUCT, UNION, ENUM end
@@ -254,7 +276,12 @@ public class SymFile {
 						throw new IOException("Wrong EOS type");
 					}
 					
-					objects.add(currStructUnion);
+					if (defTag.matches("\\.\\d+fake")) {
+						fakeObjs.put(defTag, currStructUnion);
+					} else {
+						objects.add(currStructUnion);
+					}
+
 					currStructUnion = null;
 				} break;
 				default: break;
@@ -273,6 +300,11 @@ public class SymFile {
 				readString(reader); // mangled name2
 			} break;
 			}
+		}
+
+		if (fakeObjs.size() > 0) {
+			log.appendMsg(String.format("Not all fake objects were used: %d items", fakeObjs.size()));
+			objects.addAll(fakeObjs.values());
 		}
 
 		objects.addAll(defFuncs.values());
@@ -379,17 +411,10 @@ public class SymFile {
 		
 		if (obj instanceof SymFunc) {
 			SymFunc sf = (SymFunc)obj;
-			PsxLoader.setFunction(program, addr, sf.getFuncName(), true, false, log);
+			PsxLoader.setFunction(program, addr, sf.getName(), true, false, log);
 			setFunctionArguments(program, addr, sf, log);
 			SetCommentCmd cmd = new SetCommentCmd(addr, CodeUnit.PLATE_COMMENT, String.format("File: %s", sf.getFileName()));
 			cmd.applyTo(program);
-		} else if (obj instanceof SymName) {
-			SymName sn = (SymName)obj;
-			try {
-				st.createLabel(addr, sn.getObjectName(), SourceType.ANALYSIS);
-			} catch (InvalidInputException e) {
-				log.appendException(e);
-			}
 		} else if (obj instanceof SymTypedef) {
 			SymTypedef tpdef = (SymTypedef)obj;
 
@@ -473,6 +498,13 @@ public class SymFile {
 				
 				mgr.addDataType(edt, DataTypeConflictHandler.REPLACE_HANDLER);
 			} break;
+			}
+		} else if (obj instanceof SymName) {
+			SymName sn = (SymName)obj;
+			try {
+				st.createLabel(addr, sn.getName(), SourceType.ANALYSIS);
+			} catch (InvalidInputException e) {
+				log.appendException(e);
 			}
 		} else {
 			System.out.println(String.format("unkn type offset: 0x%08X", addr.getOffset()));

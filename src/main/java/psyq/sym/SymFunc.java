@@ -3,9 +3,8 @@ package psyq.sym;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SymFunc extends SymObject {
+public class SymFunc extends SymName {
 	private String fileName = null;
-	private final String funcName;
 	
 	private long endOffset = 0L;
 	
@@ -14,10 +13,9 @@ public class SymFunc extends SymObject {
 	
 
 	public SymFunc(SymDef retnType, String funcName, long offset, long overlayId) {
-		super(offset, overlayId);
+		super(funcName, offset, overlayId);
 		
 		this.retnType = retnType;
-		this.funcName = funcName;
 	}
 	
 	public void setEndOffset(long endOffset) {
@@ -34,10 +32,6 @@ public class SymFunc extends SymObject {
 
 	public String getFileName() {
 		return fileName;
-	}
-
-	public String getFuncName() {
-		return funcName;
 	}
 	
 	public void addArgument(SymDef arg) {

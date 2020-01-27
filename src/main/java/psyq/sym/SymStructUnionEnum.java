@@ -3,8 +3,7 @@ package psyq.sym;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SymStructUnionEnum extends SymObject {
-	private final String name;
+public class SymStructUnionEnum extends SymName {
 	private final long size;
 	private final boolean isFake;
 	private final SymDefTypePrim type;
@@ -14,7 +13,7 @@ public class SymStructUnionEnum extends SymObject {
 	private final static String FAKE_R = "\\.(\\d+)fake";
 	
 	public SymStructUnionEnum(String name, long size, SymDefTypePrim type) {
-		super(0L, 0L);
+		super(name, 0L, 0L);
 		
 		this.name = name;
 		this.isFake = name.matches(FAKE_R);
@@ -25,23 +24,26 @@ public class SymStructUnionEnum extends SymObject {
 	public void addField(SymDef field) {
 		this.fields.add(field);
 	}
+	
+	public SymDef toSymDef() {
+		SymDefClass cl;
+		
+		switch (type) {
+		case STRUCT: cl = SymDefClass.STRTAG; break;
+		case UNION: cl = SymDefClass.UNTAG; break;
+		case ENUM: cl = SymDefClass.ENTAG; break;
+		default: return null;
+		}
+		
+		return new SymDef(cl, new SymDefType(new SymDefTypePrim[] {type}), false, size, name, getOffset(), getOverlayId());
+	}
 
+	@Override
 	public String getName() {
 		return isFake ? getFakeStructUnionEnumName(name, type) : name;
 	}
 	
 	private static String getFakeStructUnionEnumName(String name, SymDefTypePrim type) {
-//		Pattern pat = Pattern.compile(FAKE_R);
-//		Matcher mat = pat.matcher(name);
-//		
-//		if (mat.find()) {
-//			switch (type) {
-//			case UNION: return String.format("FakeUnion%s", mat.group(1));
-//			case ENUM: return String.format("FakeEnum%s", mat.group(1));
-//			default: return String.format("FakeStruct%s", mat.group(1));
-//			}
-//		}
-		
 		return name;
 	}
 

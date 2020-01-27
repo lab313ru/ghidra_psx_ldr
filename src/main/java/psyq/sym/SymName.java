@@ -9,7 +9,11 @@ public class SymName extends SymObject {
 		this.name = name;
 	}
 	
-	public String getObjectName() {
+	public String getName() {
 		return name;
+	}
+	
+	public void setName(String newName) {
+		name = newName;
 	}
 }
