@@ -202,6 +202,11 @@ public class SymFile {
 					if (currFunc == null) {
 						throw new IOException("Parameter for non-started function");
 					}
+					
+					if (fakeObjs.containsKey(defTag)) {
+						SymStructUnionEnum obj = fakeObjs.get(defTag);
+						def2.setTag(obj.getName());
+					}
 
 					currFunc.addArgument(def2);
 				} break;
@@ -214,24 +219,21 @@ public class SymFile {
 						defFuncs.put(defName, func);
 					} else if (currFunc == null) { // exclude function blocks
 						if (fakeObjs.containsKey(defTag)) {
-							def2 = fakeObjs.get(defTag).toSymDef();
-							fakeObjs.remove(defTag);
+							SymStructUnionEnum obj = fakeObjs.get(defTag);
+							def2.setTag(obj.getName());
 						}
 						
 						objects.add(new SymExtStat(def2, offset, currOverlay));
 					}
 				} break;
 				case TPDEF: {
-					SymObject obj;
-					
 					if (fakeObjs.containsKey(defTag)) {
-						obj = fakeObjs.get(defTag);
-						((SymName)obj).setName(defName);
+						SymStructUnionEnum obj = fakeObjs.get(defTag);
+						obj.setName(defName);
+						fakeObjs.replace(defTag, obj);
 					} else {
-						obj = new SymTypedef(def2);
+						objects.add(new SymTypedef(def2));
 					}
-					
-					objects.add(obj);
 				} break;
 				// STRUCT, UNION, ENUM begin
 				case STRTAG:
@@ -257,9 +259,8 @@ public class SymFile {
 					}
 					
 					if (fakeObjs.containsKey(defTag)) {
-						def2 = fakeObjs.get(defTag).toSymDef();
-						def2.setName(defName);
-						fakeObjs.remove(defTag);
+						SymStructUnionEnum obj = fakeObjs.get(defTag);
+						def2.setTag(obj.getName());
 					}
 					
 					currStructUnion.addField(def2);
@@ -301,12 +302,8 @@ public class SymFile {
 			} break;
 			}
 		}
-
-		if (fakeObjs.size() > 0) {
-			log.appendMsg(String.format("Not all fake objects were used: %d items", fakeObjs.size()));
-			objects.addAll(fakeObjs.values());
-		}
-
+		
+		objects.addAll(fakeObjs.values());
 		objects.addAll(defFuncs.values());
 	}
 	
@@ -412,7 +409,11 @@ public class SymFile {
 		if (obj instanceof SymFunc) {
 			SymFunc sf = (SymFunc)obj;
 			PsxLoader.setFunction(program, addr, sf.getName(), true, false, log);
-			setFunctionArguments(program, addr, sf, log);
+			
+			if (!setFunctionArguments(program, addr, sf, log)) {
+				return false;
+			}
+			
 			SetCommentCmd cmd = new SetCommentCmd(addr, CodeUnit.PLATE_COMMENT, String.format("File: %s", sf.getFileName()));
 			cmd.applyTo(program);
 		} else if (obj instanceof SymTypedef) {
@@ -513,32 +514,43 @@ public class SymFile {
 		return true;
 	}
 	
-	private static void setFunctionArguments(Program program, Address funcAddr, SymFunc funcDef, MessageLog log) {
+	private static boolean setFunctionArguments(Program program, Address funcAddr, SymFunc funcDef, MessageLog log) {
 		try {
 			DataTypeManager mgr = program.getDataTypeManager();
 			Function func = program.getListing().getFunctionAt(funcAddr);
 			
 			if (func == null) {
 				System.out.println(String.format("Cannot get function at: 0x%08X", funcAddr.getOffset()));
-				return;
+				return true;
 			}
 			
 			DataType dt = funcDef.getReturnType().getDataType(mgr);
 			
-			if (dt != null) {
-				func.setReturnType(dt, SourceType.ANALYSIS);
+			if (dt == null) {
+				return false;
 			}
+			
+			func.setReturnType(dt, SourceType.ANALYSIS);
 			
 			List<ParameterImpl> params = new ArrayList<>();
 			SymDef[] args = funcDef.getArguments();
 			for (int i = 0; i < args.length; ++i) {
-				params.add(new ParameterImpl(args[i].getName(), args[i].getDataType(mgr), program));
+				DataType argType = args[i].getDataType(mgr);
+				
+				if (argType == null) {
+					return false;
+				}
+				
+				params.add(new ParameterImpl(args[i].getName(), argType, program));
 			}
 			
 			func.updateFunction("__stdcall", null, FunctionUpdateType.DYNAMIC_STORAGE_ALL_PARAMS, true, SourceType.ANALYSIS, params.toArray(ParameterImpl[]::new));
 		} catch (Exception e) {
 			log.appendException(e);
+			return false;
 		}
+		
+		return true;
 	}
 	
 	private static String readString(BinaryReader reader) throws IOException {
