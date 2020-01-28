@@ -1,7 +1,7 @@
 package psyq.sym;
 
 public class SymName extends SymObject {
-	String name;
+	private String name;
 	
 	public SymName(String name, long offset, long overlayId) {
 		super(offset, overlayId);

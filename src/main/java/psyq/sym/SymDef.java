@@ -32,7 +32,6 @@ public class SymDef extends SymName {
 		this.defClass = defClass;
 		this.defType = defType;
 		this.size = size;
-		this.name = name;
 		this.dims = null;
 		this.hasTag = hasTag;
 		this.tag = null;
@@ -97,7 +96,7 @@ public class SymDef extends SymName {
 		case STRUCT:
 		case UNION:
 		case ENUM: {
-			DataType dt = mgr.getDataType(mgr.getRootCategory().getCategoryPath(), hasTag ? tag : name);
+			DataType dt = mgr.getDataType(mgr.getRootCategory().getCategoryPath(), hasTag ? tag : getName());
 			
 			if (dt != null) {
 				return dt;
