@@ -593,7 +593,15 @@ public class SymFile {
 			try {
 				st.createLabel(addr, sn.getName(), SourceType.ANALYSIS);
 			} catch (InvalidInputException e) {
-				log.appendException(e);
+				if (!sn.getName().startsWith("MENU_")) {
+					log.appendException(e);
+				} else {
+					try {
+						st.createLabel(addr, String.format("_%s", sn.getName()), SourceType.ANALYSIS);
+					} catch (InvalidInputException e1) {
+						log.appendException(e);
+					}
+				}
 			}
 		} else {
 			System.out.println(String.format("unkn type offset: 0x%08X", addr.getOffset()));
