@@ -26,4 +26,8 @@ public class SymExtStat extends SymName {
 	public DataType getDataType(DataTypeManager mgr) {
 		return def.getDataType(mgr);
 	}
+	
+	public String getTag() {
+		return def.getTag();
+	}
 }

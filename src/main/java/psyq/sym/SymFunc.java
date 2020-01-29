@@ -46,12 +46,29 @@ public class SymFunc extends SymName {
 		return retnType;
 	}
 
-	public String getReturnTypeAsString() {
-		SymDefTypePrim[] primTypes = retnType.getDefType().getTypesList();
+//	public String getReturnTypeAsString() {
+//		SymDefTypePrim[] primTypes = retnType.getDefType().getTypesList();
+//		StringBuilder builder = new StringBuilder();
+//		
+//		for (int i = 1; i < primTypes.length; ++i) {
+//			builder.append(primTypes[i].name()).append(' ');
+//		}
+//		
+//		return builder.toString();
+//	}
+	
+	public String getPrototype() {
 		StringBuilder builder = new StringBuilder();
+		SymDefTypePrim[] primTypes = retnType.getDefType().getTypesList();
 		
 		for (int i = 1; i < primTypes.length; ++i) {
 			builder.append(primTypes[i].name()).append(' ');
+		}
+		
+		builder.append('(');
+		
+		for (SymDef arg : args) {
+			builder.append(arg.getName()).append(' ');
 		}
 		
 		return builder.toString();

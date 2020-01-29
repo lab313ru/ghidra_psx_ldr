@@ -3,10 +3,14 @@ package psyq.sym;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import ghidra.app.cmd.comments.SetCommentCmd;
 import ghidra.app.util.bin.BinaryReader;
@@ -46,10 +50,14 @@ import ghidra.util.task.TaskMonitor;
 import psx.PsxLoader;
 
 public class SymFile {
-	private List<SymObject> objects = new ArrayList<>();
+	private Set<SymObject> types = new HashSet<>();
+	private List<SymName> names = new ArrayList<>();
+	private List<SymExtStat> namesWithTypes = new ArrayList<>();
+	private Map<String, SymStructUnionEnum> fakeObjs = new HashMap<>();
+	private Map<String, SymFunc> funcs = new HashMap<>();
 	private List<SymOverlay> overlays = new ArrayList<>();
 	
-	public static SymFile fromBinary(String path, MessageLog log) {
+	public static SymFile fromBinary(String path, Program program, MessageLog log, TaskMonitor monitor) {
 		try {
 			FileInputStream fis = new FileInputStream(path);
 			byte[] fileData = fis.readAllBytes();
@@ -57,14 +65,14 @@ public class SymFile {
 			
 			ByteArrayProvider provider = new ByteArrayProvider(fileData);
 			BinaryReader reader = new BinaryReader(provider, true);
-			return new SymFile(reader, log);
+			return new SymFile(reader, program, log, monitor);
 		} catch (IOException e) {
 			log.appendException(e);
 			return null;
 		}
 	}
 
-	private SymFile(BinaryReader reader, MessageLog log) throws IOException {
+	private SymFile(BinaryReader reader, Program program, MessageLog log, TaskMonitor monitor) throws IOException {
 		String sig = reader.readNextAsciiString(3);
 		
 		if (!sig.equals("MND")) {
@@ -77,8 +85,6 @@ public class SymFile {
 		
 		SymStructUnionEnum currStructUnion = null;
 		SymFunc currFunc = null;
-		Map<String, SymFunc> defFuncs = new HashMap<>();
-		Map<String, SymStructUnionEnum> fakeObjs = new HashMap<>();
 		long currOverlay = 0L;
 		
 		while (reader.getPointerIndex() < reader.length()) {
@@ -99,7 +105,7 @@ public class SymFile {
 			if (tag <= 0x7F) {
 				String name = readString(reader);
 				SymName obj = new SymName(name, offset, currOverlay);
-				objects.add(obj);
+				names.add(obj);
 				continue;
 			}
 			
@@ -138,7 +144,7 @@ public class SymFile {
 				String fileName = readString(reader);
 				String funcName = readString(reader); // funcName
 				
-				SymFunc func = currFunc = defFuncs.get(funcName);
+				SymFunc func = currFunc = funcs.get(funcName);
 				
 				if (func == null) {
 					func = currFunc = new SymFunc(new SymDef(SymDefClass.EXT,
@@ -150,7 +156,7 @@ public class SymFile {
 				
 				func.setFileName(fileName);
 
-				defFuncs.put(funcName, func);
+				funcs.put(funcName, func);
 			} break;
 			case 0x8E: {
 				reader.readNextUnsignedInt(); // func end line
@@ -216,14 +222,14 @@ public class SymFile {
 					
 					if (typesList.length >= 1 && typesList[0] == SymDefTypePrim.FCN) {
 						SymFunc func = new SymFunc(def2, defName, offset, currOverlay);
-						defFuncs.put(defName, func);
+						funcs.put(defName, func);
 					} else if (currFunc == null) { // exclude function blocks
 						if (fakeObjs.containsKey(defTag)) {
 							SymStructUnionEnum obj = fakeObjs.get(defTag);
 							def2.setTag(obj.getName());
 						}
 						
-						objects.add(new SymExtStat(def2, offset, currOverlay));
+						namesWithTypes.add(new SymExtStat(def2, offset, currOverlay));
 					}
 				} break;
 				case TPDEF: {
@@ -231,8 +237,9 @@ public class SymFile {
 						SymStructUnionEnum obj = fakeObjs.get(defTag);
 						obj.setName(defName);
 						fakeObjs.replace(defTag, obj);
+						types.add(obj);
 					} else {
-						objects.add(new SymTypedef(def2));
+						types.add(new SymTypedef(def2));
 					}
 				} break;
 				// STRUCT, UNION, ENUM begin
@@ -280,7 +287,7 @@ public class SymFile {
 					if (defTag.matches("\\.\\d+fake")) {
 						fakeObjs.put(defTag, currStructUnion);
 					} else {
-						objects.add(currStructUnion);
+						types.add(currStructUnion);
 					}
 
 					currStructUnion = null;
@@ -302,12 +309,9 @@ public class SymFile {
 			} break;
 			}
 		}
-		
-		objects.addAll(fakeObjs.values());
-		objects.addAll(defFuncs.values());
 	}
 	
-	public void createOverlays(Program program, MessageLog log, TaskMonitor monitor) {
+	private void createOverlays(Program program, MessageLog log, TaskMonitor monitor) {
 		monitor.initialize(overlays.size());
 		monitor.setMessage("Creating overlays..");
 		monitor.clearCanceled();
@@ -337,7 +341,32 @@ public class SymFile {
 		monitor.setMessage("Overlays created.");
 	}
 	
-	public void applySymbols(Program program, MessageLog log, TaskMonitor monitor) {
+	private void applyNames(Program program, MessageLog log, TaskMonitor monitor) {
+		applySymbols(new ArrayList<>(names), program, log, monitor);
+	}
+	
+	private void applyTypes(Program program, MessageLog log, TaskMonitor monitor) {
+		applySymbols(new ArrayList<>(types), program, log, monitor);
+	}
+	
+	private void applyNamesWithTypes(Program program, MessageLog log, TaskMonitor monitor) {
+		applySymbols(new ArrayList<>(namesWithTypes), program, log, monitor);
+	}
+	
+	private void applyFuncs(Program program, MessageLog log, TaskMonitor monitor) {
+		applySymbols(new ArrayList<>(funcs.values()), program, log, monitor);
+	}
+	
+	public void apply(Program program, MessageLog log, TaskMonitor monitor) {
+		createOverlays(program, log, monitor);
+		applyNames(program, log, monitor);
+		applyTypes(program, log, monitor);
+		applyNamesWithTypes(program, log, monitor);
+		applyFuncs(program, log, monitor);
+	}
+	
+	@SuppressWarnings("unchecked")
+	private static void applySymbols(final List<SymObject> objects, Program program, MessageLog log, TaskMonitor monitor) {
 		DataTypeManager mgr = program.getDataTypeManager();
 		AddressFactory addrFact = program.getAddressFactory();
 		
@@ -347,12 +376,11 @@ public class SymFile {
 		monitor.setMessage("Applying SYM objects...");
 		monitor.clearCanceled();
 		
-		for (int i = 0; i < objects.size(); ++i) {
+		int index = 0;
+		for (SymObject obj : objects) {
 			if (monitor.isCancelled()) {
 				break;
 			}
-			
-			SymObject obj = objects.get(i);
 			
 			AddressSpace addrSpace = addrFact.getAddressSpace(SymOverlay.getBlockName(obj.getOverlayId()));
 			
@@ -366,7 +394,8 @@ public class SymFile {
 				tryAgain.add(obj);
 			}
 			
-			monitor.setProgress(i + 1);
+			monitor.setProgress(index + 1);
+			index++;
 		}
 		
 		monitor.setMessage("Applying SYM objects: done");
@@ -376,29 +405,88 @@ public class SymFile {
 		monitor.clearCanceled();
 		
 		int c = 0;
-		Iterator<SymObject> i = tryAgain.iterator();
-		
-		while (i.hasNext()) {
-			if (monitor.isCancelled()) {
-				break;
-			}
+		boolean repeat = true;
+
+		while (repeat) {
+			Iterator<SymObject> i = tryAgain.iterator();
+			repeat = false;
 			
-			SymObject obj = i.next();
-			
-			AddressSpace addrSpace = addrFact.getAddressSpace(SymOverlay.getBlockName(obj.getOverlayId()));
-			
-			if (addrSpace == null) {
-				addrSpace = addrFact.getDefaultAddressSpace();
-			}
-			
-			Address addr = addrSpace.getAddress(obj.getOffset());
-			
-			if (applySymbol(program, obj, addr, mgr, log)) {
-				i.remove();
-				c++;
+			while (i.hasNext()) {
+				if (monitor.isCancelled()) {
+					break;
+				}
 				
-				monitor.setProgress(c);
+				SymObject obj = i.next();
+				
+				AddressSpace addrSpace = addrFact.getAddressSpace(SymOverlay.getBlockName(obj.getOverlayId()));
+				
+				if (addrSpace == null) {
+					addrSpace = addrFact.getDefaultAddressSpace();
+				}
+				
+				Address addr = addrSpace.getAddress(obj.getOffset());
+				
+				if (applySymbol(program, obj, addr, mgr, log)) {
+					i.remove();
+					repeat = true;
+					c++;
+					
+					monitor.setProgress(c);
+				}
 			}
+		}
+		
+		if (tryAgain.isEmpty()) {
+			return;
+		}
+		
+		Set<SymName> uniqueStructs = ((List<SymName>)(Object)tryAgain).stream().filter(SymStructUnionEnum.class::isInstance).map(SymStructUnionEnum.class::cast).collect(Collectors.toSet());
+		Set<SymName> uniqueDefs = ((List<SymName>)(Object)tryAgain).stream().filter(SymExtStat.class::isInstance).map(SymExtStat.class::cast).collect(Collectors.toSet());
+		Set<SymName> uniqueFuncs = ((List<SymName>)(Object)tryAgain).stream().filter(SymFunc.class::isInstance).map(SymFunc.class::cast).collect(Collectors.toSet());
+		
+		tryAgain.removeAll(uniqueStructs);
+		tryAgain.removeAll(uniqueDefs);
+		tryAgain.removeAll(uniqueFuncs);
+		Set<SymName> uniqueRest = new HashSet<>((List<SymName>)((Object)tryAgain));
+		
+		boolean printed = false;
+		for (SymName obj : uniqueStructs) {
+			if (!printed) {
+				log.appendMsg("The following structures were not created:");
+				printed = true;
+			}
+			
+			log.appendMsg(String.format("\t%s", obj.getName()));
+		}
+		
+		printed = false;
+		for (SymName obj : uniqueDefs) {
+			if (!printed) {
+				log.appendMsg("The following definitions were not created:");
+				printed = true;
+			}
+			
+			log.appendMsg(String.format("\tName: %s, Type: %s", obj.getName(), ((SymExtStat)obj).getTag()));
+		}
+		
+		printed = false;
+		for (SymName obj : uniqueFuncs) {
+			if (!printed) {
+				log.appendMsg("The following functions were not created:");
+				printed = true;
+			}
+			
+			log.appendMsg(String.format("\t%s", obj.getName()));
+		}
+		
+		printed = false;
+		for (SymName obj : uniqueRest) {
+			if (!printed) {
+				log.appendMsg("The following objects were not created:");
+				printed = true;
+			}
+			
+			log.appendMsg(String.format("\t%s (%s)", obj.getName(), obj.getClass().getName()));
 		}
 	}
 	
@@ -555,9 +643,5 @@ public class SymFile {
 	
 	private static String readString(BinaryReader reader) throws IOException {
 		return reader.readNextAsciiString(reader.readNextUnsignedByte());
-	}
-	
-	public SymObject[] getObjects() {
-		return objects.toArray(SymObject[]::new);
 	}
 }

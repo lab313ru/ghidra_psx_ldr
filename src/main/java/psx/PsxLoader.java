@@ -239,10 +239,8 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 			}
 			
 			int transId = program.startTransaction("Load and apply SYM file...");
-			SymFile symFile = SymFile.fromBinary(symPath, log);
-			
-			symFile.createOverlays(program, log, monitor);
-			symFile.applySymbols(program, log, monitor);
+			SymFile symFile = SymFile.fromBinary(symPath, program, log, monitor);
+			symFile.apply(program, log, monitor);
 			program.endTransaction(transId, true);
 		}
 		

@@ -16,4 +16,18 @@ public class SymName extends SymObject {
 	public void setName(String newName) {
 		name = newName;
 	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (!(obj instanceof SymName)) {
+			return false;
+		}
+		
+		return name.equals(((SymName)obj).name);
+	}
+	
+	@Override
+	public int hashCode() {
+		return name.hashCode();
+	}
 }
