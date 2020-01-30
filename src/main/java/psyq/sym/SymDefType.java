@@ -45,6 +45,10 @@ public class SymDefType {
 		}
 	}
 	
+	public SymDefTypePrim getPrimaryType() {
+		return (primTypes.size() > 0) ? primTypes.get(0) : SymDefTypePrim.NULL;
+	}
+	
 	public SymDefTypePrim[] getTypesList() {
 		return primTypes.toArray(SymDefTypePrim[]::new);
 	}

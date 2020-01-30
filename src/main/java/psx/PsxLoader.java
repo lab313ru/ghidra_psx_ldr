@@ -173,7 +173,7 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 			return;
 		}
 		
-		monitor.setMessage(String.format("%s : Start loading", getName()));
+		monitor.setMessage("Loading PSX binary...");
 		
 		FlatProgramAPI fpa = new FlatProgramAPI(program, monitor);
 		
@@ -223,7 +223,7 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 			createCompilerSegments(provider, fpa, romStart, mainRef, log);
 		}
 		
-		monitor.setMessage(String.format("%s : Loading done", getName()));
+		monitor.setMessage("Loading PSX binary done.");
 		
 		try {
 			TimeUnit.SECONDS.sleep(1);
@@ -240,7 +240,9 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 			
 			int transId = program.startTransaction("Load and apply SYM file...");
 			SymFile symFile = SymFile.fromBinary(symPath, program, log, monitor);
-			symFile.apply(program, log, monitor);
+			symFile.applyOverlays(program, log, monitor);
+			symFile.apply(true, program, log, monitor);
+			symFile.apply(false, program, log, monitor);
 			program.endTransaction(transId, true);
 		}
 		

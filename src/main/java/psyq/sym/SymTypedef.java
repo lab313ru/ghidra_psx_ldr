@@ -22,7 +22,11 @@ public class SymTypedef extends SymName {
 		base.setName(newName);
 	}
 	
-	public DataType getDataType(DataTypeManager mgr) {
+	public String getTag() {
+		return base.getTag();
+	}
+	
+	public DataType getBaseDataType(DataTypeManager mgr) {
 		return base.getDataType(mgr);
 	}
 }
