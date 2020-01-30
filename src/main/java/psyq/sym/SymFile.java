@@ -5,12 +5,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import ghidra.app.cmd.comments.SetCommentCmd;
 import ghidra.app.util.bin.BinaryReader;
@@ -83,7 +81,7 @@ public class SymFile {
 		reader.readNextByteArray(3); // skip
 		
 		SymStructUnionEnum currStructUnion = null;
-		SymFunc currFunc = null;
+		String currFuncName = null;
 		long currOverlay = 0L;
 		
 		while (reader.getPointerIndex() < reader.length()) {
@@ -141,15 +139,14 @@ public class SymFile {
 				
 				reader.readNextUnsignedInt(); // line
 				String fileName = readString(reader);
-				String funcName = readString(reader); // funcName
+				String funcName = currFuncName = readString(reader); // funcName
 				
-				SymFunc func = currFunc = funcs.get(funcName);
+				SymFunc func = funcs.get(funcName);
 				
 				if (func == null) {
-					func = currFunc = new SymFunc(new SymDefinition(SymClass.EXT,
-									              new SymType(new SymTypePrimitive[] {SymTypePrimitive.FCN, SymTypePrimitive.VOID}),
-									                          null, null, 0L, funcName, offset, currOverlay),
-							                      funcName, offset, currOverlay);
+					func = new SymFunc(new SymDefinition(SymClass.EXT,
+									   new SymType(new SymTypePrimitive[] {SymTypePrimitive.FCN, SymTypePrimitive.VOID}),
+									               null, null, 0L, funcName, offset, currOverlay));
 				}
 				
 				func.setFileName(fileName);
@@ -158,12 +155,16 @@ public class SymFile {
 			} break;
 			case 0x8E: {
 				reader.readNextUnsignedInt(); // func end line
-				if (currFunc == null) {
+				
+				SymFunc func = funcs.get(currFuncName);
+				
+				if (func == null) {
 					throw new IOException("End of non-started function");
 				}
 				
-				currFunc.setEndOffset(offset);
-				currFunc = null;
+				func.setEndOffset(offset);
+				funcs.put(currFuncName, func);
+				currFuncName = null;
 			} break;
 			case 0x90: {
 				reader.readNextUnsignedInt(); // block start line
@@ -198,7 +199,7 @@ public class SymFile {
 				switch (defClass) {
 				case ARG:
 				case REGPARM: {
-					if (currFunc == null) {
+					if (currFuncName == null) {
 						throw new IOException("Parameter for non-started function");
 					}
 					
@@ -206,17 +207,19 @@ public class SymFile {
 						SymStructUnionEnum obj = fakeObjs.get(defTag);
 						def2.setTag(obj.getName());
 					}
-
-					currFunc.addArgument(def2);
+					
+					SymFunc func = funcs.get(currFuncName);
+					func.addArgument(def2);
+					funcs.put(currFuncName, func);
 				} break;
 				case EXT:
 				case STAT: {
 					SymTypePrimitive[] typesList = defType.getTypesList();
 					
 					if (typesList.length >= 1 && typesList[0] == SymTypePrimitive.FCN) {
-						SymFunc func = new SymFunc(def2, defName, offset, currOverlay);
+						SymFunc func = new SymFunc(def2);
 						funcs.put(defName, func);
-					} else if (currFunc == null) { // exclude function blocks
+					} else if (currFuncName == null) { // exclude function blocks
 						if (fakeObjs.containsKey(defTag)) {
 							SymStructUnionEnum obj = fakeObjs.get(defTag);
 							def2.setTag(obj.getName());
@@ -366,12 +369,14 @@ public class SymFile {
 	public void apply(Program program, MessageLog log, TaskMonitor monitor) {
 		final Map<SymDataTypeManagerType, DataTypeManager> mgrs = new HashMap<>();
 		mgrs.put(SymDataTypeManagerType.MGR_TYPE_MAIN, program.getDataTypeManager());
-		mgrs.put(SymDataTypeManagerType.MGR_TYPE_PSYQ, PsxLoader.loadPsyqGdt(program));
+		mgrs.put(SymDataTypeManagerType.MGR_TYPE_PSYQ, PsxLoader.loadPsyqGdt(program, null));
 
 		applyNames(mgrs, program, log, monitor);
 		applyTypes(mgrs, program, log, monitor);
 		applyNamesWithTypes(mgrs, program, log, monitor);
 		applyFuncs(mgrs, program, log, monitor);
+		
+		removeUselessFake(mgrs, monitor);
 	}
 	
 	private void applySymbols(final List<SymObject> objects, final Map<SymDataTypeManagerType, DataTypeManager> mgrs, Program program, MessageLog log, TaskMonitor monitor) {
@@ -386,9 +391,11 @@ public class SymFile {
 			
 			Address addr = obj.getAddress(program);
 			
-			SymStructUnionEnum structOrUnion = applySymbol(obj, addr, mgrs, program, log);
-			if (structOrUnion != null) {
-				tryAgain.add(structOrUnion);
+			Set<SymStructUnionEnum> structOrUnion = applySymbol(obj, addr, mgrs, program, log);
+			if (!structOrUnion.isEmpty()) {
+				for (SymStructUnionEnum ss : structOrUnion) {
+					tryAgain.add(ss);
+				}
 			}
 			
 			monitor.setProgress(index + 1);
@@ -416,26 +423,30 @@ public class SymFile {
 
 				Address addr = obj.getAddress(program);
 				
-				SymStructUnionEnum structOrUnion = applySymbol(obj, addr, mgrs, program, log);
-				if (structOrUnion == null) {
+				Set<SymStructUnionEnum> structOrUnion = applySymbol(obj, addr, mgrs, program, log);
+				if (structOrUnion.isEmpty()) {
 					i.remove();
 					repeat = true;
 					
 					monitor.setProgress(index + 1);
 					index++;
 				} else {
-					if (!tryAgainList.contains(structOrUnion)) {
-						i.add(structOrUnion);
+					for (SymStructUnionEnum ss : structOrUnion) {
+						if (!tryAgainList.contains(ss)) {
+							i.add(ss);
+						}
 					}
 				}
 			}
 		}
 		
-		dumpNotFound(tryAgainList, log);
+		// dumpNotFound(tryAgainList, log);
 	}
 	
 	@SuppressWarnings("incomplete-switch")
-	private static SymStructUnionEnum applySymbol(SymObject obj, Address addr, final Map<SymDataTypeManagerType, DataTypeManager> mgrs, Program program, MessageLog log) {
+	private static Set<SymStructUnionEnum> applySymbol(SymObject obj, Address addr, final Map<SymDataTypeManagerType, DataTypeManager> mgrs, Program program, MessageLog log) {
+		Set<SymStructUnionEnum> result = new HashSet<>();
+		
 		SymbolTable st = program.getSymbolTable();
 		DataTypeManager psyqMgr = mgrs.get(SymDataTypeManagerType.MGR_TYPE_PSYQ);
 		DataTypeManager mainMgr = mgrs.get(SymDataTypeManagerType.MGR_TYPE_MAIN);
@@ -444,32 +455,32 @@ public class SymFile {
 			SymFunc sf = (SymFunc)obj;
 			PsxLoader.setFunction(program, addr, sf.getName(), true, false, log);
 			
-			SymStructUnionEnum structOrUnion = setFunctionArguments(mgrs, program, addr, sf, log);
+			Set<SymStructUnionEnum> structOrUnion = setFunctionArguments(mgrs, program, addr, sf, log);
 			if (structOrUnion != null) {
-				return structOrUnion;
+				result.addAll(structOrUnion);
+			} else {
+				SetCommentCmd cmd = new SetCommentCmd(addr, CodeUnit.PLATE_COMMENT, String.format("File: %s", sf.getFileName()));
+				cmd.applyTo(program);
 			}
-			
-			SetCommentCmd cmd = new SetCommentCmd(addr, CodeUnit.PLATE_COMMENT, String.format("File: %s", sf.getFileName()));
-			cmd.applyTo(program);
 		} else if (obj instanceof SymTypedef) {
 			SymTypedef tpdef = (SymTypedef)obj;
 	
 			DataType baseType = tpdef.getDataType(mgrs);
 			
 			if (baseType == null) {
-				return tpdef.getBaseStructOrUnion();
-			}
-			
-			DataType tpdefType = new TypedefDataType(tpdef.getName(), baseType);
-			
-			if (hasDataTypeName(psyqMgr, baseType.getName())) {
-				if (hasDataTypeName(psyqMgr, tpdefType.getName())) {
-					return null;
-				} else if (!hasDataTypeName(mainMgr, tpdefType.getName())) {
+				result.add(tpdef.getBaseStructOrUnion());
+			} else {
+				DataType tpdefType = new TypedefDataType(tpdef.getName(), baseType);
+				
+				if (SymDefinition.hasDataTypeName(psyqMgr, baseType.getName()) != null) {
+					if (SymDefinition.hasDataTypeName(psyqMgr, tpdefType.getName()) != null) {
+						return result;
+					} else if (SymDefinition.hasDataTypeName(mainMgr, tpdefType.getName()) == null) {
+						applyDataType(tpdefType, mainMgr);
+					}
+				} else if (SymDefinition.hasDataTypeName(mainMgr, baseType.getName()) == null) {
 					applyDataType(tpdefType, mainMgr);
 				}
-			} else if (!hasDataTypeName(mainMgr, baseType.getName())) {
-				applyDataType(tpdefType, mainMgr);
 			}
 		} else if (obj instanceof SymStructUnionEnum) {
 			SymStructUnionEnum ssu = (SymStructUnionEnum)obj;
@@ -481,19 +492,27 @@ public class SymFile {
 				UnionDataType udt = new UnionDataType(ssu.getName());
 				udt.setMinimumAlignment(4);
 				
-				if (hasDataTypeName(psyqMgr, ssu.getName())) {
-					return null;
-				} else if (hasDataTypeName(psyqMgr, ssu.getName())) {
+				if (SymDefinition.hasDataTypeName(psyqMgr, ssu.getName()) != null) {
+					return result;
+				} else if (SymDefinition.hasDataTypeName(psyqMgr, ssu.getName()) != null) {
 					Union uut = (Union)applyDataType(udt, mainMgr);
+					
+					try {
+						while (uut.getComponent(0) != null) {
+							uut.delete(0);
+						}
+					} catch (ArrayIndexOutOfBoundsException ignored) {
+						
+					}
 					
 					for (SymDefinition field : fields) {
 						DataType dt = field.getDataType(mgrs);
 						
 						if (dt == null) {
-							return field.getBaseStructOrUnion();
+							result.add(field.getBaseStructOrUnion());
+						} else {
+							uut.add(dt, field.getName(), null);
 						}
-						
-						uut.add(dt, field.getName(), null);
 					}
 				}
 			} break;
@@ -501,21 +520,21 @@ public class SymFile {
 				StructureDataType sdt = new StructureDataType(ssu.getName(), 0);
 				sdt.setMinimumAlignment(4);
 
-				if (hasDataTypeName(psyqMgr, ssu.getName())) {
-					return null;
-				} else if (!hasDataTypeName(mainMgr, ssu.getName())) {
+				if (SymDefinition.hasDataTypeName(psyqMgr, ssu.getName()) != null) {
+					return result;
+				} else if (SymDefinition.hasDataTypeName(mainMgr, ssu.getName()) == null) {
 					Structure ddt = (Structure)applyDataType(sdt, mainMgr);
+					ddt.deleteAll();
 					
 					for (SymDefinition field : fields) {
 						DataType dt = field.getDataType(mgrs);
 						
 						if (dt == null) {
-							return field.getBaseStructOrUnion();
+							result.add(field.getBaseStructOrUnion());
+						} else {
+							ddt.add(dt, field.getName(), null);
 						}
-						
-						ddt.add(dt, field.getName(), null);
 					}
-					break;
 				}
 			} break;
 			case ENUM: {
@@ -525,11 +544,10 @@ public class SymFile {
 					edt.add(field.getName(), field.getOffset());
 				}
 				
-				if (hasDataTypeName(psyqMgr, ssu.getName())) {
-					return null;
-				} else if (hasDataTypeName(mainMgr, ssu.getName())) {
+				if (SymDefinition.hasDataTypeName(psyqMgr, ssu.getName()) != null) {
+					return result;
+				} else if (SymDefinition.hasDataTypeName(mainMgr, ssu.getName()) != null) {
 					applyDataType(edt, mainMgr);
-					break;
 				}
 			} break;
 			}
@@ -539,14 +557,14 @@ public class SymFile {
 			DataType dt = extStat.getDataType(mgrs);
 			
 			if (dt == null) {
-				return extStat.getBaseStructOrUnion();
-			}
-			
-			try {
-				st.createLabel(addr, extStat.getName(), SourceType.ANALYSIS);
-				DataUtilities.createData(program, addr, dt, -1, false, ClearDataMode.CLEAR_ALL_CONFLICT_DATA);
-			} catch (InvalidInputException | CodeUnitInsertionException e) {
-				log.appendException(e);
+				result.add(extStat.getBaseStructOrUnion());
+			} else {
+				try {
+					st.createLabel(addr, extStat.getName(), SourceType.ANALYSIS);
+					DataUtilities.createData(program, addr, dt, -1, false, ClearDataMode.CLEAR_ALL_CONFLICT_DATA);
+				} catch (InvalidInputException | CodeUnitInsertionException e) {
+					log.appendException(e);
+				}
 			}
 		} else if (obj instanceof SymName) {
 			SymName sn = (SymName)obj;
@@ -567,19 +585,7 @@ public class SymFile {
 			log.appendMsg(String.format("unkn type offset: 0x%08X", addr.getOffset()));
 		}
 		
-		return null;
-	}
-	
-	private static boolean hasDataTypeName(DataTypeManager mgr, String name) {
-		Iterator<DataType> ss = mgr.getAllDataTypes();
-		
-		while (ss.hasNext()) {
-			if (ss.next().getName().equals(name)) {
-				return true;
-			}
-		}
-		
-		return false;
+		return result;
 	}
 	
 	private static DataType applyDataType(DataType dt, DataTypeManager mgr) {
@@ -589,7 +595,9 @@ public class SymFile {
 		return res;
 	}
 	
-	private static SymStructUnionEnum setFunctionArguments(final Map<SymDataTypeManagerType, DataTypeManager> mgrs, Program program, Address funcAddr, SymFunc funcDef, MessageLog log) {
+	private static Set<SymStructUnionEnum> setFunctionArguments(final Map<SymDataTypeManagerType, DataTypeManager> mgrs, Program program, Address funcAddr, SymFunc funcDef, MessageLog log) {
+		Set<SymStructUnionEnum> result = new HashSet<>();
+		
 		try {
 			Function func = program.getListing().getFunctionAt(funcAddr);
 			
@@ -598,13 +606,13 @@ public class SymFile {
 				return null;
 			}
 			
-			DataType dt = funcDef.getReturnType().getDataType(mgrs);
+			DataType dt = funcDef.getDataType(mgrs);
 			
 			if (dt == null) {
-				return funcDef.getReturnType().getBaseStructOrUnion();
+				result.add(funcDef.getBaseStructOrUnion());
+			} else {
+				func.setReturnType(dt, SourceType.ANALYSIS);
 			}
-			
-			func.setReturnType(dt, SourceType.ANALYSIS);
 			
 			List<ParameterImpl> params = new ArrayList<>();
 			SymDefinition[] args = funcDef.getArguments();
@@ -612,10 +620,10 @@ public class SymFile {
 				DataType argType = args[i].getDataType(mgrs);
 				
 				if (argType == null) {
-					return args[i].getBaseStructOrUnion();
+					result.add(args[i].getBaseStructOrUnion());
+				} else {
+					params.add(new ParameterImpl(args[i].getName(), argType, program));
 				}
-				
-				params.add(new ParameterImpl(args[i].getName(), argType, program));
 			}
 			
 			func.updateFunction("__stdcall", null, FunctionUpdateType.DYNAMIC_STORAGE_ALL_PARAMS, true, SourceType.ANALYSIS, params.toArray(ParameterImpl[]::new));
@@ -626,72 +634,92 @@ public class SymFile {
 		return null;
 	}
 	
-	private static void dumpNotFound(final List<SymStructUnionEnum> tryAgain, MessageLog log) {
-		if (tryAgain.isEmpty()) {
-			return;
-		}
+	private void removeUselessFake(final Map<SymDataTypeManagerType, DataTypeManager> mgrs, TaskMonitor monitor) {
+		DataTypeManager mainMgr = mgrs.get(SymDataTypeManagerType.MGR_TYPE_MAIN);
+		DataTypeManager psyqMgr = mgrs.get(SymDataTypeManagerType.MGR_TYPE_PSYQ);
 		
-		Set<SymName> uniqueStructs = tryAgain.stream().filter(SymStructUnionEnum.class::isInstance).map(SymStructUnionEnum.class::cast).collect(Collectors.toSet());
-		Set<SymName> uniqueDefs = tryAgain.stream().filter(SymDefinition.class::isInstance).map(SymDefinition.class::cast).collect(Collectors.toSet());
-		Set<SymName> uniqueFuncs = tryAgain.stream().filter(SymFunc.class::isInstance).map(SymFunc.class::cast).collect(Collectors.toSet());
-		Set<SymName> uniqueTpdefs = tryAgain.stream().filter(SymTypedef.class::isInstance).map(SymTypedef.class::cast).collect(Collectors.toSet());
-		
-		tryAgain.removeAll(uniqueStructs);
-		tryAgain.removeAll(uniqueDefs);
-		tryAgain.removeAll(uniqueFuncs);
-		tryAgain.removeAll(uniqueTpdefs);
-		Set<SymName> uniqueRest = new HashSet<>((tryAgain));
-		
-		boolean printed = false;
-		for (SymName obj : uniqueStructs) {
-			if (!printed) {
-				log.appendMsg("The following structures haven't been found:");
-				printed = true;
+		for (Map.Entry<String, SymStructUnionEnum> entry : fakeObjs.entrySet()) {
+			DataType fake = SymDefinition.hasDataTypeName(mainMgr, entry.getKey());
+			
+			if (fake == null) {
+				continue;
 			}
 			
-			log.appendMsg(String.format("\t%s", obj.getName()));
-		}
-		
-		printed = false;
-		for (SymName obj : uniqueDefs) {
-			if (!printed) {
-				log.appendMsg("The following definitions haven't been found:");
-				printed = true;
-			}
+			DataType def1 = SymDefinition.hasDataTypeName(mainMgr, entry.getValue().getName());
+			DataType def = (def1 != null) ? def1 : SymDefinition.hasDataTypeName(psyqMgr, entry.getValue().getName());
 			
-			log.appendMsg(String.format("\tName: %s, Type: %s", obj.getName(), ((SymDefinition)obj).getTag()));
-		}
-		
-		printed = false;
-		for (SymName obj : uniqueFuncs) {
-			if (!printed) {
-				log.appendMsg("The following functions haven't been found:");
-				printed = true;
+			if (def != null) {
+				mainMgr.remove(fake, monitor);
 			}
-			
-			log.appendMsg(String.format("\t%s", obj.getName()));
-		}
-		
-		printed = false;
-		for (SymName obj : uniqueTpdefs) {
-			if (!printed) {
-				log.appendMsg("The following typedefs haven't been found:");
-				printed = true;
-			}
-			
-			log.appendMsg(String.format("\t%s -> %s", ((SymTypedef)obj).getTag(), obj.getName()));
-		}
-		
-		printed = false;
-		for (SymName obj : uniqueRest) {
-			if (!printed) {
-				log.appendMsg("The following objects haven't been found:");
-				printed = true;
-			}
-			
-			log.appendMsg(String.format("\t%s (%s)", obj.getName(), obj.getClass().getName()));
 		}
 	}
+	
+//	private static void dumpNotFound(final List<SymStructUnionEnum> tryAgain, MessageLog log) {
+//		if (tryAgain.isEmpty()) {
+//			return;
+//		}
+//		
+//		Set<SymName> uniqueStructs = tryAgain.stream().filter(SymStructUnionEnum.class::isInstance).map(SymStructUnionEnum.class::cast).collect(Collectors.toSet());
+//		Set<SymName> uniqueDefs = tryAgain.stream().filter(SymDefinition.class::isInstance).map(SymDefinition.class::cast).collect(Collectors.toSet());
+//		Set<SymName> uniqueFuncs = tryAgain.stream().filter(SymFunc.class::isInstance).map(SymFunc.class::cast).collect(Collectors.toSet());
+//		Set<SymName> uniqueTpdefs = tryAgain.stream().filter(SymTypedef.class::isInstance).map(SymTypedef.class::cast).collect(Collectors.toSet());
+//		
+//		tryAgain.removeAll(uniqueStructs);
+//		tryAgain.removeAll(uniqueDefs);
+//		tryAgain.removeAll(uniqueFuncs);
+//		tryAgain.removeAll(uniqueTpdefs);
+//		Set<SymName> uniqueRest = new HashSet<>((tryAgain));
+//		
+//		boolean printed = false;
+//		for (SymName obj : uniqueStructs) {
+//			if (!printed) {
+//				log.appendMsg("The following structures haven't been found:");
+//				printed = true;
+//			}
+//			
+//			log.appendMsg(String.format("\t%s", obj.getName()));
+//		}
+//		
+//		printed = false;
+//		for (SymName obj : uniqueDefs) {
+//			if (!printed) {
+//				log.appendMsg("The following definitions haven't been found:");
+//				printed = true;
+//			}
+//			
+//			log.appendMsg(String.format("\tName: %s, Type: %s", obj.getName(), ((SymDefinition)obj).getTag()));
+//		}
+//		
+//		printed = false;
+//		for (SymName obj : uniqueFuncs) {
+//			if (!printed) {
+//				log.appendMsg("The following functions haven't been found:");
+//				printed = true;
+//			}
+//			
+//			log.appendMsg(String.format("\t%s", obj.getName()));
+//		}
+//		
+//		printed = false;
+//		for (SymName obj : uniqueTpdefs) {
+//			if (!printed) {
+//				log.appendMsg("The following typedefs haven't been found:");
+//				printed = true;
+//			}
+//			
+//			log.appendMsg(String.format("\t%s -> %s", ((SymTypedef)obj).getTag(), obj.getName()));
+//		}
+//		
+//		printed = false;
+//		for (SymName obj : uniqueRest) {
+//			if (!printed) {
+//				log.appendMsg("The following objects haven't been found:");
+//				printed = true;
+//			}
+//			
+//			log.appendMsg(String.format("\t%s (%s)", obj.getName(), obj.getClass().getName()));
+//		}
+//	}
 	
 	private static String readString(BinaryReader reader) throws IOException {
 		return reader.readNextAsciiString(reader.readNextUnsignedByte());

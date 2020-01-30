@@ -3,19 +3,15 @@ package psyq.sym;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SymFunc extends SymName {
+public class SymFunc extends SymDefinition {
 	private String fileName = null;
 	
 	private long endOffset = 0L;
 	
 	private final List<SymDefinition> args = new ArrayList<>();
-	private final SymDefinition retnType;
-	
 
-	public SymFunc(SymDefinition retnType, String funcName, long offset, long overlayId) {
-		super(funcName, offset, overlayId);
-		
-		this.retnType = retnType;
+	public SymFunc(SymDefinition retnType) {
+		super(retnType);
 	}
 	
 	public void setEndOffset(long endOffset) {
@@ -42,13 +38,9 @@ public class SymFunc extends SymName {
 		return args.toArray(SymDefinition[]::new);
 	}
 	
-	public SymDefinition getReturnType() {
-		return retnType;
-	}
-	
 	public String getPrototype() {
 		StringBuilder builder = new StringBuilder();
-		SymTypePrimitive[] primTypes = retnType.getSymType().getTypesList();
+		SymTypePrimitive[] primTypes = getSymType().getTypesList();
 		
 		for (int i = 1; i < primTypes.length; ++i) {
 			builder.append(primTypes[i].name()).append(' ');

@@ -1,6 +1,7 @@
 package psyq.sym;
 
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.Map;
 
 import ghidra.program.model.data.ArrayDataType;
@@ -115,9 +116,8 @@ public class SymDefinition extends SymName {
 		case STRUCT:
 		case UNION:
 		case ENUM: {
-			for (final DataTypeManager mgr : mgrs.values()) {
-				DataType dt = mgr.getDataType(mgr.getRootCategory().getCategoryPath(), (tag != null) ? tag : getName());
-				
+			for (DataTypeManager mgr : mgrs.values()) {
+				DataType dt = hasDataTypeName(mgr, (tag != null) ? tag : getName());
 				if (dt != null) {
 					return dt;
 				}
@@ -152,4 +152,23 @@ public class SymDefinition extends SymName {
 	public Integer[] getDims() {
 		return dims;
 	}
+	
+	public static DataType hasDataTypeName(DataTypeManager mgr, String name) {
+		Iterator<DataType> ss = mgr.getAllDataTypes();
+		
+		while (ss.hasNext()) {
+			DataType dt = ss.next();
+			if (dt.getName().equals(name)) {
+				return dt;
+			}
+		}
+		
+		return null;
+	}
+	
+//	
+//	@Override
+//    protected SymDefinition clone() throws CloneNotSupportedException {
+//        return (SymDefinition)super.clone();
+//    }
 }

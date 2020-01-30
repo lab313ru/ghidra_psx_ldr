@@ -63,7 +63,7 @@ public class PsxPlugin extends ProgramPlugin {
 			createOmAction();
 			createDbgAction();
 			
-			PsxLoader.loadPsyqGdt(program);
+			// PsxLoader.loadPsyqGdt(program);
 			gotoMain(this.getTool(), program);
 		}
 	}

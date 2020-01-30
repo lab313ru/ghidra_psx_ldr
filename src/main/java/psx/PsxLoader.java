@@ -269,10 +269,11 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 		}
 	}
 	
-	public static DataTypeManager loadPsyqGdt(Program program) {
+	public static DataTypeManager loadPsyqGdt(Program program, AddressSetView set) {
 		String gdtName = String.format("psyq%s", PsxLoader.getProgramPsyqVersion(program));
+		
 		PsxLoader.closePsyqDataTypeArchives(program, gdtName);
-		return PsxLoader.loadPsyqArchive(program, gdtName, null, TaskMonitor.DUMMY, new MessageLog());
+		return PsxLoader.loadPsyqArchive(program, gdtName, set, TaskMonitor.DUMMY, new MessageLog());
 	}
 	
 	private static void closePsyqDataTypeArchives(Program program, String gdtName) {

@@ -70,7 +70,7 @@ public class PsxAnalyzer extends AbstractAnalyzer {
 			monitor.setMessage("Applying PsyQ functions and data types...");
 			monitor.clearCanceled();
 			
-			PsxLoader.loadPsyqGdt(program);
+			PsxLoader.loadPsyqGdt(program, set);
 			
 			monitor.setMessage("Applying PsyQ functions and data types done.");
 		} catch (IOException e) {
