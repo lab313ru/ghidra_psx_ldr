@@ -210,6 +210,7 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 		}
 		
 		createSegments(provider, fpa, log);
+		addPsyqVerOption(program, ramBase, log);
 		
 		setFunction(program, fpa.toAddr(psxExe.getInitPc()), "start", true, true, log);
 
@@ -241,12 +242,9 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 			int transId = program.startTransaction("Load and apply SYM file...");
 			SymFile symFile = SymFile.fromBinary(symPath, program, log, monitor);
 			symFile.applyOverlays(program, log, monitor);
-			symFile.apply(true, program, log, monitor);
-			symFile.apply(false, program, log, monitor);
+			symFile.apply(program, log, monitor);
 			program.endTransaction(transId, true);
 		}
-		
-		addPsyqVerOption(program, ramBase, log);
 	}
 	
 	public static DataTypeManagerService getDataTypeManagerService(Program program) {
@@ -271,7 +269,13 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 		}
 	}
 	
-	public static void closePsyqDataTypeArchives(Program program, String gdtName) {
+	public static DataTypeManager loadPsyqGdt(Program program) {
+		String gdtName = String.format("psyq%s", PsxLoader.getProgramPsyqVersion(program));
+		PsxLoader.closePsyqDataTypeArchives(program, gdtName);
+		return PsxLoader.loadPsyqArchive(program, gdtName, null, TaskMonitor.DUMMY, new MessageLog());
+	}
+	
+	private static void closePsyqDataTypeArchives(Program program, String gdtName) {
 		DataTypeManagerService srv = PsxLoader.getDataTypeManagerService(program);
 		DataTypeManager[] mgrs = srv.getDataTypeManagers();
 
@@ -282,11 +286,11 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 		}
 	}
 	
-	public static void loadPsyqArchive(Program program, String gdtName, AddressSetView set, TaskMonitor monitor, MessageLog log) {
+	private static DataTypeManager loadPsyqArchive(Program program, String gdtName, AddressSetView set, TaskMonitor monitor, MessageLog log) {
 		DataTypeManagerService srv = getDataTypeManagerService(program);
 		
 		if (gdtName.isEmpty()) {
-			return;
+			return null;
 		}
 		
 		try {
@@ -295,7 +299,7 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 			for (DataTypeManager mgr : mgrs) {
 				if (mgr.getName().equals(gdtName)) {
 					applyDataTypes(program, set, mgr, monitor);
-					return;
+					return mgr;
 				}
 			}
 			
@@ -308,9 +312,13 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 			if (set != null) {
 				applyDataTypes(program, set, mgr, monitor);
 			}
+			
+			return mgr;
 		} catch (IOException | DuplicateIdException e) {
 			log.appendException(e);
 		}
+		
+		return null;
 	}
 	
 	private static void applyDataTypes(Program program, AddressSetView set, DataTypeManager mgr, TaskMonitor monitor) {

@@ -8,11 +8,11 @@ public class SymFunc extends SymName {
 	
 	private long endOffset = 0L;
 	
-	private final List<SymDef> args = new ArrayList<>();
-	private final SymDef retnType;
+	private final List<SymDefinition> args = new ArrayList<>();
+	private final SymDefinition retnType;
 	
 
-	public SymFunc(SymDef retnType, String funcName, long offset, long overlayId) {
+	public SymFunc(SymDefinition retnType, String funcName, long offset, long overlayId) {
 		super(funcName, offset, overlayId);
 		
 		this.retnType = retnType;
@@ -34,32 +34,21 @@ public class SymFunc extends SymName {
 		return fileName;
 	}
 	
-	public void addArgument(SymDef arg) {
+	public void addArgument(SymDefinition arg) {
 		args.add(arg);
 	}
 	
-	public SymDef[] getArguments() {
-		return args.toArray(SymDef[]::new);
+	public SymDefinition[] getArguments() {
+		return args.toArray(SymDefinition[]::new);
 	}
 	
-	public SymDef getReturnType() {
+	public SymDefinition getReturnType() {
 		return retnType;
 	}
-
-//	public String getReturnTypeAsString() {
-//		SymDefTypePrim[] primTypes = retnType.getDefType().getTypesList();
-//		StringBuilder builder = new StringBuilder();
-//		
-//		for (int i = 1; i < primTypes.length; ++i) {
-//			builder.append(primTypes[i].name()).append(' ');
-//		}
-//		
-//		return builder.toString();
-//	}
 	
 	public String getPrototype() {
 		StringBuilder builder = new StringBuilder();
-		SymDefTypePrim[] primTypes = retnType.getDefType().getTypesList();
+		SymTypePrimitive[] primTypes = retnType.getSymType().getTypesList();
 		
 		for (int i = 1; i < primTypes.length; ++i) {
 			builder.append(primTypes[i].name()).append(' ');
@@ -67,7 +56,7 @@ public class SymFunc extends SymName {
 		
 		builder.append('(');
 		
-		for (SymDef arg : args) {
+		for (SymDefinition arg : args) {
 			builder.append(arg.getName()).append(' ');
 		}
 		

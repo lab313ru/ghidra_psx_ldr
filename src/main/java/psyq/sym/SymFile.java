@@ -18,7 +18,6 @@ import ghidra.app.util.bin.ByteArrayProvider;
 import ghidra.app.util.importer.MessageLog;
 import ghidra.framework.store.LockException;
 import ghidra.program.model.address.Address;
-import ghidra.program.model.address.AddressFactory;
 import ghidra.program.model.address.AddressOutOfBoundsException;
 import ghidra.program.model.address.AddressOverflowException;
 import ghidra.program.model.address.AddressSpace;
@@ -50,10 +49,9 @@ import ghidra.util.task.TaskMonitor;
 import psx.PsxLoader;
 
 public class SymFile {
-	private boolean isApplyStep2 = false;
 	private Set<SymObject> types = new HashSet<>();
 	private List<SymName> names = new ArrayList<>();
-	private List<SymExtStat> namesWithTypes = new ArrayList<>();
+	private List<SymDefinition> namesWithTypes = new ArrayList<>();
 	private Map<String, SymStructUnionEnum> fakeObjs = new HashMap<>();
 	private Map<String, SymFunc> funcs = new HashMap<>();
 	private List<SymOverlay> overlays = new ArrayList<>();
@@ -148,11 +146,10 @@ public class SymFile {
 				SymFunc func = currFunc = funcs.get(funcName);
 				
 				if (func == null) {
-					func = currFunc = new SymFunc(new SymDef(SymDefClass.EXT,
-									              new SymDefType(new SymDefTypePrim[] {SymDefTypePrim.FCN, SymDefTypePrim.VOID}),
-									                             false, 0L, funcName, offset, currOverlay),
-							                      funcName,
-							                      offset, currOverlay);
+					func = currFunc = new SymFunc(new SymDefinition(SymClass.EXT,
+									              new SymType(new SymTypePrimitive[] {SymTypePrimitive.FCN, SymTypePrimitive.VOID}),
+									                          null, null, 0L, funcName, offset, currOverlay),
+							                      funcName, offset, currOverlay);
 				}
 				
 				func.setFileName(fileName);
@@ -176,8 +173,8 @@ public class SymFile {
 			} break;
 			case 0x94:
 			case 0x96: {
-				SymDefClass defClass = SymDefClass.fromInt(reader.readNextUnsignedShort());
-				SymDefType defType = new SymDefType(reader.readNextUnsignedShort());
+				SymClass defClass = SymClass.fromInt(reader.readNextUnsignedShort());
+				SymType defType = new SymType(reader.readNextUnsignedShort());
 				long size = reader.readNextUnsignedInt();
 				
 				List<Integer> dims = null;
@@ -196,12 +193,7 @@ public class SymFile {
 				
 				String defName = readString(reader);
 				
-				SymDef def2 = new SymDef(defClass, defType, tag == 0x96, size, defName, offset, currOverlay);
-				
-				if (tag == 0x96) {
-					def2.setDims(dims.toArray(Integer[]::new));
-					def2.setTag(defTag);
-				}
+				SymDefinition def2 = new SymDefinition(defClass, defType, defTag, (dims != null) ? dims.toArray(Integer[]::new) : null, size, defName, offset, currOverlay);
 				
 				switch (defClass) {
 				case ARG:
@@ -219,9 +211,9 @@ public class SymFile {
 				} break;
 				case EXT:
 				case STAT: {
-					SymDefTypePrim[] typesList = defType.getTypesList();
+					SymTypePrimitive[] typesList = defType.getTypesList();
 					
-					if (typesList.length >= 1 && typesList[0] == SymDefTypePrim.FCN) {
+					if (typesList.length >= 1 && typesList[0] == SymTypePrimitive.FCN) {
 						SymFunc func = new SymFunc(def2, defName, offset, currOverlay);
 						funcs.put(defName, func);
 					} else if (currFunc == null) { // exclude function blocks
@@ -230,7 +222,7 @@ public class SymFile {
 							def2.setTag(obj.getName());
 						}
 						
-						namesWithTypes.add(new SymExtStat(def2, offset, currOverlay));
+						namesWithTypes.add(def2);
 					}
 				} break;
 				case TPDEF: {
@@ -270,7 +262,7 @@ public class SymFile {
 						throw new IOException("End of non-defined struct|union|enum");
 					}
 
-					if (defType.getPrimaryType() != SymDefTypePrim.NULL || dims.size() != 0) {
+					if (defType.getPrimaryType() != SymTypePrimitive.NULL || dims.size() != 0) {
 						throw new IOException("Wrong EOS type");
 					}
 					
@@ -331,83 +323,72 @@ public class SymFile {
 		monitor.setMessage("Overlays created.");
 	}
 	
-	private void applyNames(Program program, MessageLog log, TaskMonitor monitor) {
-		if (isApplyStep2) {
-			return;
-		}
-		
+	private void applyNames(final Map<SymDataTypeManagerType, DataTypeManager> mgrs, Program program, MessageLog log, TaskMonitor monitor) {
 		List<SymObject> objects = new ArrayList<>(names);
 		
 		monitor.initialize(objects.size());
 		monitor.setMessage("Applying SYM objects (names)...");
 		monitor.clearCanceled();
 		
-		applySymbols(objects, true, program, log, monitor);
+		applySymbols(objects, mgrs, program, log, monitor);
 	}
 	
-	private void applyTypes(boolean noFields, Program program, MessageLog log, TaskMonitor monitor) {
+	private void applyTypes(final Map<SymDataTypeManagerType, DataTypeManager> mgrs, Program program, MessageLog log, TaskMonitor monitor) {
 		List<SymObject> objects = new ArrayList<>(types);
 		
 		monitor.initialize(objects.size());
-		monitor.setMessage(String.format("Applying SYM objects (types, Step: %d)...", isApplyStep2 ? 2 : 1));
+		monitor.setMessage("Applying SYM objects (types)...");
 		monitor.clearCanceled();
 		
-		applySymbols(objects, noFields, program, log, monitor);
+		applySymbols(objects, mgrs, program, log, monitor);
 	}
 	
-	private void applyNamesWithTypes(Program program, MessageLog log, TaskMonitor monitor) {
+	private void applyNamesWithTypes(final Map<SymDataTypeManagerType, DataTypeManager> mgrs, Program program, MessageLog log, TaskMonitor monitor) {
 		List<SymObject> objects = new ArrayList<>(namesWithTypes);
 		
 		monitor.initialize(objects.size());
-		monitor.setMessage(String.format("Applying SYM objects (typed names, Step: %d)...", isApplyStep2 ? 2 : 1));
+		monitor.setMessage("Applying SYM objects (typed names)...");
 		monitor.clearCanceled();
 		
-		applySymbols(objects, true, program, log, monitor);
+		applySymbols(objects, mgrs, program, log, monitor);
 	}
 	
-	private void applyFuncs(Program program, MessageLog log, TaskMonitor monitor) {
+	private void applyFuncs(final Map<SymDataTypeManagerType, DataTypeManager> mgrs, Program program, MessageLog log, TaskMonitor monitor) {
 		List<SymObject> objects = new ArrayList<>(funcs.values());
 		
 		monitor.initialize(objects.size());
-		monitor.setMessage(String.format("Applying SYM objects (functions, Step: %d)...", isApplyStep2 ? 2 : 1));
+		monitor.setMessage("Applying SYM objects (functions)...");
 		monitor.clearCanceled();
 		
-		applySymbols(objects, true, program, log, monitor);
+		applySymbols(objects, mgrs, program, log, monitor);
 	}
 	
-	public void apply(boolean noFields, Program program, MessageLog log, TaskMonitor monitor) {
-		applyNames(program, log, monitor);
-		applyTypes(noFields, program, log, monitor);
-		applyNamesWithTypes(program, log, monitor);
-		applyFuncs(program, log, monitor);
-		
-		isApplyStep2 = !isApplyStep2;
+	public void apply(Program program, MessageLog log, TaskMonitor monitor) {
+		final Map<SymDataTypeManagerType, DataTypeManager> mgrs = new HashMap<>();
+		mgrs.put(SymDataTypeManagerType.MGR_TYPE_MAIN, program.getDataTypeManager());
+		mgrs.put(SymDataTypeManagerType.MGR_TYPE_PSYQ, PsxLoader.loadPsyqGdt(program));
+
+		applyNames(mgrs, program, log, monitor);
+		applyTypes(mgrs, program, log, monitor);
+		applyNamesWithTypes(mgrs, program, log, monitor);
+		applyFuncs(mgrs, program, log, monitor);
 	}
 	
-	private void applySymbols(final List<SymObject> objects, boolean noFields, Program program, MessageLog log, TaskMonitor monitor) {
-		DataTypeManager mgr = program.getDataTypeManager();
-		AddressFactory addrFact = program.getAddressFactory();
-		
+	private void applySymbols(final List<SymObject> objects, final Map<SymDataTypeManagerType, DataTypeManager> mgrs, Program program, MessageLog log, TaskMonitor monitor) {
 		int index = 0;
 		
-		Set<SymName> tryAgain = new HashSet<>();
+		Set<SymStructUnionEnum> tryAgain = new HashSet<>();
 
 		for (SymObject obj : objects) {
 			if (monitor.isCancelled()) {
 				break;
 			}
 			
-			AddressSpace addrSpace = addrFact.getAddressSpace(SymOverlay.getBlockName(obj.getOverlayId()));
+			Address addr = obj.getAddress(program);
 			
-			if (addrSpace == null) {
-				addrSpace = addrFact.getDefaultAddressSpace();
-			}
-			
-			Address addr = addrSpace.getAddress(obj.getOffset());
-			
-			SymName rep = applySymbol(obj, addr, noFields, mgr, program, log);
-			if (rep != null) {
-				tryAgain.add(rep);
+			SymStructUnionEnum structOrUnion = applySymbol(obj, addr, mgrs, program, log);
+			if (structOrUnion != null) {
+				tryAgain.add(structOrUnion);
 			}
 			
 			monitor.setProgress(index + 1);
@@ -418,11 +399,12 @@ public class SymFile {
 		monitor.setMessage("Applying SYM forward usage objects...");
 		monitor.clearCanceled();
 		
+		index = 0;
 		boolean repeat = true;
 
-		List<SymName> tryAgainList = new ArrayList<>(tryAgain);
+		List<SymStructUnionEnum> tryAgainList = new ArrayList<>(tryAgain);
 		while (repeat) {
-			ListIterator<SymName> i = tryAgainList.listIterator();
+			ListIterator<SymStructUnionEnum> i = tryAgainList.listIterator();
 			repeat = false;
 			
 			while (i.hasNext()) {
@@ -431,41 +413,226 @@ public class SymFile {
 				}
 				
 				SymObject obj = i.next();
+
+				Address addr = obj.getAddress(program);
 				
-				AddressSpace addrSpace = addrFact.getAddressSpace(SymOverlay.getBlockName(obj.getOverlayId()));
-				
-				if (addrSpace == null) {
-					addrSpace = addrFact.getDefaultAddressSpace();
-				}
-				
-				Address addr = addrSpace.getAddress(obj.getOffset());
-				
-				SymName rep = applySymbol(obj, addr, noFields, mgr, program, log);
-				if (rep == null) {
+				SymStructUnionEnum structOrUnion = applySymbol(obj, addr, mgrs, program, log);
+				if (structOrUnion == null) {
 					i.remove();
 					repeat = true;
 					
-					monitor.setProgress(tryAgainList.size());
+					monitor.setProgress(index + 1);
+					index++;
 				} else {
-					if (!tryAgainList.contains(rep)) {
-						i.add(rep);
+					if (!tryAgainList.contains(structOrUnion)) {
+						i.add(structOrUnion);
 					}
 				}
 			}
 		}
 		
-		if (isApplyStep2) {
-			dumpNotFound(tryAgainList, log);
-		}
+		dumpNotFound(tryAgainList, log);
 	}
 	
-	private static void dumpNotFound(final List<SymName> tryAgain, MessageLog log) {
+	@SuppressWarnings("incomplete-switch")
+	private static SymStructUnionEnum applySymbol(SymObject obj, Address addr, final Map<SymDataTypeManagerType, DataTypeManager> mgrs, Program program, MessageLog log) {
+		SymbolTable st = program.getSymbolTable();
+		DataTypeManager psyqMgr = mgrs.get(SymDataTypeManagerType.MGR_TYPE_PSYQ);
+		DataTypeManager mainMgr = mgrs.get(SymDataTypeManagerType.MGR_TYPE_MAIN);
+
+		if (obj instanceof SymFunc) {
+			SymFunc sf = (SymFunc)obj;
+			PsxLoader.setFunction(program, addr, sf.getName(), true, false, log);
+			
+			SymStructUnionEnum structOrUnion = setFunctionArguments(mgrs, program, addr, sf, log);
+			if (structOrUnion != null) {
+				return structOrUnion;
+			}
+			
+			SetCommentCmd cmd = new SetCommentCmd(addr, CodeUnit.PLATE_COMMENT, String.format("File: %s", sf.getFileName()));
+			cmd.applyTo(program);
+		} else if (obj instanceof SymTypedef) {
+			SymTypedef tpdef = (SymTypedef)obj;
+	
+			DataType baseType = tpdef.getDataType(mgrs);
+			
+			if (baseType == null) {
+				return tpdef.getBaseStructOrUnion();
+			}
+			
+			DataType tpdefType = new TypedefDataType(tpdef.getName(), baseType);
+			
+			if (hasDataTypeName(psyqMgr, baseType.getName())) {
+				if (hasDataTypeName(psyqMgr, tpdefType.getName())) {
+					return null;
+				} else if (!hasDataTypeName(mainMgr, tpdefType.getName())) {
+					applyDataType(tpdefType, mainMgr);
+				}
+			} else if (!hasDataTypeName(mainMgr, baseType.getName())) {
+				applyDataType(tpdefType, mainMgr);
+			}
+		} else if (obj instanceof SymStructUnionEnum) {
+			SymStructUnionEnum ssu = (SymStructUnionEnum)obj;
+			SymTypePrimitive type = ssu.getType();
+			SymDefinition[] fields = ssu.getFields();
+			
+			switch (type) {
+			case UNION: {
+				UnionDataType udt = new UnionDataType(ssu.getName());
+				udt.setMinimumAlignment(4);
+				
+				if (hasDataTypeName(psyqMgr, ssu.getName())) {
+					return null;
+				} else if (hasDataTypeName(psyqMgr, ssu.getName())) {
+					Union uut = (Union)applyDataType(udt, mainMgr);
+					
+					for (SymDefinition field : fields) {
+						DataType dt = field.getDataType(mgrs);
+						
+						if (dt == null) {
+							return field.getBaseStructOrUnion();
+						}
+						
+						uut.add(dt, field.getName(), null);
+					}
+				}
+			} break;
+			case STRUCT: {
+				StructureDataType sdt = new StructureDataType(ssu.getName(), 0);
+				sdt.setMinimumAlignment(4);
+
+				if (hasDataTypeName(psyqMgr, ssu.getName())) {
+					return null;
+				} else if (!hasDataTypeName(mainMgr, ssu.getName())) {
+					Structure ddt = (Structure)applyDataType(sdt, mainMgr);
+					
+					for (SymDefinition field : fields) {
+						DataType dt = field.getDataType(mgrs);
+						
+						if (dt == null) {
+							return field.getBaseStructOrUnion();
+						}
+						
+						ddt.add(dt, field.getName(), null);
+					}
+					break;
+				}
+			} break;
+			case ENUM: {
+				EnumDataType edt = new EnumDataType(ssu.getName(), (int)ssu.getSize());
+				
+				for (SymDefinition field : fields) {
+					edt.add(field.getName(), field.getOffset());
+				}
+				
+				if (hasDataTypeName(psyqMgr, ssu.getName())) {
+					return null;
+				} else if (hasDataTypeName(mainMgr, ssu.getName())) {
+					applyDataType(edt, mainMgr);
+					break;
+				}
+			} break;
+			}
+		} else if (obj instanceof SymDefinition) {
+			SymDefinition extStat = (SymDefinition)obj;
+			
+			DataType dt = extStat.getDataType(mgrs);
+			
+			if (dt == null) {
+				return extStat.getBaseStructOrUnion();
+			}
+			
+			try {
+				st.createLabel(addr, extStat.getName(), SourceType.ANALYSIS);
+				DataUtilities.createData(program, addr, dt, -1, false, ClearDataMode.CLEAR_ALL_CONFLICT_DATA);
+			} catch (InvalidInputException | CodeUnitInsertionException e) {
+				log.appendException(e);
+			}
+		} else if (obj instanceof SymName) {
+			SymName sn = (SymName)obj;
+			try {
+				st.createLabel(addr, sn.getName(), SourceType.ANALYSIS);
+			} catch (InvalidInputException e) {
+				if (!sn.getName().startsWith("MENU_")) {
+					log.appendException(e);
+				} else {
+					try {
+						st.createLabel(addr, String.format("_%s", sn.getName()), SourceType.ANALYSIS);
+					} catch (InvalidInputException e1) {
+						log.appendException(e);
+					}
+				}
+			}
+		} else {
+			log.appendMsg(String.format("unkn type offset: 0x%08X", addr.getOffset()));
+		}
+		
+		return null;
+	}
+	
+	private static boolean hasDataTypeName(DataTypeManager mgr, String name) {
+		Iterator<DataType> ss = mgr.getAllDataTypes();
+		
+		while (ss.hasNext()) {
+			if (ss.next().getName().equals(name)) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
+	private static DataType applyDataType(DataType dt, DataTypeManager mgr) {
+		int transId = mgr.startTransaction("Apply data type");
+		DataType res = mgr.addDataType(dt, DataTypeConflictHandler.REPLACE_HANDLER);
+		mgr.endTransaction(transId, true);
+		return res;
+	}
+	
+	private static SymStructUnionEnum setFunctionArguments(final Map<SymDataTypeManagerType, DataTypeManager> mgrs, Program program, Address funcAddr, SymFunc funcDef, MessageLog log) {
+		try {
+			Function func = program.getListing().getFunctionAt(funcAddr);
+			
+			if (func == null) {
+				log.appendMsg(String.format("Cannot get function at: 0x%08X", funcAddr.getOffset()));
+				return null;
+			}
+			
+			DataType dt = funcDef.getReturnType().getDataType(mgrs);
+			
+			if (dt == null) {
+				return funcDef.getReturnType().getBaseStructOrUnion();
+			}
+			
+			func.setReturnType(dt, SourceType.ANALYSIS);
+			
+			List<ParameterImpl> params = new ArrayList<>();
+			SymDefinition[] args = funcDef.getArguments();
+			for (int i = 0; i < args.length; ++i) {
+				DataType argType = args[i].getDataType(mgrs);
+				
+				if (argType == null) {
+					return args[i].getBaseStructOrUnion();
+				}
+				
+				params.add(new ParameterImpl(args[i].getName(), argType, program));
+			}
+			
+			func.updateFunction("__stdcall", null, FunctionUpdateType.DYNAMIC_STORAGE_ALL_PARAMS, true, SourceType.ANALYSIS, params.toArray(ParameterImpl[]::new));
+		} catch (Exception e) {
+			log.appendException(e);
+		}
+		
+		return null;
+	}
+	
+	private static void dumpNotFound(final List<SymStructUnionEnum> tryAgain, MessageLog log) {
 		if (tryAgain.isEmpty()) {
 			return;
 		}
 		
 		Set<SymName> uniqueStructs = tryAgain.stream().filter(SymStructUnionEnum.class::isInstance).map(SymStructUnionEnum.class::cast).collect(Collectors.toSet());
-		Set<SymName> uniqueDefs = tryAgain.stream().filter(SymExtStat.class::isInstance).map(SymExtStat.class::cast).collect(Collectors.toSet());
+		Set<SymName> uniqueDefs = tryAgain.stream().filter(SymDefinition.class::isInstance).map(SymDefinition.class::cast).collect(Collectors.toSet());
 		Set<SymName> uniqueFuncs = tryAgain.stream().filter(SymFunc.class::isInstance).map(SymFunc.class::cast).collect(Collectors.toSet());
 		Set<SymName> uniqueTpdefs = tryAgain.stream().filter(SymTypedef.class::isInstance).map(SymTypedef.class::cast).collect(Collectors.toSet());
 		
@@ -492,7 +659,7 @@ public class SymFile {
 				printed = true;
 			}
 			
-			log.appendMsg(String.format("\tName: %s, Type: %s", obj.getName(), ((SymExtStat)obj).getTag()));
+			log.appendMsg(String.format("\tName: %s, Type: %s", obj.getName(), ((SymDefinition)obj).getTag()));
 		}
 		
 		printed = false;
@@ -524,167 +691,6 @@ public class SymFile {
 			
 			log.appendMsg(String.format("\t%s (%s)", obj.getName(), obj.getClass().getName()));
 		}
-	}
-	
-	@SuppressWarnings("incomplete-switch")
-	private static SymName applySymbol(SymObject obj, Address addr, boolean noFields, DataTypeManager mgr, Program program, MessageLog log) {
-		SymbolTable st = program.getSymbolTable();
-		
-		if (obj instanceof SymFunc) {
-			SymFunc sf = (SymFunc)obj;
-			PsxLoader.setFunction(program, addr, sf.getName(), true, false, log);
-			
-			if (!setFunctionArguments(program, addr, sf, log)) {
-				return sf;
-			}
-			
-			SetCommentCmd cmd = new SetCommentCmd(addr, CodeUnit.PLATE_COMMENT, String.format("File: %s", sf.getFileName()));
-			cmd.applyTo(program);
-		} else if (obj instanceof SymTypedef) {
-			SymTypedef tpdef = (SymTypedef)obj;
-
-			DataType dt = tpdef.getBaseDataType(mgr);
-			
-			if (dt == null) {
-				return new SymStructUnionEnum(tpdef.getTag(), 0L, type);
-			}
-			
-			DataType baseType = new TypedefDataType(tpdef.getName(), dt);
-			
-			if (mgr.getDataType(baseType.getDataTypePath()) == null) {
-				mgr.addDataType(baseType, DataTypeConflictHandler.REPLACE_HANDLER);
-			}
-		} else if (obj instanceof SymExtStat) {
-			SymExtStat extStat = (SymExtStat)obj;
-			
-			DataType dt = extStat.getDataType(mgr);
-			
-			if (dt == null) {
-				return extStat;
-			}
-			
-			try {
-				st.createLabel(addr, extStat.getName(), SourceType.ANALYSIS);
-			} catch (InvalidInputException e) {
-				log.appendException(e);
-			}
-
-			try {
-				DataUtilities.createData(program, addr, dt, -1, false, ClearDataMode.CLEAR_ALL_CONFLICT_DATA);
-			} catch (CodeUnitInsertionException e) {
-				log.appendException(e);
-			}
-		} else if (obj instanceof SymStructUnionEnum) {
-			SymStructUnionEnum ssu = (SymStructUnionEnum)obj;
-			SymDefTypePrim type = ssu.getType();
-			SymDef[] fields = ssu.getFields();
-			
-			switch (type) {
-			case UNION: {
-				UnionDataType udt = new UnionDataType(ssu.getName());
-				udt.setMinimumAlignment(4);
-				
-				Union uut = (Union)mgr.addDataType(udt, DataTypeConflictHandler.REPLACE_HANDLER);
-				
-				if (!noFields) {
-					for (SymDef field : fields) {
-						DataType dt = field.getDataType(mgr);
-						
-						if (dt == null) {
-							return new SymStructUnionEnum(field.getTag(), field.getSize(), field.getDefType().);
-						}
-						
-						uut.add(dt, field.getName(), null);
-					}
-				}
-			} break;
-			case STRUCT: {
-				StructureDataType sdt = new StructureDataType(ssu.getName(), 0);
-				sdt.setMinimumAlignment(4);
-				
-				Structure ddt = (Structure)mgr.addDataType(sdt, DataTypeConflictHandler.REPLACE_HANDLER);
-				
-				if (!noFields) {
-					for (SymDef field : fields) {
-						DataType dt = field.getDataType(mgr);
-						
-						if (dt == null) {
-							return new SymStructUnionEnum(field.getTag(), field.getSize(), type);
-						}
-						
-						ddt.add(dt, field.getName(), null);
-					}
-				}
-			} break;
-			case ENUM: {
-				EnumDataType edt = new EnumDataType(ssu.getName(), (int)ssu.getSize());
-				
-				for (SymDef field : fields) {
-					edt.add(field.getName(), field.getOffset());
-				}
-				
-				mgr.addDataType(edt, DataTypeConflictHandler.REPLACE_HANDLER);
-			} break;
-			}
-		} else if (obj instanceof SymName) {
-			SymName sn = (SymName)obj;
-			try {
-				st.createLabel(addr, sn.getName(), SourceType.ANALYSIS);
-			} catch (InvalidInputException e) {
-				if (!sn.getName().startsWith("MENU_")) {
-					log.appendException(e);
-				} else {
-					try {
-						st.createLabel(addr, String.format("_%s", sn.getName()), SourceType.ANALYSIS);
-					} catch (InvalidInputException e1) {
-						log.appendException(e);
-					}
-				}
-			}
-		} else {
-			log.appendMsg(String.format("unkn type offset: 0x%08X", addr.getOffset()));
-		}
-		
-		return null;
-	}
-	
-	private static boolean setFunctionArguments(Program program, Address funcAddr, SymFunc funcDef, MessageLog log) {
-		try {
-			DataTypeManager mgr = program.getDataTypeManager();
-			Function func = program.getListing().getFunctionAt(funcAddr);
-			
-			if (func == null) {
-				log.appendMsg(String.format("Cannot get function at: 0x%08X", funcAddr.getOffset()));
-				return true;
-			}
-			
-			DataType dt = funcDef.getReturnType().getDataType(mgr);
-			
-			if (dt == null) {
-				return false;
-			}
-			
-			func.setReturnType(dt, SourceType.ANALYSIS);
-			
-			List<ParameterImpl> params = new ArrayList<>();
-			SymDef[] args = funcDef.getArguments();
-			for (int i = 0; i < args.length; ++i) {
-				DataType argType = args[i].getDataType(mgr);
-				
-				if (argType == null) {
-					return false;
-				}
-				
-				params.add(new ParameterImpl(args[i].getName(), argType, program));
-			}
-			
-			func.updateFunction("__stdcall", null, FunctionUpdateType.DYNAMIC_STORAGE_ALL_PARAMS, true, SourceType.ANALYSIS, params.toArray(ParameterImpl[]::new));
-		} catch (Exception e) {
-			log.appendException(e);
-			return false;
-		}
-		
-		return true;
 	}
 	
 	private static String readString(BinaryReader reader) throws IOException {

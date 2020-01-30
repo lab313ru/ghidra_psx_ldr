@@ -69,11 +69,8 @@ public class PsxAnalyzer extends AbstractAnalyzer {
 			
 			monitor.setMessage("Applying PsyQ functions and data types...");
 			monitor.clearCanceled();
-
-			String gdtName = String.format("psyq%s", psyqVersion);
 			
-			PsxLoader.closePsyqDataTypeArchives(program, gdtName);
-			PsxLoader.loadPsyqArchive(program, gdtName, set, monitor, log);
+			PsxLoader.loadPsyqGdt(program);
 			
 			monitor.setMessage("Applying PsyQ functions and data types done.");
 		} catch (IOException e) {

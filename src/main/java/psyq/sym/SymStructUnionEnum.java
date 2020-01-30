@@ -5,18 +5,18 @@ import java.util.List;
 
 public class SymStructUnionEnum extends SymName {
 	private final long size;
-	private final SymDefTypePrim type;
+	private final SymTypePrimitive type;
 	
-	private final List<SymDef> fields = new ArrayList<>();
+	private final List<SymDefinition> fields = new ArrayList<>();
 	
-	public SymStructUnionEnum(String name, long size, SymDefTypePrim type) {
+	public SymStructUnionEnum(String name, long size, SymTypePrimitive type) {
 		super(name, 0L, 0L);
 
 		this.size = size;
 		this.type = type;
 	}
 	
-	public void addField(SymDef field) {
+	public void addField(SymDefinition field) {
 		this.fields.add(field);
 	}
 	
@@ -24,11 +24,11 @@ public class SymStructUnionEnum extends SymName {
 		return size;
 	}
 	
-	public SymDefTypePrim getType() {
+	public SymTypePrimitive getType() {
 		return type;
 	}
 
-	public SymDef[] getFields() {
-		return fields.toArray(SymDef[]::new);
+	public SymDefinition[] getFields() {
+		return fields.toArray(SymDefinition[]::new);
 	}
 }

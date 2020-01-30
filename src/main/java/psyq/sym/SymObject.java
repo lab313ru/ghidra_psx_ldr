@@ -1,5 +1,10 @@
 package psyq.sym;
 
+import ghidra.program.model.address.Address;
+import ghidra.program.model.address.AddressFactory;
+import ghidra.program.model.address.AddressSpace;
+import ghidra.program.model.listing.Program;
+
 public class SymObject implements ISymObject {
 	protected final long offset;
 	protected final long overlayId;
@@ -17,5 +22,16 @@ public class SymObject implements ISymObject {
 	@Override
 	public long getOverlayId() {
 		return overlayId;
+	}
+	
+	public Address getAddress(Program program) {
+		AddressFactory addrFact = program.getAddressFactory();
+		AddressSpace addrSpace = addrFact.getAddressSpace(SymOverlay.getBlockName(overlayId));
+		
+		if (addrSpace == null) {
+			addrSpace = addrFact.getDefaultAddressSpace();
+		}
+		
+		return addrSpace.getAddress(offset);
 	}
 }

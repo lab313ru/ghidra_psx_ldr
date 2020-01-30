@@ -1,6 +1,7 @@
 package psyq.sym;
 
 import java.util.Arrays;
+import java.util.Map;
 
 import ghidra.program.model.data.ArrayDataType;
 import ghidra.program.model.data.CharDataType;
@@ -17,49 +18,67 @@ import ghidra.program.model.data.UnsignedIntegerDataType;
 import ghidra.program.model.data.UnsignedLongDataType;
 import ghidra.program.model.data.UnsignedShortDataType;
 
-public class SymDef extends SymName {
-	private final SymDefClass defClass;
-	private final SymDefType defType;
+public class SymDefinition extends SymName {
+	private final SymClass _class;
+	private final SymType _type;
 	private final long size;
 	
 	private Integer[] dims;
-	private final boolean hasTag;
 	private String tag;
 	
-	public SymDef(SymDefClass defClass, SymDefType defType, boolean hasTag, long size, String name, long offset, long overlayId) {
-		super(name, offset, overlayId);
-		
-		this.defClass = defClass;
-		this.defType = defType;
-		this.size = size;
-		this.dims = null;
-		this.hasTag = hasTag;
-		this.tag = null;
-	}
-
-	public SymDefClass getDefClass() {
-		return defClass;
-	}
-
-	public SymDefType getDefType() {
-		return defType;
+	public SymDefinition(SymDefinition def) {
+		this(def._class, def._type, def.tag, def.dims, def.size, def.getName(), def.getOffset(), def.getOverlayId());
 	}
 	
-	public DataType getDataType(DataTypeManager mgr) {
-		SymDefTypePrim[] types = defType.getTypesList();
+	public SymDefinition(SymClass symClass, SymType symType, String tag, Integer[] dims, long size, String name, long offset, long overlayId) {
+		super(name, offset, overlayId);
+		
+		this._class = symClass;
+		this._type = symType;
+		this.size = size;
+		this.dims = dims;
+		this.tag = tag;
+	}
+
+	public SymClass getSymClass() {
+		return _class;
+	}
+
+	public SymType getSymType() {
+		return _type;
+	}
+	
+	public DataType getDataType(final Map<SymDataTypeManagerType, DataTypeManager> mgrs) {
+		SymTypePrimitive[] types = _type.getTypesList();
 		
 		if (types.length == 0) {
 			return DataType.VOID;
 		}
 		
-		return primTypeToDataType(types, dims, mgr);
+		return primitiveTypeToDataType(types, dims, mgrs);
 	}
 	
-	private DataType primTypeToDataType(SymDefTypePrim[] types, Integer[] newDims, DataTypeManager mgr) {
+	public SymStructUnionEnum getBaseStructOrUnion() {
+		SymTypePrimitive[] types = _type.getTypesList();
+		
+		if (types.length == 0) {
+			return null;
+		}
+		
+		for (SymTypePrimitive tp : types) {
+			if (tp == SymTypePrimitive.STRUCT || tp == SymTypePrimitive.UNION) {
+				return new SymStructUnionEnum(tag, size, tp);
+			}
+		}
+		
+		return null;
+	}
+	
+	private DataType primitiveTypeToDataType(SymTypePrimitive[] types, Integer[] newDims, final Map<SymDataTypeManagerType, DataTypeManager> mgrs) {
 		switch (types[0]) {
 		case PTR: {
-			SymDefTypePrim[] followTypes = Arrays.copyOfRange(types, 1, types.length);
-			DataType ptrTo = primTypeToDataType(followTypes, newDims, mgr);
+			SymTypePrimitive[] followTypes = Arrays.copyOfRange(types, 1, types.length);
+			DataType ptrTo = primitiveTypeToDataType(followTypes, newDims, mgrs);
 			
 			if (ptrTo != null) {
 				return new PointerDataType(ptrTo);
@@ -68,13 +87,13 @@ public class SymDef extends SymName {
 			return null;
 		}
 		case FCN: {
-			SymDefTypePrim[] followTypes = Arrays.copyOfRange(types, 1, types.length);
-			return primTypeToDataType(followTypes, newDims, mgr);
+			SymTypePrimitive[] followTypes = Arrays.copyOfRange(types, 1, types.length);
+			return primitiveTypeToDataType(followTypes, newDims, mgrs);
 		}
 		case ARY: {
-			SymDefTypePrim[] followTypes = Arrays.copyOfRange(types, 1, types.length);
+			SymTypePrimitive[] followTypes = Arrays.copyOfRange(types, 1, types.length);
 			Integer[] followDims = Arrays.copyOfRange(newDims, 1, newDims.length);
-			DataType arrItemType = primTypeToDataType(followTypes, followDims, mgr);
+			DataType arrItemType = primitiveTypeToDataType(followTypes, followDims, mgrs);
 			
 			if (arrItemType == null) {
 				return null;
@@ -96,10 +115,12 @@ public class SymDef extends SymName {
 		case STRUCT:
 		case UNION:
 		case ENUM: {
-			DataType dt = mgr.getDataType(mgr.getRootCategory().getCategoryPath(), hasTag ? tag : getName());
-			
-			if (dt != null) {
-				return dt;
+			for (final DataTypeManager mgr : mgrs.values()) {
+				DataType dt = mgr.getDataType(mgr.getRootCategory().getCategoryPath(), (tag != null) ? tag : getName());
+				
+				if (dt != null) {
+					return dt;
+				}
 			}
 
 			return null;
@@ -130,9 +151,5 @@ public class SymDef extends SymName {
 	
 	public Integer[] getDims() {
 		return dims;
-	}
-	
-	public boolean hasTag() {
-		return hasTag;
 	}
 }

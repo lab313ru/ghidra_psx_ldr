@@ -1,6 +1,6 @@
 package psyq.sym;
 
-public enum SymDefTypePrim {
+public enum SymTypePrimitive {
 	PTR,
 	FCN,
 	ARY,
