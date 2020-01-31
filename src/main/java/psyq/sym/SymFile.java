@@ -379,66 +379,77 @@ public class SymFile {
 		removeUselessFake(mgrs, monitor);
 	}
 	
-	private void applySymbols(final List<SymObject> objects, final Map<SymDataTypeManagerType, DataTypeManager> mgrs, Program program, MessageLog log, TaskMonitor monitor) {
+	private void applySymbols(List<SymObject> objects, final Map<SymDataTypeManagerType, DataTypeManager> mgrs, Program program, MessageLog log, TaskMonitor monitor) {
 		int index = 0;
 		
-		Set<SymStructUnionEnum> tryAgain = new HashSet<>();
-
-		for (SymObject obj : objects) {
-			if (monitor.isCancelled()) {
-				break;
-			}
-			
-			Address addr = obj.getAddress(program);
-			
-			Set<SymStructUnionEnum> structOrUnion = applySymbol(obj, addr, mgrs, program, log);
-			if (!structOrUnion.isEmpty()) {
-				for (SymStructUnionEnum ss : structOrUnion) {
-					tryAgain.add(ss);
-				}
-			}
-			
-			monitor.setProgress(index + 1);
-			index++;
-		}
-		
-		monitor.initialize(tryAgain.size());
-		monitor.setMessage("Applying SYM forward usage objects...");
-		monitor.clearCanceled();
-		
-		index = 0;
 		boolean repeat = true;
-
-		List<SymStructUnionEnum> tryAgainList = new ArrayList<>(tryAgain);
+		
 		while (repeat) {
-			ListIterator<SymStructUnionEnum> i = tryAgainList.listIterator();
+			ListIterator<SymObject> objIter = objects.listIterator();
 			repeat = false;
 			
-			while (i.hasNext()) {
+			while (objIter.hasNext()) {
 				if (monitor.isCancelled()) {
 					break;
 				}
 				
-				SymObject obj = i.next();
-
+				SymObject obj = objIter.next();
+				
 				Address addr = obj.getAddress(program);
 				
 				Set<SymStructUnionEnum> structOrUnion = applySymbol(obj, addr, mgrs, program, log);
-				if (structOrUnion.isEmpty()) {
-					i.remove();
+				if (!structOrUnion.isEmpty()) {
+					for (SymStructUnionEnum ss : structOrUnion) {
+						objIter.add(ss);
+					}
+				} else {
+					objIter.remove();
 					repeat = true;
 					
-					monitor.setProgress(index + 1);
 					index++;
-				} else {
-					for (SymStructUnionEnum ss : structOrUnion) {
-						if (!tryAgainList.contains(ss)) {
-							i.add(ss);
-						}
-					}
 				}
+				
+				monitor.setProgress(index + 1);
 			}
 		}
+		
+//		monitor.initialize(tryAgain.size());
+//		monitor.setMessage("Applying SYM forward usage objects...");
+//		monitor.clearCanceled();
+//		
+//		index = 0;
+//		repeat = true;
+//
+//		List<SymStructUnionEnum> tryAgainList = new ArrayList<>(tryAgain);
+//		while (repeat) {
+//			ListIterator<SymStructUnionEnum> i = tryAgainList.listIterator();
+//			repeat = false;
+//			
+//			while (i.hasNext()) {
+//				if (monitor.isCancelled()) {
+//					break;
+//				}
+//				
+//				SymObject obj = i.next();
+//
+//				Address addr = obj.getAddress(program);
+//				
+//				Set<SymStructUnionEnum> structOrUnion = applySymbol(obj, addr, mgrs, program, log);
+//				if (structOrUnion.isEmpty()) {
+//					i.remove();
+//					repeat = true;
+//					
+//					monitor.setProgress(index + 1);
+//					index++;
+//				} else {
+//					for (SymStructUnionEnum ss : structOrUnion) {
+//						if (!tryAgainList.contains(ss)) {
+//							i.add(ss);
+//						}
+//					}
+//				}
+//			}
+//		}
 		
 		// dumpNotFound(tryAgainList, log);
 	}
@@ -467,9 +478,7 @@ public class SymFile {
 	
 			DataType baseType = tpdef.getDataType(mgrs);
 			
-			if (baseType == null) {
-				result.add(tpdef.getBaseStructOrUnion());
-			} else {
+			if (baseType != null) {
 				DataType tpdefType = new TypedefDataType(tpdef.getName(), baseType);
 				
 				if (SymDefinition.hasDataTypeName(psyqMgr, baseType.getName()) != null) {
@@ -492,25 +501,28 @@ public class SymFile {
 				UnionDataType udt = new UnionDataType(ssu.getName());
 				udt.setMinimumAlignment(4);
 				
-				if (SymDefinition.hasDataTypeName(psyqMgr, ssu.getName()) != null) {
+				DataType psyqType = SymDefinition.hasDataTypeName(psyqMgr, ssu.getName());
+				DataType mainType = SymDefinition.hasDataTypeName(psyqMgr, ssu.getName());
+				
+				if (psyqType != null) {
 					return result;
-				} else if (SymDefinition.hasDataTypeName(psyqMgr, ssu.getName()) != null) {
+				} else if (mainType != null || ((UnionDataType)mainType).getComponents().length != fields.length) {
 					Union uut = (Union)applyDataType(udt, mainMgr);
 					
-					try {
-						while (uut.getComponent(0) != null) {
-							uut.delete(0);
-						}
-					} catch (ArrayIndexOutOfBoundsException ignored) {
-						
-					}
+					boolean repeat = false;
 					
 					for (SymDefinition field : fields) {
 						DataType dt = field.getDataType(mgrs);
 						
 						if (dt == null) {
 							result.add(field.getBaseStructOrUnion());
-						} else {
+							repeat = true;
+						}
+					}
+					
+					if (!repeat) {
+						for (SymDefinition field : fields) {
+							DataType dt = field.getDataType(mgrs);
 							uut.add(dt, field.getName(), null);
 						}
 					}
@@ -522,16 +534,23 @@ public class SymFile {
 
 				if (SymDefinition.hasDataTypeName(psyqMgr, ssu.getName()) != null) {
 					return result;
-				} else if (SymDefinition.hasDataTypeName(mainMgr, ssu.getName()) == null) {
+				} else if (SymDefinition.hasDataTypeName(mainMgr, ssu.getName()) == null ) {
 					Structure ddt = (Structure)applyDataType(sdt, mainMgr);
-					ddt.deleteAll();
+					
+					boolean repeat = false;
 					
 					for (SymDefinition field : fields) {
 						DataType dt = field.getDataType(mgrs);
 						
 						if (dt == null) {
 							result.add(field.getBaseStructOrUnion());
-						} else {
+							repeat = true;
+						}
+					}
+					
+					if (!repeat) {
+						for (SymDefinition field : fields) {
+							DataType dt = field.getDataType(mgrs);
 							ddt.add(dt, field.getName(), null);
 						}
 					}
@@ -556,9 +575,7 @@ public class SymFile {
 			
 			DataType dt = extStat.getDataType(mgrs);
 			
-			if (dt == null) {
-				result.add(extStat.getBaseStructOrUnion());
-			} else {
+			if (dt != null) {
 				try {
 					st.createLabel(addr, extStat.getName(), SourceType.ANALYSIS);
 					DataUtilities.createData(program, addr, dt, -1, false, ClearDataMode.CLEAR_ALL_CONFLICT_DATA);
@@ -608,25 +625,34 @@ public class SymFile {
 			
 			DataType dt = funcDef.getDataType(mgrs);
 			
-			if (dt == null) {
-				result.add(funcDef.getBaseStructOrUnion());
-			} else {
+			if (dt != null) {
 				func.setReturnType(dt, SourceType.ANALYSIS);
 			}
 			
+			boolean repeat = false;
+			
 			List<ParameterImpl> params = new ArrayList<>();
 			SymDefinition[] args = funcDef.getArguments();
+			
 			for (int i = 0; i < args.length; ++i) {
 				DataType argType = args[i].getDataType(mgrs);
 				
 				if (argType == null) {
 					result.add(args[i].getBaseStructOrUnion());
-				} else {
+					repeat = true;
+				}
+			}
+			
+			if (!repeat) {
+				for (int i = 0; i < args.length; ++i) {
+					DataType argType = args[i].getDataType(mgrs);
 					params.add(new ParameterImpl(args[i].getName(), argType, program));
 				}
 			}
 			
-			func.updateFunction("__stdcall", null, FunctionUpdateType.DYNAMIC_STORAGE_ALL_PARAMS, true, SourceType.ANALYSIS, params.toArray(ParameterImpl[]::new));
+			if (!repeat) {
+				func.updateFunction("__stdcall", null, FunctionUpdateType.DYNAMIC_STORAGE_ALL_PARAMS, true, SourceType.ANALYSIS, params.toArray(ParameterImpl[]::new));
+			}
 		} catch (Exception e) {
 			log.appendException(e);
 		}
