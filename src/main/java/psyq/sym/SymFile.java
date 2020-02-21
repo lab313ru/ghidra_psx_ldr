@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import ghidra.app.cmd.comments.SetCommentCmd;
 import ghidra.app.util.bin.BinaryReader;
@@ -19,6 +20,7 @@ import ghidra.program.model.address.Address;
 import ghidra.program.model.address.AddressOutOfBoundsException;
 import ghidra.program.model.address.AddressOverflowException;
 import ghidra.program.model.address.AddressSpace;
+import ghidra.program.model.data.Composite;
 import ghidra.program.model.data.DataType;
 import ghidra.program.model.data.DataTypeConflictHandler;
 import ghidra.program.model.data.DataTypeManager;
@@ -327,43 +329,59 @@ public class SymFile {
 	}
 	
 	private void applyNames(final Map<SymDataTypeManagerType, DataTypeManager> mgrs, Program program, MessageLog log, TaskMonitor monitor) {
-		List<SymObject> objects = new ArrayList<>(names);
-		
-		monitor.initialize(objects.size());
+		monitor.initialize(names.size());
 		monitor.setMessage("Applying SYM objects (names)...");
 		monitor.clearCanceled();
 		
-		applySymbols(objects, mgrs, program, log, monitor);
+		Map<String, SymObject> objs = new HashMap<>();
+		
+		for (SymName obj : names) {
+			objs.put(obj.getName(), obj);
+		}
+		
+		applySymbols(objs, "names", mgrs, program, log, monitor);
 	}
 	
 	private void applyTypes(final Map<SymDataTypeManagerType, DataTypeManager> mgrs, Program program, MessageLog log, TaskMonitor monitor) {
-		List<SymObject> objects = new ArrayList<>(types);
-		
-		monitor.initialize(objects.size());
+		monitor.initialize(types.size());
 		monitor.setMessage("Applying SYM objects (types)...");
 		monitor.clearCanceled();
 		
-		applySymbols(objects, mgrs, program, log, monitor);
+		Map<String, SymObject> objs = new HashMap<>();
+		
+		for (SymObject obj : types) {
+			objs.put(((SymName)obj).getName(), obj);
+		}
+		
+		applySymbols(objs, "types", mgrs, program, log, monitor);
 	}
 	
 	private void applyNamesWithTypes(final Map<SymDataTypeManagerType, DataTypeManager> mgrs, Program program, MessageLog log, TaskMonitor monitor) {
-		List<SymObject> objects = new ArrayList<>(namesWithTypes);
-		
-		monitor.initialize(objects.size());
+		monitor.initialize(namesWithTypes.size());
 		monitor.setMessage("Applying SYM objects (typed names)...");
 		monitor.clearCanceled();
 		
-		applySymbols(objects, mgrs, program, log, monitor);
+		Map<String, SymObject> objs = new HashMap<>();
+		
+		for (SymDefinition obj : namesWithTypes) {
+			objs.put(obj.getName(), obj);
+		}
+		
+		applySymbols(objs, "names", mgrs, program, log, monitor);
 	}
 	
 	private void applyFuncs(final Map<SymDataTypeManagerType, DataTypeManager> mgrs, Program program, MessageLog log, TaskMonitor monitor) {
-		List<SymObject> objects = new ArrayList<>(funcs.values());
-		
-		monitor.initialize(objects.size());
+		monitor.initialize(funcs.size());
 		monitor.setMessage("Applying SYM objects (functions)...");
 		monitor.clearCanceled();
 		
-		applySymbols(objects, mgrs, program, log, monitor);
+		Map<String, SymObject> objs = new HashMap<>();
+		
+		for (Map.Entry<String, SymFunc> obj : funcs.entrySet()) {
+			objs.put(obj.getKey(), obj.getValue());
+		}
+		
+		applySymbols(objs, "funcs", mgrs, program, log, monitor);
 	}
 	
 	public void apply(Program program, MessageLog log, TaskMonitor monitor) {
@@ -379,84 +397,60 @@ public class SymFile {
 		removeUselessFake(mgrs, monitor);
 	}
 	
-	private void applySymbols(List<SymObject> objects, final Map<SymDataTypeManagerType, DataTypeManager> mgrs, Program program, MessageLog log, TaskMonitor monitor) {
+	private void applySymbols(Map<String, SymObject> objects, String type, final Map<SymDataTypeManagerType, DataTypeManager> mgrs, Program program, MessageLog log, TaskMonitor monitor) {
 		int index = 0;
-		
 		boolean repeat = true;
 		
 		while (repeat) {
-			ListIterator<SymObject> objIter = objects.listIterator();
 			repeat = false;
 			
-			while (objIter.hasNext()) {
+			Map<String, SymObject> tryAgainAdd = new HashMap<>();
+			Set<String> tryAgainRem = new HashSet<>();
+			
+			for (Map.Entry<String, SymObject> obj : objects.entrySet()) {
 				if (monitor.isCancelled()) {
 					break;
 				}
 				
-				SymObject obj = objIter.next();
+				String objName = obj.getKey();
+				SymObject objValue = obj.getValue();
 				
-				Address addr = obj.getAddress(program);
-				
-				Set<SymStructUnionEnum> structOrUnion = applySymbol(obj, addr, mgrs, program, log);
-				if (!structOrUnion.isEmpty()) {
-					for (SymStructUnionEnum ss : structOrUnion) {
-						objIter.add(ss);
-					}
+				if (objValue == null) {
+					tryAgainRem.add(objName);
 				} else {
-					objIter.remove();
-					repeat = true;
+					Address addr = objValue.getAddress(program);
 					
-					index++;
+					Set<String> structOrUnion = applySymbol(objValue, addr, mgrs, program, log);
+					if (!structOrUnion.isEmpty()) {
+						for (String ss : structOrUnion) {
+							tryAgainAdd.put(ss, objects.get(ss));
+						}
+					} else {
+						tryAgainRem.add(objName);
+						repeat = true;
+						
+						index++;
+					}
+					
+					monitor.setProgress(index + 1);
 				}
-				
-				monitor.setProgress(index + 1);
+			}
+			
+			for (Map.Entry<String, SymObject> add : tryAgainAdd.entrySet()) {
+				objects.put(add.getKey(), add.getValue());
+			}
+			
+			for (String rem : tryAgainRem) {
+				objects.remove(rem);
 			}
 		}
 		
-//		monitor.initialize(tryAgain.size());
-//		monitor.setMessage("Applying SYM forward usage objects...");
-//		monitor.clearCanceled();
-//		
-//		index = 0;
-//		repeat = true;
-//
-//		List<SymStructUnionEnum> tryAgainList = new ArrayList<>(tryAgain);
-//		while (repeat) {
-//			ListIterator<SymStructUnionEnum> i = tryAgainList.listIterator();
-//			repeat = false;
-//			
-//			while (i.hasNext()) {
-//				if (monitor.isCancelled()) {
-//					break;
-//				}
-//				
-//				SymObject obj = i.next();
-//
-//				Address addr = obj.getAddress(program);
-//				
-//				Set<SymStructUnionEnum> structOrUnion = applySymbol(obj, addr, mgrs, program, log);
-//				if (structOrUnion.isEmpty()) {
-//					i.remove();
-//					repeat = true;
-//					
-//					monitor.setProgress(index + 1);
-//					index++;
-//				} else {
-//					for (SymStructUnionEnum ss : structOrUnion) {
-//						if (!tryAgainList.contains(ss)) {
-//							i.add(ss);
-//						}
-//					}
-//				}
-//			}
-//		}
-		
-		// dumpNotFound(tryAgainList, log);
+		// dumpNotFound(notFound, type, log);
 	}
 	
 	@SuppressWarnings("incomplete-switch")
-	private static Set<SymStructUnionEnum> applySymbol(SymObject obj, Address addr, final Map<SymDataTypeManagerType, DataTypeManager> mgrs, Program program, MessageLog log) {
-		Set<SymStructUnionEnum> result = new HashSet<>();
+	private static Set<String> applySymbol(SymObject obj, Address addr, final Map<SymDataTypeManagerType, DataTypeManager> mgrs, Program program, MessageLog log) {
+		Set<String> result = new HashSet<>();
 		
 		SymbolTable st = program.getSymbolTable();
 		DataTypeManager psyqMgr = mgrs.get(SymDataTypeManagerType.MGR_TYPE_PSYQ);
@@ -466,7 +460,7 @@ public class SymFile {
 			SymFunc sf = (SymFunc)obj;
 			PsxLoader.setFunction(program, addr, sf.getName(), true, false, log);
 			
-			Set<SymStructUnionEnum> structOrUnion = setFunctionArguments(mgrs, program, addr, sf, log);
+			Set<String> structOrUnion = setFunctionArguments(mgrs, program, addr, sf, log);
 			if (structOrUnion != null) {
 				result.addAll(structOrUnion);
 			} else {
@@ -498,29 +492,29 @@ public class SymFile {
 			
 			switch (type) {
 			case UNION: {
-				UnionDataType udt = new UnionDataType(ssu.getName());
-				udt.setMinimumAlignment(4);
-				
 				DataType psyqType = SymDefinition.hasDataTypeName(psyqMgr, ssu.getName());
-				DataType mainType = SymDefinition.hasDataTypeName(psyqMgr, ssu.getName());
+				DataType mainType = SymDefinition.hasDataTypeName(mainMgr, ssu.getName());
 				
 				if (psyqType != null) {
 					return result;
-				} else if (mainType != null || ((UnionDataType)mainType).getComponents().length != fields.length) {
-					Union uut = (Union)applyDataType(udt, mainMgr);
-					
-					boolean repeat = false;
+				} else if (mainType == null || (mainType != null && ((Composite)mainType).getNumComponents() != fields.length)) {
+					boolean skip = false;
 					
 					for (SymDefinition field : fields) {
 						DataType dt = field.getDataType(mgrs);
 						
 						if (dt == null) {
 							result.add(field.getBaseStructOrUnion());
-							repeat = true;
+							skip = true;
 						}
 					}
 					
-					if (!repeat) {
+					if (!skip) {
+						UnionDataType udt = new UnionDataType(ssu.getName());
+						udt.setMinimumAlignment(4);
+						
+						Union uut = (Union)applyDataType(udt, mainMgr);
+						
 						for (SymDefinition field : fields) {
 							DataType dt = field.getDataType(mgrs);
 							uut.add(dt, field.getName(), null);
@@ -529,29 +523,32 @@ public class SymFile {
 				}
 			} break;
 			case STRUCT: {
-				StructureDataType sdt = new StructureDataType(ssu.getName(), 0);
-				sdt.setMinimumAlignment(4);
+				DataType psyqType = SymDefinition.hasDataTypeName(psyqMgr, ssu.getName());
+				DataType mainType = SymDefinition.hasDataTypeName(mainMgr, ssu.getName());
 
-				if (SymDefinition.hasDataTypeName(psyqMgr, ssu.getName()) != null) {
+				if (psyqType != null) {
 					return result;
-				} else if (SymDefinition.hasDataTypeName(mainMgr, ssu.getName()) == null ) {
-					Structure ddt = (Structure)applyDataType(sdt, mainMgr);
-					
-					boolean repeat = false;
+				} else if ((mainType == null) || (mainType != null && ((Composite)mainType).getNumComponents() != fields.length)) {
+					boolean skip = false;
 					
 					for (SymDefinition field : fields) {
 						DataType dt = field.getDataType(mgrs);
 						
 						if (dt == null) {
 							result.add(field.getBaseStructOrUnion());
-							repeat = true;
+							skip = true;
 						}
 					}
 					
-					if (!repeat) {
+					if (!skip) {
+						Structure sdt = new StructureDataType(ssu.getName(), 0);
+						sdt.setMinimumAlignment(4);
+						
+						sdt = (Structure)applyDataType(sdt, mainMgr);
+						
 						for (SymDefinition field : fields) {
 							DataType dt = field.getDataType(mgrs);
-							ddt.add(dt, field.getName(), null);
+							sdt.add(dt, field.getName(), null);
 						}
 					}
 				}
@@ -565,7 +562,7 @@ public class SymFile {
 				
 				if (SymDefinition.hasDataTypeName(psyqMgr, ssu.getName()) != null) {
 					return result;
-				} else if (SymDefinition.hasDataTypeName(mainMgr, ssu.getName()) != null) {
+				} else if (SymDefinition.hasDataTypeName(mainMgr, ssu.getName()) == null) {
 					applyDataType(edt, mainMgr);
 				}
 			} break;
@@ -612,8 +609,8 @@ public class SymFile {
 		return res;
 	}
 	
-	private static Set<SymStructUnionEnum> setFunctionArguments(final Map<SymDataTypeManagerType, DataTypeManager> mgrs, Program program, Address funcAddr, SymFunc funcDef, MessageLog log) {
-		Set<SymStructUnionEnum> result = new HashSet<>();
+	private static Set<String> setFunctionArguments(final Map<SymDataTypeManagerType, DataTypeManager> mgrs, Program program, Address funcAddr, SymFunc funcDef, MessageLog log) {
+		Set<String> result = new HashSet<>();
 		
 		try {
 			Function func = program.getListing().getFunctionAt(funcAddr);
@@ -680,72 +677,21 @@ public class SymFile {
 		}
 	}
 	
-//	private static void dumpNotFound(final List<SymStructUnionEnum> tryAgain, MessageLog log) {
-//		if (tryAgain.isEmpty()) {
-//			return;
-//		}
-//		
-//		Set<SymName> uniqueStructs = tryAgain.stream().filter(SymStructUnionEnum.class::isInstance).map(SymStructUnionEnum.class::cast).collect(Collectors.toSet());
-//		Set<SymName> uniqueDefs = tryAgain.stream().filter(SymDefinition.class::isInstance).map(SymDefinition.class::cast).collect(Collectors.toSet());
-//		Set<SymName> uniqueFuncs = tryAgain.stream().filter(SymFunc.class::isInstance).map(SymFunc.class::cast).collect(Collectors.toSet());
-//		Set<SymName> uniqueTpdefs = tryAgain.stream().filter(SymTypedef.class::isInstance).map(SymTypedef.class::cast).collect(Collectors.toSet());
-//		
-//		tryAgain.removeAll(uniqueStructs);
-//		tryAgain.removeAll(uniqueDefs);
-//		tryAgain.removeAll(uniqueFuncs);
-//		tryAgain.removeAll(uniqueTpdefs);
-//		Set<SymName> uniqueRest = new HashSet<>((tryAgain));
-//		
-//		boolean printed = false;
-//		for (SymName obj : uniqueStructs) {
-//			if (!printed) {
-//				log.appendMsg("The following structures haven't been found:");
-//				printed = true;
-//			}
-//			
-//			log.appendMsg(String.format("\t%s", obj.getName()));
-//		}
-//		
-//		printed = false;
-//		for (SymName obj : uniqueDefs) {
-//			if (!printed) {
-//				log.appendMsg("The following definitions haven't been found:");
-//				printed = true;
-//			}
-//			
-//			log.appendMsg(String.format("\tName: %s, Type: %s", obj.getName(), ((SymDefinition)obj).getTag()));
-//		}
-//		
-//		printed = false;
-//		for (SymName obj : uniqueFuncs) {
-//			if (!printed) {
-//				log.appendMsg("The following functions haven't been found:");
-//				printed = true;
-//			}
-//			
-//			log.appendMsg(String.format("\t%s", obj.getName()));
-//		}
-//		
-//		printed = false;
-//		for (SymName obj : uniqueTpdefs) {
-//			if (!printed) {
-//				log.appendMsg("The following typedefs haven't been found:");
-//				printed = true;
-//			}
-//			
-//			log.appendMsg(String.format("\t%s -> %s", ((SymTypedef)obj).getTag(), obj.getName()));
-//		}
-//		
-//		printed = false;
-//		for (SymName obj : uniqueRest) {
-//			if (!printed) {
-//				log.appendMsg("The following objects haven't been found:");
-//				printed = true;
-//			}
-//			
-//			log.appendMsg(String.format("\t%s (%s)", obj.getName(), obj.getClass().getName()));
-//		}
-//	}
+	private static void dumpNotFound(final Set<String> notFound, String type, MessageLog log) {
+		if (notFound.isEmpty()) {
+			return;
+		}
+		
+		boolean printed = false;
+		for (String obj : notFound) {
+			if (!printed) {
+				log.appendMsg(String.format("The following %s haven't been found:", type));
+				printed = true;
+			}
+			
+			log.appendMsg(String.format("\t%s", obj));
+		}
+	}
 	
 	private static String readString(BinaryReader reader) throws IOException {
 		return reader.readNextAsciiString(reader.readNextUnsignedByte());

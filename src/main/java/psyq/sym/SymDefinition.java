@@ -59,20 +59,37 @@ public class SymDefinition extends SymName {
 		return primitiveTypeToDataType(types, dims, mgrs);
 	}
 	
-	public SymStructUnionEnum getBaseStructOrUnion() {
+	public String getBaseStructOrUnion() {
 		SymTypePrimitive[] types = _type.getTypesList();
 		
 		if (types.length == 0) {
 			return null;
 		}
 		
-		for (SymTypePrimitive tp : types) {
-			if (tp == SymTypePrimitive.STRUCT || tp == SymTypePrimitive.UNION) {
-				return new SymStructUnionEnum(tag, size, tp);
-			}
+		return getBaseStructOrUnionDeep(types);
+	}
+	
+	private String getBaseStructOrUnionDeep(SymTypePrimitive[] types) {
+		switch (types[0]) {
+		case PTR: {
+			SymTypePrimitive[] followTypes = Arrays.copyOfRange(types, 1, types.length);
+			return getBaseStructOrUnionDeep(followTypes);
 		}
-		
-		return null;
+		case FCN: {
+			SymTypePrimitive[] followTypes = Arrays.copyOfRange(types, 1, types.length);
+			return getBaseStructOrUnionDeep(followTypes);
+		}
+		case ARY: {
+			SymTypePrimitive[] followTypes = Arrays.copyOfRange(types, 1, types.length);
+			return getBaseStructOrUnionDeep(followTypes);
+		}
+		case STRUCT:
+		case UNION:
+		case ENUM: {
+			return (tag != null) ? tag : getName();
+		}
+		default: return null;
+		}
 	}
 	
 	private DataType primitiveTypeToDataType(SymTypePrimitive[] types, Integer[] newDims, final Map<SymDataTypeManagerType, DataTypeManager> mgrs) {
@@ -166,9 +183,8 @@ public class SymDefinition extends SymName {
 		return null;
 	}
 	
-//	
-//	@Override
-//    protected SymDefinition clone() throws CloneNotSupportedException {
-//        return (SymDefinition)super.clone();
-//    }
+	@Override
+    protected SymDefinition clone() throws CloneNotSupportedException {
+        return (SymDefinition)super.clone();
+    }
 }
