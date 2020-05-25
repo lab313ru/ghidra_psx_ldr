@@ -15,15 +15,11 @@
  */
 package psx;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-
-import javax.swing.JFileChooser;
-import javax.swing.filechooser.FileNameExtensionFilter;
 
 import docking.widgets.OptionDialog;
 import ghidra.app.cmd.disassemble.DisassembleCommand;
@@ -67,7 +63,6 @@ import ghidra.util.exception.InvalidInputException;
 import ghidra.util.exception.NotFoundException;
 import ghidra.util.task.TaskMonitor;
 import psyq.DetectPsyQ;
-import psyq.sym.SymFile;
 
 public class PsxLoader extends AbstractLibrarySupportLoader {
 	
@@ -225,26 +220,6 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 		}
 		
 		monitor.setMessage("Loading PSX binary done.");
-		
-		try {
-			TimeUnit.SECONDS.sleep(1);
-		} catch (InterruptedException e) {
-		}
-		
-		if (OptionDialog.YES_OPTION == OptionDialog.showYesNoDialogWithNoAsDefaultButton(null,
-				"Question", "Do you have .SYM file for this executable?")) {
-			String symPath = showSelectFile("Select file...", program.getExecutablePath());
-			
-			if (symPath == null) {
-				return;
-			}
-			
-			int transId = program.startTransaction("Load and apply SYM file...");
-			SymFile symFile = SymFile.fromBinary(symPath, program, log, monitor);
-			symFile.applyOverlays(program, log, monitor);
-			symFile.apply(program, log, monitor);
-			program.endTransaction(transId, true);
-		}
 	}
 	
 	public static DataTypeManagerService getDataTypeManagerService(Program program) {
@@ -261,7 +236,8 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 			opts.registerOption(PSYQ_VER_OPTION, "", null, "PsyQ version");
 
 			if (!psyqVersion.isEmpty()) {
-				String ver = String.format("%s.%s", psyqVersion.charAt(0), psyqVersion.charAt(1));
+				char subVer = psyqVersion.charAt(2);
+				String ver = String.format("%s.%s%s", psyqVersion.charAt(0), psyqVersion.charAt(1), subVer != '0' ? subVer : "");
 				opts.setString(PSYQ_VER_OPTION, ver);
 			}
 		} catch (MemoryAccessException | AddressOutOfBoundsException ignored) {
@@ -336,20 +312,6 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 	public static String getProgramPsyqVersion(Program program) {
 		Options opts = program.getOptions(Program.PROGRAM_INFO);
 		return opts.getString(PsxLoader.PSYQ_VER_OPTION, "").replace(".", "");
-	}
-	
-	private static String showSelectFile(String title, String baseDir) {
-		JFileChooser jfc = new JFileChooser(new File(baseDir));
-		jfc.setDialogTitle(title);
-
-		jfc.setFileFilter(new FileNameExtensionFilter("Symbols File", "sym"));
-		jfc.setMultiSelectionEnabled(false);
-
-		if (jfc.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
-			return jfc.getSelectedFile().getAbsolutePath();
-		}
-
-		return null;
 	}
 	
 	private static void setRegisterValue(FlatProgramAPI fpa, String name, long startAddress, long value, MessageLog log) {
