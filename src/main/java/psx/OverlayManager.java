@@ -20,7 +20,6 @@ import ghidra.program.model.listing.Program;
 import ghidra.program.model.mem.Memory;
 import ghidra.program.model.mem.MemoryAccessException;
 import ghidra.program.model.mem.MemoryBlock;
-import ghidra.program.model.mem.MemoryBlockType;
 import ghidra.util.MessageType;
 import ghidra.util.Msg;
 import ghidra.util.NamingUtilities;
@@ -276,7 +275,7 @@ public class OverlayManager extends JPanel {
 
 		MemoryBlock[] memBlocks = memory.getBlocks();
 		for (MemoryBlock block : memBlocks) {
-			if (block.getType() == MemoryBlockType.OVERLAY) {
+			if (block.isOverlay()) {
 				overlays.put(overlays.size(), block.getName());
 				overlaysList.addItem(String.format("%s: 0x%08X-0x%08X", block.getName(), block.getStart().getOffset(), block.getEnd().getOffset()));
 			}
