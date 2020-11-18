@@ -13,7 +13,6 @@ import ghidra.framework.plugintool.ComponentProviderAdapter;
 import ghidra.framework.plugintool.PluginTool;
 import ghidra.program.model.listing.Program;
 import ghidra.program.model.mem.MemoryBlock;
-import ghidra.program.model.mem.MemoryBlockType;
 import ghidra.util.Msg;
 import psx.PsxPlugin;
 import resources.ResourceManager;
@@ -195,7 +194,7 @@ public class DebuggerProvider extends ComponentProviderAdapter {
 		List<String> overlays = new ArrayList<>();
 		MemoryBlock[] memBlocks = program.getMemory().getBlocks();
 		for (MemoryBlock block : memBlocks) {
-			if (block.getType() == MemoryBlockType.OVERLAY) {
+			if (block.isOverlay()) {
 				overlays.add(block.getName());
 			}
 		}
