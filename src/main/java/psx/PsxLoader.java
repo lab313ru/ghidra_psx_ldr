@@ -22,6 +22,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import docking.widgets.OptionDialog;
+import docking.widgets.dialogs.InputWithChoicesDialog;
 import ghidra.app.cmd.disassemble.DisassembleCommand;
 import ghidra.app.cmd.function.ApplyFunctionDataTypesCmd;
 import ghidra.app.cmd.function.CreateFunctionCmd;
@@ -228,10 +229,26 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 	
 	private static void addPsyqVerOption(Program program, long searchBase, MessageLog log) {
 		Memory mem = program.getMemory();
-
+		String psyqVersion = "";
 		try {
-			String psyqVersion = DetectPsyQ.getPsyqVersion(mem, program.getAddressFactory().getDefaultAddressSpace().getAddress(searchBase));
-			
+			psyqVersion = DetectPsyQ.getPsyqVersion(mem, program.getAddressFactory().getDefaultAddressSpace().getAddress(searchBase));
+			if (psyqVersion.isEmpty()) {
+				switch (OptionDialog.showYesNoDialogWithNoAsDefaultButton(null, "Question",
+						"Could not automatically detect the PsyQ version. Do you want to set it manually?")) {
+					case(OptionDialog.YES_OPTION):
+						String selection =  OptionDialog.showInputChoiceDialog(null,
+								"PsyQ Library Version",
+								"Select the PsyQ Library version",
+								DetectPsyQ.getPsyqSigVersions(),
+								"",
+								OptionDialog.QUESTION_MESSAGE);
+						if (selection != null) {
+							// Trailing "0" is required to make subversion detection below happy
+							psyqVersion = (selection + "0").replace(".", "");
+						}
+						break;
+				}
+			}
 			Options opts = program.getOptions(Program.PROGRAM_INFO);
 			opts.registerOption(PSYQ_VER_OPTION, "", null, "PsyQ version");
 
