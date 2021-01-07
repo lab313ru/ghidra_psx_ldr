@@ -552,7 +552,7 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 			ram.setName("RAM");
 			ram.setWrite(true);
 			ram.setExecute(true);
-		} catch (IOException | MemoryBlockException | LockException | NotFoundException | DuplicateNameException e) {
+		} catch (IOException | MemoryBlockException | LockException | NotFoundException e) {
 			log.appendException(e);
 		}
 	}
