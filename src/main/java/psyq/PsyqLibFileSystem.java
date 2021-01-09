@@ -66,9 +66,14 @@ public class PsyqLibFileSystem implements GFileSystem {
 		monitor.clearCanceled();
 		
 		BinaryReader reader = new BinaryReader(provider, true);
-		long startOffset = 4;
 
 		try {
+			byte libVer = reader.readByte(3);
+			long startOffset = 4;
+			
+			switch (libVer) {
+			case 1:
+			{
 				while (startOffset < reader.length()) {
 					if (monitor.isCancelled()) {
 						break;
@@ -93,6 +98,49 @@ public class PsyqLibFileSystem implements GFileSystem {
 					
 					startOffset += size;
 				}
+			} break;
+			case 2:
+			{
+				reader.setPointerIndex(startOffset);
+				
+				long infoOff = reader.readNextUnsignedInt();
+				long infoLen = reader.readNextUnsignedInt();
+				
+				reader.setPointerIndex(infoOff);
+				
+				while (infoLen > 0) {
+					long dataOffset = reader.readNextUnsignedInt(); infoLen -= 4;
+					long dataSize = reader.readNextUnsignedInt(); infoLen -= 4;
+					long date = reader.readNextUnsignedInt(); infoLen -= 4;
+					byte nameLen = reader.readNextByte(); infoLen -= 1;
+					nameLen += 1;
+					
+					String name = reader.readNextAsciiString(nameLen); infoLen -= nameLen;
+					
+					byte itemsCount = reader.readNextByte(); infoLen -= 1;
+					
+					Date dateTime = convertDosDate(date);
+					
+					LibFileItem item = new LibFileItem();
+					item.name = name;
+					item.date = dateTime;
+					item.offset = dataOffset;
+					item.size = dataSize;
+		
+					fsih.storeFile(item.name, fsih.getFileCount(), false, item.size, item);
+					
+					while (itemsCount > 0) {
+						reader.readNextUnsignedShort(); infoLen -= 2;
+						byte nameLen2 = reader.readNextByte(); infoLen -= 1;
+						nameLen2 += 1;
+						
+						reader.readNextAsciiString(nameLen2); infoLen -= nameLen2;
+						
+						itemsCount = reader.readNextByte(); infoLen -= 1;
+					}
+				}
+			} break;
+			}
 		} catch (IOException e) {
 			return;
 		}
@@ -204,7 +252,7 @@ public class PsyqLibFileSystem implements GFileSystem {
 				throws IOException, CancelledException {
 
 			byte[] tag = byteProvider.readBytes(0, 4);
-			return Arrays.equals(tag, new byte[] {0x4C, 0x49, 0x42, 0x01});
+			return Arrays.equals(tag, new byte[] {0x4C, 0x49, 0x42, 0x01}) || Arrays.equals(tag, new byte[] {0x4C, 0x49, 0x42, 0x02}); // LIB\x02
 		}
 	}
 
