@@ -601,11 +601,14 @@ public class PsyqLoader extends AbstractLibrarySupportLoader {
 					case 'J': { // jump
 						newLine = line.replaceFirst("0x[0-9A-Fa-f]+", String.format("0x%08X", newAddr));
 					} break;
-					case 0x1E: { // relative to gp register
+					case 0x1E: { // relative to fp register
+						newLine = line.replaceFirst("0x[0-9A-Fa-f]+", String.format("0x%X", newAddr));
+					} break;
+					case 0x64: { // relative to gp register
 						newLine = line.replaceFirst("0x[0-9A-Fa-f]+", String.format("0x%X", newAddr));
 					} break;
 					default: {
-						log.appendException(new Exception(String.format("Unknown patch tag", patch.getType())));
+						log.appendException(new Exception(String.format("Unknown patch tag 0x%02X", patch.getType())));
 						return;
 					}
 					}
