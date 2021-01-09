@@ -1,0 +1,5 @@
+<patternconstraints>
+  <language id="MIPS:LE:32:default">
+    <patternfile>r3000_LE_patterns.xml</patternfile>
+  </language>
+</patternconstraints>
