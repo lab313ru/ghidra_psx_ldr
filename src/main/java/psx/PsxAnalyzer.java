@@ -80,7 +80,7 @@ public class PsxAnalyzer extends AbstractAnalyzer {
 			
 			while (i.hasNext()) {
 				AddressRange next = i.next();
-				
+
 				if (psyqVersion.isEmpty() && !manualVer.isEmpty()) {
 					psyqVersion = manualVer.replace(".", "");
 					PsxLoader.setProgramPsyqVersion(program, psyqVersion);

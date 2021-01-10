@@ -116,7 +116,7 @@ public final class SigApplier {
 						}
 						
 						boolean isFunction = !lbName.startsWith("loc_");
-						final String newName = String.format("%s_", sig.getName().replace(".", "_"));
+						final String newName = String.format("%s_", lbName.replace(".", "_"));
 						final String newLbName = lbName.replace("text_", newName).replace("loc_", newName);
 						setFunction(program, fpa, lbAddr, newLbName, isFunction, false, log);
 						
@@ -139,7 +139,7 @@ public final class SigApplier {
 		}
 		
 		if (appliedObjs > 0) {
-			log.appendMsg(String.format("Applied for %s: %d/%d", file, appliedObjs, totalObjs));
+			log.appendMsg(String.format("Applied OBJs for %s: %d/%d", file, appliedObjs, totalObjs));
 		}
 		
 		return appliedObjs;
