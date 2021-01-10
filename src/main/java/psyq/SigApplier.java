@@ -22,6 +22,8 @@ import ghidra.program.model.listing.Program;
 import ghidra.program.model.mem.Memory;
 import ghidra.program.model.mem.MemoryBlock;
 import ghidra.program.model.symbol.SourceType;
+import ghidra.program.model.symbol.Symbol;
+import ghidra.program.model.symbol.SymbolType;
 import ghidra.util.exception.InvalidInputException;
 import ghidra.util.task.TaskMonitor;
 
@@ -116,7 +118,7 @@ public final class SigApplier {
 						}
 						
 						boolean isFunction = !lbName.startsWith("loc_");
-						final String newName = String.format("%s_", lbName.replace(".", "_"));
+						final String newName = String.format("%s_", sig.getName().replace(".", "_"));
 						final String newLbName = lbName.replace("text_", newName).replace("loc_", newName);
 						setFunction(program, fpa, lbAddr, newLbName, isFunction, false, log);
 						
@@ -160,6 +162,15 @@ public final class SigApplier {
 			}
 			if (isEntryPoint) {
 				fpa.addEntryPoint(address);
+			}
+			
+			Symbol[] existing = program.getSymbolTable().getSymbols(address);
+			if (isFunction && existing.length > 0) {
+				for (var sym : existing) {
+					if (sym.getSource() == SourceType.USER_DEFINED || sym.getSource() == SourceType.DEFAULT) {
+						return;
+					}
+				}
 			}
 			
 			program.getSymbolTable().createLabel(address, name, SourceType.IMPORTED);
