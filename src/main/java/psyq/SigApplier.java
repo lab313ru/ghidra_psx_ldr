@@ -1,5 +1,8 @@
 package psyq;
 
+//import java.io.BufferedWriter;
+//import java.io.File;
+//import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -23,7 +26,6 @@ import ghidra.program.model.mem.Memory;
 import ghidra.program.model.mem.MemoryBlock;
 import ghidra.program.model.symbol.SourceType;
 import ghidra.program.model.symbol.Symbol;
-import ghidra.program.model.symbol.SymbolType;
 import ghidra.util.exception.InvalidInputException;
 import ghidra.util.task.TaskMonitor;
 
@@ -32,11 +34,13 @@ public final class SigApplier {
 	private final String file;
 	private final boolean sequential;
 	private final boolean onlyFirst;
+	private final float minEntropy;
 	private long prevObjAddr = 0L;
 	
-	public SigApplier(final String file, boolean sequential, boolean onlyFirst, TaskMonitor monitor) throws IOException {
+	public SigApplier(final String file, boolean sequential, boolean onlyFirst, float minEntropy, TaskMonitor monitor) throws IOException {
 		this.sequential = sequential;
 		this.onlyFirst = onlyFirst;
+		this.minEntropy = minEntropy;
 		
 		this.file = Path.of(file).getFileName().toString();
 		
@@ -47,13 +51,21 @@ public final class SigApplier {
 		final JsonArray root = tokens.getAsJsonArray();
 		
 		signatures = new ArrayList<>();
+//		StringBuilder sb = new StringBuilder();
 		
 		for (var item : root) {
 			final JsonObject itemObj = item.getAsJsonObject();
 			final PsyqSig sig = PsyqSig.fromJsonToken(itemObj);
 			
+//			sb.append(String.format("%s/%s: %.2f", this.file, sig.getName(), sig.getEntropy()));
+//			sb.append("\n");
+			
 			signatures.add(sig);
 		}
+		
+//		try (BufferedWriter writer = new BufferedWriter(new FileWriter(new File(file + ".log")))) {
+//		    writer.write(sb.toString());
+//		}
 	}
 	
 	public List<PsyqSig> getSignatures() {
@@ -77,7 +89,7 @@ public final class SigApplier {
 				break;
 			}
 			
-			if (sig.isApplied() && onlyFirst) {
+			if ((sig.isApplied() && onlyFirst) || sig.getEntropy() < minEntropy) {
 				continue;
 			}
 			

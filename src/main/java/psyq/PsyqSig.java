@@ -10,13 +10,18 @@ public final class PsyqSig {
 	private final String name;
 	private final MaskedBytes sig;
 	private final Map<String, Long> labels;
-	private int count = -1;
 	private boolean applied = false;
+	private final float entropy;
 	
 	private PsyqSig(final String name, final MaskedBytes sig, final Map<String, Long> labels) {
 		this.name = name;
 		this.sig = sig;
 		this.labels = labels;
+		this.entropy = calcEntropy(sig);
+	}
+	
+	public float getEntropy() {
+		return entropy;
 	}
 	
 	public void setApplied(boolean applied) {
@@ -37,21 +42,6 @@ public final class PsyqSig {
 
 	public Map<String, Long> getLabels() {
 		return labels;
-	}
-	
-	public int getFunctionsCount() {
-		if (count != -1) {
-			return count;
-		}
-		
-		count = 0;
-		for (var item : labels.entrySet()) {
-			boolean isFunction = !(item.getKey().startsWith("loc_") || item.getKey().startsWith("text_"));
-			
-			count += isFunction ? 1 : 0;
-		}
-		
-		return count;
 	}
 	
 	public static PsyqSig fromJsonToken(final JsonObject token) {
@@ -95,4 +85,29 @@ public final class PsyqSig {
 	    
 	    return new MaskedBytes(bytes, masks);
 	}
+	
+    private static float calcEntropy(final MaskedBytes bytes) {
+        int counts[] = new int[256];
+        float entropy = 0;
+        float total = bytes.getLength();
+        
+        byte[] f = bytes.getBytes();
+        byte[] m = bytes.getMasks();
+        
+        for (int i = 0; i < m.length; ++i) {
+        	f[i] &= m[i];
+        }
+
+        for (byte b : f)
+            counts[b + 128]++;
+        for (int c : counts) {
+            if (c == 0)
+                continue;
+            float p = c / total;
+
+            entropy -= p * Math.log(p) / Math.log(2);
+        }
+
+        return entropy;
+    }
 }

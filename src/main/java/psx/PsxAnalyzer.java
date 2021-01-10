@@ -25,10 +25,12 @@ public class PsxAnalyzer extends AbstractAnalyzer {
 	
 	private boolean sequential = true;
 	private boolean onlyFirst = true;
+	private float minEntropy = 3.0f;
 	private String manualVer = "4.7";
 	
 	private final String SEQ_OPTION = "Sequential search";
 	private final String FIRST_OPTION = "Only first match";
+	private final String MIN_ENTROPY = "Minimal signature entropy";
 	private final String MANUAL_VER_OPTION = "PsyQ Version if not found";
 	
 	public static boolean isPsxLoader(Program program) {
@@ -57,6 +59,7 @@ public class PsxAnalyzer extends AbstractAnalyzer {
 	public void registerOptions(Options options, Program program) {
 		options.registerOption(SEQ_OPTION, sequential, null, "To decrease false positive signatures matching use LIBrary's OBJects order.");
 		options.registerOption(FIRST_OPTION, onlyFirst, null, "To increase signatures applying time set this option CHECKED. Applies only first entry!");
+		options.registerOption(MIN_ENTROPY, minEntropy, null, "To reduce false positive signatures applying set this value >= 3.0!");
 		options.registerOption(MANUAL_VER_OPTION, manualVer, null, "Use this version number if not found in the binary.");
 	}
 	
@@ -66,6 +69,7 @@ public class PsxAnalyzer extends AbstractAnalyzer {
 		
 		sequential = options.getBoolean(SEQ_OPTION, sequential);
 		onlyFirst = options.getBoolean(FIRST_OPTION, onlyFirst);
+		minEntropy = options.getFloat(MIN_ENTROPY, minEntropy);
 		manualVer = options.getString(MANUAL_VER_OPTION, manualVer);
 		
 		appliers = new HashMap<>();
@@ -122,7 +126,7 @@ public class PsxAnalyzer extends AbstractAnalyzer {
 			if (appliers.containsKey(fileName)) {
 				sig = appliers.get(fileName);
 			} else {
-				sig = new SigApplier(file.getAbsolutePath(), sequential, onlyFirst, monitor);
+				sig = new SigApplier(file.getAbsolutePath(), sequential, onlyFirst, minEntropy, monitor);
 				appliers.put(fileName, sig);
 			}
 			
