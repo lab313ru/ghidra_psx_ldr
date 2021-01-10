@@ -24,7 +24,7 @@ public class PsxAnalyzer extends AbstractAnalyzer {
 	private Map<String, SigApplier> appliers;
 	
 	private boolean sequential = true;
-	private boolean onlyFirst = false;
+	private boolean onlyFirst = true;
 	private String manualVer = "4.7";
 	
 	private final String SEQ_OPTION = "Sequential search";
