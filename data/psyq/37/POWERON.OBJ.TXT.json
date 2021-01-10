@@ -1,0 +1,12 @@
+[
+    {
+        "name": "POWERON.OBJ",
+        "sig": "E8 FF BD 27 14 00 BF AF ?? ?? ?? 0C 00 00 00 00 C0 BF 0E 3C 09 F8 C0 01 00 00 00 00 14 00 BF 8F 18 00 BD 27 08 00 E0 03 00 00 00 00 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "go_poweron",
+                "offset": 0
+            }
+        ]
+    }
+]
