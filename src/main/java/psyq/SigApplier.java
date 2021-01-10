@@ -162,13 +162,10 @@ public final class SigApplier {
 				fpa.addEntryPoint(address);
 			}
 			
-			if (isFunction && program.getSymbolTable().hasSymbol(address)) {
-				return;
-			}
-			
 			program.getSymbolTable().createLabel(address, name, SourceType.IMPORTED);
 		} catch (InvalidInputException e) {
 			log.appendException(e);
+			e.printStackTrace();
 		}
 	}
 }
