@@ -35,7 +35,6 @@ public final class SigApplier {
 	private final boolean sequential;
 	private final boolean onlyFirst;
 	private final float minEntropy;
-	private long prevObjAddr = 0L;
 	
 	public SigApplier(final String file, boolean sequential, boolean onlyFirst, float minEntropy, TaskMonitor monitor) throws IOException {
 		this.sequential = sequential;
@@ -79,6 +78,7 @@ public final class SigApplier {
 		
 		int appliedObjs = 0;
 		int totalObjs = signatures.size();
+		long prevObjAddr = 0L;
 		
 		monitor.initialize(totalObjs);
 		monitor.setMessage("Applying obj symbols...");

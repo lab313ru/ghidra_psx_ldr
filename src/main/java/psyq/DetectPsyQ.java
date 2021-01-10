@@ -13,6 +13,7 @@ import ghidra.program.model.address.AddressOutOfBoundsException;
 import ghidra.program.model.mem.Memory;
 import ghidra.program.model.mem.MemoryAccessException;
 import ghidra.util.task.TaskMonitor;
+import psx.PsxAnalyzer;
 
 public class DetectPsyQ {
 	private final static byte[] VERSION_BYTES = new byte[] {      0x50,       0x73,       0x07, 0x00, 0x00, 0x00, 0x47,       0x00}; // 0x47 - a version
@@ -23,7 +24,7 @@ public class DetectPsyQ {
 	private static final String OLD_UNIQUE_LIB = "LIBGPU.LIB";
 	private static final String OLD_UNIQUE_OBJ = "SYS.OBJ";
 	
-	public static String getPsyqVersion(Memory mem, Address startAddress) throws MemoryAccessException, AddressOutOfBoundsException, FileNotFoundException, IOException {
+	public static String getPsyqVersion(Memory mem, final Address startAddress) throws MemoryAccessException, AddressOutOfBoundsException, FileNotFoundException, IOException {
 		final Address result = mem.findBytes(startAddress, VERSION_BYTES, VERSION_MASK, true, TaskMonitor.DUMMY);
 		
 		if (result == null) {
@@ -34,7 +35,7 @@ public class DetectPsyQ {
 		return String.format("%03X", version >> 4);
 	}
 	
-	private static String getOldPsyqVersion(Memory mem, Address startAddress) throws FileNotFoundException, IOException {
+	private static String getOldPsyqVersion(Memory mem, final Address startAddress) throws FileNotFoundException, IOException {
 		final File psyqDir = Application.getModuleDataSubDirectory("psyq").getFile(false);
 		
 		File [] dirs = psyqDir.listFiles(new FilenameFilter() {
@@ -45,7 +46,7 @@ public class DetectPsyQ {
 		});
 		
 		for (var verDir : dirs) {
-			final SigApplier sig = new SigApplier(new File(verDir, String.format("%s.json", OLD_UNIQUE_LIB)).getAbsolutePath(), true, true, TaskMonitor.DUMMY);
+			final SigApplier sig = new SigApplier(new File(verDir, String.format("%s.json", OLD_UNIQUE_LIB)).getAbsolutePath(), PsxAnalyzer.sequential, PsxAnalyzer.onlyFirst, PsxAnalyzer.minEntropy, TaskMonitor.DUMMY);
 			
 			final List<PsyqSig> signatures = sig.getSignatures();
 			

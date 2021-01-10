@@ -23,9 +23,9 @@ import psyq.SigApplier;
 public class PsxAnalyzer extends AbstractAnalyzer {
 	private Map<String, SigApplier> appliers;
 	
-	private boolean sequential = true;
-	private boolean onlyFirst = true;
-	private float minEntropy = 3.0f;
+	public static boolean sequential = true;
+	public static boolean onlyFirst = true;
+	public static float minEntropy = 3.0f;
 	private String manualVer = "4.7";
 	
 	private final String SEQ_OPTION = "Sequential search";
