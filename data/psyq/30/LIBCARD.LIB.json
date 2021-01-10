@@ -1,0 +1,142 @@
+[
+    {
+        "name": "A74.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 4A 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "InitCARD",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A75.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 4B 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "StartCARD",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A76.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 4C 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "StopCARD",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A78.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 4E 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "_card_write",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A79.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 4F 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "_card_read",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A80.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 50 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "_new_card",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A88.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 58 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "_card_chan",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A92.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 5C 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "_card_status",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A93.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 5D 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "_card_wait",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C112.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 70 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "_bu_init",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C171.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 AB 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "_card_info",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C172.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 AC 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "_card_load",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C173.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 AD 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "_card_auto",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C175.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 AF 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "_card_clear",
+                "offset": 0
+            }
+        ]
+    }
+]

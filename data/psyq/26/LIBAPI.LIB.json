@@ -1,0 +1,2056 @@
+[
+    {
+        "name": "A02.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 02 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "SetRCnt",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A03.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 03 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "GetRCnt",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A04.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 04 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "StartRCnt",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A05.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 05 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "StopRCnt",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A06.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 06 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "ResetRCnt",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A07.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 07 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "DeliverEvent",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A08.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 08 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "OpenEvent",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A09.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 09 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "CloseEvent",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A10.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 0A 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "WaitEvent",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A11.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 0B 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "TestEvent",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A12.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 0C 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "EnableEvent",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A13.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 0D 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "DisableEvent",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A14.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 0E 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "OpenTh",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A15.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 0F 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "CloseTh",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A16.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 10 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "ChangeTh",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A18.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 12 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "InitPAD",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A19.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 13 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "StartPAD",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A20.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 14 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "StopPAD",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A21.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 15 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "PAD_init",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A22.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 16 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "PAD_dr",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A23.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 17 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "ReturnFromException",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A24.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 18 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "ResetEntryInt",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A25.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 19 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "HookEntryInt",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A32.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 20 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "UnDeliverEvent",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A36.OBJ",
+        "sig": "01 00 04 24 0C 00 00 00 08 00 E0 03 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "EnterCriticalSection",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A37.OBJ",
+        "sig": "02 00 04 24 0C 00 00 00 08 00 E0 03 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "ExitCriticalSection",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A38.OBJ",
+        "sig": "00 00 04 24 0C 00 00 00 08 00 E0 03 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "Exception",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A39.OBJ",
+        "sig": "21 10 A0 03 08 00 E0 03 21 E8 80 00 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "SetSp",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A40.OBJ",
+        "sig": "00 60 04 40 00 00 00 00 FE FB 01 24 24 20 81 00 00 60 84 40 00 00 00 00 08 00 E0 03 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "SwEnterCriticalSection",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A41.OBJ",
+        "sig": "00 60 04 40 00 00 00 00 01 04 84 34 00 60 84 40 00 00 00 00 08 00 E0 03 00 00 00 00 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "SwExitCriticalSection",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A50.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 32 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "open",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A51.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 33 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "lseek",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A52.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 34 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "read",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A53.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 35 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "write",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A54.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 36 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "close",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A55.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 37 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "ioctl",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A56.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 38 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "exit",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A57.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 39 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "isatty",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A58.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 3A 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "getc",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A59.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 3B 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "putc",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A60.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 3C 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "getchar",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A61.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 3D 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "putchar",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A62.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 3E 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "gets",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A63.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 3F 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "puts",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A64.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 40 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "cd",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A65.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 41 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "format",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A66.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 42 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "firstfile",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A67.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 43 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "nextfile",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A68.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 44 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "rename",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A69.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 45 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "delete",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A70.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 46 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "undelete",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A71.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 47 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "AddDrv",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A72.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 48 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "DelDrv",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A73.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 49 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "ShowDrv",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A74.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 4A 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "InitCARD",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A75.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 4B 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "StartCARD",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A76.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 4C 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "StopCARD",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A77.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 4D 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "_card_info_x",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A78.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 4E 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "_card_write",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A79.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 4F 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "_card_read",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A80.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 50 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "_new_card",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A81.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 51 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "Krom2RawAdd",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A82.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 52 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "hankanjitrans",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A83.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 53 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "kanjitrans",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A84.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 54 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "_get_errno",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A85.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 55 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "_get_error",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A88.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 58 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "_card_chan",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A89.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 59 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "dev_util",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A90.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 5A 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "SetCardCb",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A91.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 5B 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "ChangeClearPAD",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A92.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 5C 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "_card_status",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A93.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 5D 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "_card_wait",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C10.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 0A 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "todigit",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C11.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 0B 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "atof",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C112.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 70 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "_bu_init",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C113.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 71 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "_96_init",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C114.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 72 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "_96_remove",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C12.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 0C 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "strtoul",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C13.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 0D 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "strtol",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C14.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 0E 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "abs",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C15.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 0F 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "labs",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C150.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 96 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "add_cdrom_driver",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C151.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 97 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "add_bufs_driver",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C152.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 98 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "add_tty_driver",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C153.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 99 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "add_nullcon_driver",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C154.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 9A 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "add_mwin_driver",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C155.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 9B 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "add_sim_driver",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C156.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 9C 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "SetConf",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C157.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 9D 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "GetConf",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C159.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 9F 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "SetMem",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C16.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 10 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "atoi",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C160.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 A0 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "_boot",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C161.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 A1 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "SystemError",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C164.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 A4 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "CdFileToPos",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C165.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 A5 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "_cd_read",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C166.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 A6 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "_cd_status",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C167.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 A7 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "bufs_cb_0",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C168.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 A8 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "bufs_cb_1",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C169.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 A9 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "bufs_cb_2",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C17.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 11 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "atol",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C170.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 AA 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "bufs_cb_3",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C171.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 AB 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "_card_info",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C172.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 AC 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "_card_load",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C173.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 AD 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "_card_auto",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C174.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 AE 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "bufs_cb_4",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C175.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 AF 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "_card_clear",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C18.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 12 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "atob",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C19.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 13 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "setjmp",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C20.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 14 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "longjmp",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C21.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 15 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "strcat",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C22.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 16 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "strncat",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C23.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 17 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "strcmp",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C24.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 18 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "strncmp",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C25.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 19 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "strcpy",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C26.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 1A 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "strncpy",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C27.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 1B 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "strlen",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C28.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 1C 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "index",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C29.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 1D 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "rindex",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C30.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 1E 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "strchr",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C31.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 1F 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "strrchr",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C32.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 20 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "strpbrk",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C33.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 21 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "strspn",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C34.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 22 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "strcspn",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C35.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 23 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "strtok",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C36.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 24 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "strstr",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C37.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 25 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "toupper",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C38.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 26 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "tolower",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C39.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 27 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "bcopy",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C40.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 28 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "bzero",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C41.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 29 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "bcmp",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C42.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 2A 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "memcpy",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C43.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 2B 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "memset",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C44.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 2C 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "memmove",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C45.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 2D 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "memcmp",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C46.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 2E 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "memchr",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C47.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 2F 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "rand",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C48.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 30 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "srand",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C49.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 31 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "qsort",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C50.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 32 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "strtod",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C52.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 34 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "free",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C53.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 35 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "lsearch",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C54.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 36 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "bsearch",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C55.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 37 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "calloc",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C56.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 38 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "realloc",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C57.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 39 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "InitHeap",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C58.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 3A 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "_exit",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C63.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 3F 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "printf",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C64.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 40 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "CipExceptEntry",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C65.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 41 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "LoadTest",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C66.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 42 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "Load",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C67.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 43 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "Exec",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C68.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 44 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "FlushCache",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C69.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 45 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "InitLibDispatcher",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C70.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 46 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "GPU_dw",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C71.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 47 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "GPU_dwc",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C72.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 48 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "GPU_ctl",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C73.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 49 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "GPU_cw",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C74.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 4A 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "GPU_cwb",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C75.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 4B 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "GPU_cwc",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C76.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 4C 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "GPU_reset",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C77.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 4D 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "GPU_status",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C78.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 4E 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "GPU_sync",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C79.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 4F 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "old_PAD_init",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C80.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 50 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "old_PAD_dr",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C81.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 51 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "LoadExec",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C82.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 52 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "GetSysSp",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C83.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 53 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "SetExit",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C95.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 5F 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "_96_open",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C96.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 60 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "_96_read",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C97.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 61 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "_96_close",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C98.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 62 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "_96_firstfile",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C99.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 63 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "_96_nextfile",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A00.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 00 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "SysMalloc",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A01.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 01 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "SysFree",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "L00.OBJ",
+        "sig": "C0 00 0A 24 08 00 40 01 00 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "InitRCnt",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "L01.OBJ",
+        "sig": "C0 00 0A 24 08 00 40 01 01 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "InitException",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "L02.OBJ",
+        "sig": "C0 00 0A 24 08 00 40 01 02 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "SysEnqIntRP",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "L03.OBJ",
+        "sig": "C0 00 0A 24 08 00 40 01 03 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "SysDeqIntRP",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "L04.OBJ",
+        "sig": "C0 00 0A 24 08 00 40 01 04 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "GetNewEvCB",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "L05.OBJ",
+        "sig": "C0 00 0A 24 08 00 40 01 05 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "GetNewTCB",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "L06.OBJ",
+        "sig": "C0 00 0A 24 08 00 40 01 06 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "_interrupt",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "L07.OBJ",
+        "sig": "C0 00 0A 24 08 00 40 01 07 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "SetDefaultVector",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "L08.OBJ",
+        "sig": "C0 00 0A 24 08 00 40 01 08 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "SysInitMemory",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "L09.OBJ",
+        "sig": "C0 00 0A 24 08 00 40 01 09 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "LibDispatcher",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "L10.OBJ",
+        "sig": "C0 00 0A 24 08 00 40 01 0A 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "ChangeClearRCnt",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "L13.OBJ",
+        "sig": "C0 00 0A 24 08 00 40 01 0D 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "ChangeClearDefInt",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "MALLOC.OBJ",
+        "sig": "1D 00 80 10 00 00 00 00 ?? ?? 03 3C ?? ?? 63 8C 00 00 00 00 2B 10 64 00 03 00 40 14 21 28 80 00 ?? ?? ?? 08 21 28 60 00 21 20 60 00 ?? ?? 02 3C ?? ?? 42 8C ?? ?? 03 3C ?? ?? 63 8C 00 00 00 00 23 10 43 00 83 10 02 00 80 10 02 00 F8 FF 43 24 2A 10 65 00 03 00 40 14 00 00 00 00 ?? ?? ?? 08 21 20 A0 00 2A 10 64 00 0B 00 40 10 00 00 00 00 ?? ?? ?? 08 FF FF 02 24 ?? ?? 02 3C ?? ?? 42 8C ?? ?? 03 3C ?? ?? 63 8C 00 00 00 00 2B 10 43 00 F7 FF 40 10 21 20 00 00 02 00 81 04 21 10 80 00 03 00 82 24 04 00 85 24 83 10 02 00 ?? ?? 06 3C ?? ?? C6 8C 80 10 02 00 FE FF 03 24 21 10 46 00 00 00 43 AC 01 00 82 34 02 00 A1 04 FC FF C2 AC 07 00 85 24 83 10 05 00 80 10 02 00 21 10 46 00 ?? ?? 01 3C ?? ?? 22 AC 21 10 00 00 08 00 E0 03 00 00 00 00 03 00 A5 24 FC FF 02 24 24 28 A2 00 FC FF 82 8C FE FF 03 24 03 00 43 14 FC FF 89 24 ?? ?? ?? 08 21 10 00 00 24 18 43 00 2B 10 65 00 34 00 40 10 00 00 00 00 21 38 20 01 21 40 60 00 FE FF 0A 24 00 00 E2 8C 00 00 00 00 82 10 02 00 80 10 02 00 21 30 E2 00 04 00 C2 8C 00 00 00 00 06 00 4A 10 04 00 C7 24 01 00 42 30 25 00 40 10 00 00 00 00 ?? ?? ?? 08 00 00 00 00 ?? ?? 02 3C ?? ?? 42 8C 23 18 A8 00 23 10 47 00 83 10 02 00 FC FF 42 24 2B 10 43 00 1A 00 40 14 01 00 62 34 04 00 C2 AC 82 10 03 00 80 10 02 00 21 10 E2 00 ?? ?? 01 3C ?? ?? 22 AC 00 00 4A AC ?? ?? 02 3C ?? ?? 42 8C 00 00 00 00 04 00 42 24 ?? ?? 01 3C ?? ?? 22 AC 00 00 E2 8C 00 00 23 8D 24 10 4A 00 21 10 43 00 00 00 22 AD 00 00 E2 8C 00 00 00 00 24 10 4A 00 21 40 02 01 2B 10 05 01 D1 FF 40 14 00 00 00 00 00 00 26 8D FC FF 02 24 24 10 C2 00 2B 10 A2 00 1C 00 40 10 00 00 00 00 02 00 A1 04 21 18 A0 00 03 00 A3 24 83 18 03 00 80 18 03 00 21 18 69 00 FE FF 02 24 24 10 C2 00 23 10 45 00 FC FF 42 24 04 00 62 AC 02 00 A1 04 21 10 A0 00 03 00 A2 24 83 10 02 00 80 10 02 00 21 10 49 00 04 00 43 8C 00 00 00 00 01 00 63 34 04 00 43 AC 00 00 22 8D 00 00 00 00 01 00 42 30 25 10 A2 00 ?? ?? ?? 08 00 00 22 AD FE FF 02 24 24 10 C2 00 2B 10 45 00 03 00 40 10 21 10 80 00 21 20 00 00 21 10 80 00 08 00 E0 03 00 00 00 00 ?? ?? 01 3C ?? ?? 24 AC 00 00 80 AC 82 10 05 00 80 10 02 00 21 20 82 00 04 00 84 24 ?? ?? 01 3C ?? ?? 24 AC FC FF A5 24 ?? ?? 01 3C ?? ?? 25 AC ?? ?? 01 3C ?? ?? 20 AC 08 00 E0 03 00 00 00 00 E0 FF BD 27 18 00 BF AF 14 00 B1 AF 10 00 B0 AF 02 00 11 34 03 00 90 24 ?? ?? 03 3C ?? ?? 63 8C FC FF 02 24 1D 00 60 14 24 80 02 02 ?? ?? 03 3C ?? ?? 63 8C ?? ?? 02 3C ?? ?? 42 8C 00 00 00 00 2B 10 62 00 5E 00 40 10 FE FF 02 24 00 00 62 AC ?? ?? 02 3C ?? ?? 42 8C 00 00 00 00 ?? ?? 01 3C ?? ?? 22 AC 04 00 42 24 ?? ?? 01 3C ?? ?? 22 AC ?? ?? ?? 0C 21 20 00 02 69 00 40 14 21 10 00 00 ?? ?? 03 3C ?? ?? 63 8C 01 00 02 34 ?? ?? 01 3C ?? ?? 22 AC ?? ?? 01 3C ?? ?? 23 AC ?? ?? 04 3C ?? ?? 84 8C 00 00 00 00 ?? ?? 01 3C ?? ?? 24 AC ?? ?? ?? 08 00 00 00 00 ?? ?? 05 3C ?? ?? A5 8C 00 00 00 00 00 00 A4 8C 00 00 00 00 2B 10 44 00 0C 00 40 10 00 00 00 00 02 00 01 06 21 10 00 02 03 00 02 26 83 10 02 00 80 10 02 00 21 10 45 00 23 18 90 00 FC FF 63 24 04 00 43 AC ?? ?? ?? 08 00 00 B0 AC 2B 10 90 00 34 00 40 10 82 10 04 00 80 10 02 00 21 10 45 00 04 00 43 8C FE FF 07 24 0A 00 67 14 04 00 46 24 00 00 A3 AC ?? ?? 02 3C ?? ?? 42 8C 00 00 00 00 04 00 42 24 ?? ?? 01 3C ?? ?? 22 AC ?? ?? ?? 08 00 00 00 00 01 00 62 30 05 00 40 10 04 00 82 24 24 18 67 00 21 10 43 00 ?? ?? ?? 08 00 00 A2 AC ?? ?? 01 3C ?? ?? 26 AC ?? ?? ?? 08 00 00 00 00 ?? ?? 04 3C ?? ?? 84 8C 00 00 00 00 00 00 83 8C FE FF 02 24 05 00 62 10 82 10 03 00 80 10 02 00 21 10 44 00 ?? ?? ?? 08 04 00 42 24 FF FF 31 26 07 00 20 1E 00 00 00 00 ?? ?? ?? 0C 21 20 00 02 08 00 40 10 00 00 00 00 ?? ?? ?? 08 21 10 00 00 ?? ?? 02 3C ?? ?? 42 8C 00 00 00 00 ?? ?? 01 3C ?? ?? 22 AC ?? ?? 04 3C ?? ?? 84 8C 00 00 00 00 00 00 83 8C 00 00 00 00 01 00 62 30 E0 FF 40 10 01 00 02 36 AE FF 62 14 00 00 00 00 FE FF 02 24 24 10 62 00 00 00 82 AC ?? ?? 02 3C ?? ?? 42 8C 00 00 00 00 04 00 42 24 18 00 BF 8F 14 00 B1 8F 10 00 B0 8F 08 00 E0 03 20 00 BD 27 FC FF 82 8C 00 00 00 00 01 00 42 34 08 00 E0 03 FC FF 82 AC E0 FF BD 27 1C 00 BF AF 18 00 B2 AF 14 00 B1 AF 10 00 B0 AF 21 90 80 00 05 00 40 16 21 80 A0 00 ?? ?? ?? 0C 21 20 00 02 ?? ?? ?? 08 21 88 40 00 0E 00 00 12 21 20 40 02 ?? ?? ?? 0C 21 28 00 02 21 88 40 00 0C 00 20 16 21 10 20 02 ?? ?? ?? 0C 21 20 00 02 21 88 40 00 06 00 20 12 21 28 20 02 21 20 40 02 ?? ?? ?? 0C 21 30 00 02 ?? ?? ?? 0C 21 20 40 02 21 10 20 02 1C 00 BF 8F 18 00 B2 8F 14 00 B1 8F 10 00 B0 8F 08 00 E0 03 20 00 BD 27 18 00 A4 00 E0 FF BD 27 14 00 B1 AF 12 88 00 00 00 00 00 00 18 00 BF AF 10 00 B0 AF ?? ?? ?? 0C 21 20 20 02 21 80 40 00 05 00 00 12 21 20 00 02 ?? ?? ?? 0C 21 28 20 02 ?? ?? ?? 08 21 10 00 02 21 10 00 00 18 00 BF 8F 14 00 B1 8F 10 00 B0 8F 08 00 E0 03 20 00 BD 27 ",
+        "labels": [
+            {
+                "name": "_ExpAllocArea",
+                "offset": 0
+            },
+            {
+                "name": "loc_28",
+                "offset": 40
+            },
+            {
+                "name": "text_2C",
+                "offset": 44
+            },
+            {
+                "name": "loc_64",
+                "offset": 100
+            },
+            {
+                "name": "loc_70",
+                "offset": 112
+            },
+            {
+                "name": "loc_78",
+                "offset": 120
+            },
+            {
+                "name": "text_98",
+                "offset": 152
+            },
+            {
+                "name": "loc_A4",
+                "offset": 164
+            },
+            {
+                "name": "loc_D4",
+                "offset": 212
+            },
+            {
+                "name": "text_EC",
+                "offset": 236
+            },
+            {
+                "name": "_expand",
+                "offset": 244
+            },
+            {
+                "name": "loc_118",
+                "offset": 280
+            },
+            {
+                "name": "loc_134",
+                "offset": 308
+            },
+            {
+                "name": "loc_16C",
+                "offset": 364
+            },
+            {
+                "name": "text_1C4",
+                "offset": 452
+            },
+            {
+                "name": "loc_1F4",
+                "offset": 500
+            },
+            {
+                "name": "loc_218",
+                "offset": 536
+            },
+            {
+                "name": "loc_244",
+                "offset": 580
+            },
+            {
+                "name": "loc_278",
+                "offset": 632
+            },
+            {
+                "name": "text_290",
+                "offset": 656
+            },
+            {
+                "name": "text_294",
+                "offset": 660
+            },
+            {
+                "name": "InitHeap",
+                "offset": 668
+            },
+            {
+                "name": "malloc",
+                "offset": 732
+            },
+            {
+                "name": "loc_378",
+                "offset": 888
+            },
+            {
+                "name": "loc_394",
+                "offset": 916
+            },
+            {
+                "name": "loc_3C0",
+                "offset": 960
+            },
+            {
+                "name": "loc_3E0",
+                "offset": 992
+            },
+            {
+                "name": "loc_428",
+                "offset": 1064
+            },
+            {
+                "name": "loc_444",
+                "offset": 1092
+            },
+            {
+                "name": "loc_454",
+                "offset": 1108
+            },
+            {
+                "name": "loc_480",
+                "offset": 1152
+            },
+            {
+                "name": "loc_49C",
+                "offset": 1180
+            },
+            {
+                "name": "loc_4A4",
+                "offset": 1188
+            },
+            {
+                "name": "text_4AC",
+                "offset": 1196
+            },
+            {
+                "name": "text_4B8",
+                "offset": 1208
+            },
+            {
+                "name": "text_4C0",
+                "offset": 1216
+            },
+            {
+                "name": "text_4EC",
+                "offset": 1260
+            },
+            {
+                "name": "text_4FC",
+                "offset": 1276
+            },
+            {
+                "name": "free",
+                "offset": 1296
+            },
+            {
+                "name": "realloc",
+                "offset": 1316
+            },
+            {
+                "name": "loc_554",
+                "offset": 1364
+            },
+            {
+                "name": "loc_590",
+                "offset": 1424
+            },
+            {
+                "name": "text_598",
+                "offset": 1432
+            },
+            {
+                "name": "loc_59C",
+                "offset": 1436
+            },
+            {
+                "name": "calloc",
+                "offset": 1460
+            },
+            {
+                "name": "loc_5F4",
+                "offset": 1524
+            },
+            {
+                "name": "text_5F8",
+                "offset": 1528
+            }
+        ]
+    }
+]

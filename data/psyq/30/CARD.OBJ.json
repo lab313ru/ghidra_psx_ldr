@@ -1,0 +1,12 @@
+[
+    {
+        "name": "CARD.OBJ",
+        "sig": "E8 FF BD 27 14 00 BF AF 10 00 B0 AF ?? ?? ?? 0C 21 80 80 00 21 20 00 02 3F 00 05 34 ?? ?? ?? 0C 21 30 00 00 14 00 BF 8F 10 00 B0 8F 08 00 E0 03 18 00 BD 27 ",
+        "labels": [
+            {
+                "name": "_card_clear",
+                "offset": 0
+            }
+        ]
+    }
+]

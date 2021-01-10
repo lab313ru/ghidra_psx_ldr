@@ -1,0 +1,28 @@
+[
+    {
+        "name": "NONE.OBJ",
+        "sig": "08 00 E0 03 00 00 00 00 ?? ?? ?? 08 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "__main",
+                "offset": 0
+            },
+            {
+                "name": "stup2",
+                "offset": 8
+            },
+            {
+                "name": "stup1",
+                "offset": 8
+            },
+            {
+                "name": "stup0",
+                "offset": 8
+            },
+            {
+                "name": "__SN_ENTRY_POINT",
+                "offset": 8
+            }
+        ]
+    }
+]

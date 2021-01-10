@@ -1,0 +1,16 @@
+[
+    {
+        "name": "NOPRINT.OBJ",
+        "sig": "08 00 E0 03 00 00 00 00 4E 4F 70 72 69 6E 74 66 08 00 E0 03 00 00 00 00 4E 4F 70 75 74 73 20 20 ",
+        "labels": [
+            {
+                "name": "printf",
+                "offset": 0
+            },
+            {
+                "name": "puts",
+                "offset": 16
+            }
+        ]
+    }
+]

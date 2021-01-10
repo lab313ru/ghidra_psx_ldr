@@ -1,0 +1,748 @@
+[
+    {
+        "name": "A07.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 07 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "DeliverEvent",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A08.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 08 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "OpenEvent",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A09.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 09 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "CloseEvent",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A10.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 0A 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "WaitEvent",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A11.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 0B 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "TestEvent",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A12.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 0C 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "EnableEvent",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A13.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 0D 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "DisableEvent",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A14.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 0E 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "OpenTh",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A15.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 0F 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "CloseTh",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A16.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 10 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "ChangeTh",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A18.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 12 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "InitPAD",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A19.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 13 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "StartPAD",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A20.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 14 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "StopPAD",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A21.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 15 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "PAD_init",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A22.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 16 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "PAD_dr",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A23.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 17 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "ReturnFromException",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A24.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 18 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "ResetEntryInt",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A25.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 19 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "HookEntryInt",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A32.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 20 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "UnDeliverEvent",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A36.OBJ",
+        "sig": "01 00 04 24 0C 00 00 00 08 00 E0 03 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "EnterCriticalSection",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A37.OBJ",
+        "sig": "02 00 04 24 0C 00 00 00 08 00 E0 03 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "ExitCriticalSection",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A38.OBJ",
+        "sig": "00 00 04 24 0C 00 00 00 08 00 E0 03 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "Exception",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A39.OBJ",
+        "sig": "21 10 A0 03 08 00 E0 03 21 E8 80 00 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "SetSp",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A40.OBJ",
+        "sig": "00 60 04 40 00 00 00 00 FE FB 01 24 24 20 81 00 00 60 84 40 00 00 00 00 08 00 E0 03 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "SwEnterCriticalSection",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A41.OBJ",
+        "sig": "00 60 04 40 00 00 00 00 01 04 84 34 00 60 84 40 00 00 00 00 08 00 E0 03 00 00 00 00 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "SwExitCriticalSection",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A50.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 32 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "open",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A51.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 33 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "lseek",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A52.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 34 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "read",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A53.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 35 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "write",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A54.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 36 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "close",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A55.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 37 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "ioctl",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A64.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 40 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "cd",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A65.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 41 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "format",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A66.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 42 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "firstfile",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A67.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 43 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "nextfile",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A68.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 44 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "rename",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A69.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 45 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "delete",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A70.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 46 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "undelete",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A71.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 47 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "AddDrv",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A72.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 48 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "DelDrv",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A81.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 51 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "Krom2RawAdd",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A84.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 54 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "_get_errno",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A85.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 55 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "_get_error",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A91.OBJ",
+        "sig": "B0 00 0A 24 08 00 40 01 5B 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "ChangeClearPAD",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A94.OBJ",
+        "sig": "08 00 E0 03 21 10 80 03 00 00 00 00 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "GetGp",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A95.OBJ",
+        "sig": "08 00 E0 03 21 10 A0 03 00 00 00 00 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "GetSp",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A96.OBJ",
+        "sig": "00 68 02 40 08 00 E0 03 00 00 00 00 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "GetCr",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "A97.OBJ",
+        "sig": "00 60 02 40 08 00 E0 03 00 00 00 00 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "GetSr",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C57.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 39 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "InitHeap",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C112.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 70 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "_bu_init",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C113.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 71 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "_96_init",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C114.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 72 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "_96_remove",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C156.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 9C 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "SetConf",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C157.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 9D 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "GetConf",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C159.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 9F 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "SetMem",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C160.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 A0 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "_boot",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C161.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 A1 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "SystemError",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C58.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 3A 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "_exit",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C65.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 41 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "LoadTest",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C66.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 42 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "Load",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C67.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 43 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "Exec",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C68.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 44 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "FlushCache",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C73.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 49 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "GPU_cw",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C81.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 51 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "LoadExec",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "C82.OBJ",
+        "sig": "A0 00 0A 24 08 00 40 01 52 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "GetSysSp",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "COUNTER.OBJ",
+        "sig": "FF FF 88 30 03 00 02 29 03 00 40 14 48 00 07 24 ?? ?? ?? 08 21 10 00 00 ?? ?? 02 3C ?? ?? 42 8C 00 19 08 00 21 18 62 00 04 00 60 A4 08 00 65 A4 02 00 02 2D 08 00 40 10 10 00 C2 30 02 00 40 10 01 00 C2 30 49 00 07 24 0A 00 40 14 00 10 C2 30 ?? ?? ?? 08 00 01 E7 34 02 00 02 24 05 00 02 15 00 10 C2 30 01 00 C2 30 02 00 40 14 00 10 C2 30 48 02 07 24 02 00 40 10 00 19 08 00 10 00 E7 34 ?? ?? 04 3C ?? ?? 84 8C 01 00 02 24 21 18 64 00 04 00 67 A4 08 00 E0 03 00 00 00 00 FF FF 83 30 03 00 62 28 08 00 40 10 00 19 03 00 ?? ?? 02 3C ?? ?? 42 8C 00 00 00 00 21 18 62 00 00 00 62 94 ?? ?? ?? 08 00 00 00 00 21 10 00 00 08 00 E0 03 00 00 00 00 FF FF 82 30 ?? ?? 04 3C ?? ?? 84 24 80 18 02 00 ?? ?? 05 3C ?? ?? A5 8C 21 18 64 00 00 00 63 8C 04 00 A4 8C 03 00 42 28 25 20 83 00 08 00 E0 03 04 00 A4 AC FF FF 84 30 80 20 04 00 ?? ?? 05 3C ?? ?? 02 3C ?? ?? A5 8C 21 10 44 00 ?? ?? 42 8C 04 00 A3 8C 27 10 02 00 24 10 43 00 04 00 A2 AC 08 00 E0 03 01 00 02 24 FF FF 83 30 03 00 62 28 07 00 40 10 01 00 02 24 ?? ?? 04 3C ?? ?? 84 8C 00 19 03 00 21 18 64 00 ?? ?? ?? 08 00 00 60 A4 21 10 00 00 08 00 E0 03 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "SetRCnt",
+                "offset": 0
+            },
+            {
+                "name": "loc_18",
+                "offset": 24
+            },
+            {
+                "name": "loc_48",
+                "offset": 72
+            },
+            {
+                "name": "loc_58",
+                "offset": 88
+            },
+            {
+                "name": "text_74",
+                "offset": 116
+            },
+            {
+                "name": "loc_80",
+                "offset": 128
+            },
+            {
+                "name": "text_94",
+                "offset": 148
+            },
+            {
+                "name": "GetRCnt",
+                "offset": 156
+            },
+            {
+                "name": "loc_C8",
+                "offset": 200
+            },
+            {
+                "name": "text_CC",
+                "offset": 204
+            },
+            {
+                "name": "StartRCnt",
+                "offset": 212
+            },
+            {
+                "name": "StopRCnt",
+                "offset": 264
+            },
+            {
+                "name": "ResetRCnt",
+                "offset": 316
+            },
+            {
+                "name": "loc_164",
+                "offset": 356
+            },
+            {
+                "name": "text_168",
+                "offset": 360
+            }
+        ]
+    },
+    {
+        "name": "L02.OBJ",
+        "sig": "C0 00 0A 24 08 00 40 01 02 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "SysEnqIntRP",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "L03.OBJ",
+        "sig": "C0 00 0A 24 08 00 40 01 03 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "SysDeqIntRP",
+                "offset": 0
+            }
+        ]
+    },
+    {
+        "name": "L10.OBJ",
+        "sig": "C0 00 0A 24 08 00 40 01 0A 00 09 24 00 00 00 00 ",
+        "labels": [
+            {
+                "name": "ChangeClearRCnt",
+                "offset": 0
+            }
+        ]
+    }
+]
