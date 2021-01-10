@@ -83,6 +83,7 @@ public class PsxAnalyzer extends AbstractAnalyzer {
 				
 				if (psyqVersion.isEmpty() && !manualVer.isEmpty()) {
 					psyqVersion = manualVer.replace(".", "");
+					PsxLoader.setProgramPsyqVersion(program, psyqVersion);
 				}
 				
 				applyPsyqSignaturesByVersion(psyqVersion, program, next.getMinAddress(), next.getMaxAddress(), monitor, log);

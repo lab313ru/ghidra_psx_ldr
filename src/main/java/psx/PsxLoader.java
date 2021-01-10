@@ -313,6 +313,11 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 		return opts.getString(PsxLoader.PSYQ_VER_OPTION, "").replace(".", "");
 	}
 	
+	public static void setProgramPsyqVersion(Program program, String newVersion) {
+		Options opts = program.getOptions(Program.PROGRAM_INFO);
+		opts.setString(PsxLoader.PSYQ_VER_OPTION, newVersion.replace(".", ""));
+	}
+	
 	private static void setRegisterValue(FlatProgramAPI fpa, String name, long startAddress, long value, MessageLog log) {
 		Program program = fpa.getCurrentProgram();
 		
