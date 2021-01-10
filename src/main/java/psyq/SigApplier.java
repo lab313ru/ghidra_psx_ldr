@@ -167,7 +167,7 @@ public final class SigApplier {
 			Symbol[] existing = program.getSymbolTable().getSymbols(address);
 			if (isFunction && existing.length > 0) {
 				for (var sym : existing) {
-					if (sym.getSource() == SourceType.USER_DEFINED || sym.getSource() == SourceType.DEFAULT) {
+					if (sym.getSource() == SourceType.USER_DEFINED) {
 						return;
 					}
 				}
