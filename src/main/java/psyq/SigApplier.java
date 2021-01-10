@@ -3,7 +3,8 @@ package psyq;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import com.google.gson.JsonArray;
@@ -25,10 +26,16 @@ import ghidra.util.exception.InvalidInputException;
 import ghidra.util.task.TaskMonitor;
 
 public final class SigApplier {
-	private final Map<String, PsyqSig> signatures;
+	private final List<PsyqSig> signatures;
 	private final String file;
+	private final boolean sequential;
+	private final boolean onlyFirst;
+	private long prevObjAddr = 0L;
 	
-	public SigApplier(String file, TaskMonitor monitor) throws IOException {
+	public SigApplier(final String file, boolean sequential, boolean onlyFirst, TaskMonitor monitor) throws IOException {
+		this.sequential = sequential;
+		this.onlyFirst = onlyFirst;
+		
 		this.file = Path.of(file).getFileName().toString();
 		
 		final byte[] bytes = Files.readAllBytes(Path.of(file));
@@ -37,56 +44,58 @@ public final class SigApplier {
 		final JsonElement tokens = JsonParser.parseString(json);
 		final JsonArray root = tokens.getAsJsonArray();
 		
-		signatures = new HashMap<>();
+		signatures = new ArrayList<>();
 		
 		for (var item : root) {
 			final JsonObject itemObj = item.getAsJsonObject();
 			final PsyqSig sig = PsyqSig.fromJsonToken(itemObj);
 			
-			signatures.put(sig.getName(), sig);
+			signatures.add(sig);
 		}
 	}
 	
-	public Map<String, PsyqSig> getSignatures() {
+	public List<PsyqSig> getSignatures() {
 		return signatures;
 	}
 	
-	public void applySignatures(Program program, Address startAddr, Address endAddr, TaskMonitor monitor, MessageLog log) {
+	public int applySignatures(Program program, Address startAddr, Address endAddr, TaskMonitor monitor, MessageLog log) {
 		FlatProgramAPI fpa = new FlatProgramAPI(program);
 		Listing listing = program.getListing();
 		Memory memory = program.getMemory();
 		
 		int appliedObjs = 0;
 		int totalObjs = signatures.size();
-		boolean showCount = false;
 		
 		monitor.initialize(totalObjs);
 		monitor.setMessage("Applying obj symbols...");
 		monitor.clearCanceled();
 		
-		for (var item : signatures.entrySet()) {
+		for (final PsyqSig sig : signatures) {
 			if (monitor.isCancelled()) {
 				break;
 			}
 			
-			final PsyqSig sig = item.getValue();
-			
-			if (sig.isApplied()) {
+			if (sig.isApplied() && onlyFirst) {
 				continue;
 			}
 			
 			final MaskedBytes bytes = sig.getSig();
 			final Map<String, Long> labels = sig.getLabels();
 			
-			Address searchAddr = startAddr;
+			Address searchAddr = sequential ? fpa.toAddr(Math.max(startAddr.getOffset(), prevObjAddr)) : startAddr;
 			boolean applied = false;
+			boolean objectUsed = false;
 			
-			while (!monitor.isCancelled() && searchAddr.compareTo(endAddr) == -1 && !applied) {
+			while (!monitor.isCancelled() && searchAddr.compareTo(endAddr) == -1 && (!applied || !onlyFirst)) {
 				final Address addr = program.getMemory().findBytes(searchAddr, endAddr, bytes.getBytes(), bytes.getMasks(), true, monitor);
 				
 				if (addr == null) {
 					monitor.incrementProgress(1);
 					break;
+				}
+				
+				if (sequential) {
+					prevObjAddr = Math.max(addr.getOffset(), prevObjAddr);
 				}
 				
 				for (var lb : labels.entrySet()) {
@@ -101,22 +110,19 @@ public final class SigApplier {
 					}
 					
 					if (block.isExecute() && block.isInitialized()) {
-						showCount = true;
-						
 						if (listing.getInstructionAt(lbAddr) == null) {
 							DisassembleCommand disCmd = new DisassembleCommand(new AddressSet(lbAddr), null);
 							disCmd.applyTo(program);
 						}
 						
 						boolean isFunction = !lbName.startsWith("loc_");
-						final String newLbName = lbName.replace("text_", String.format("%s_", sig.getName().replace(".", "_")));
+						final String newName = String.format("%s_", sig.getName().replace(".", "_"));
+						final String newLbName = lbName.replace("text_", newName).replace("loc_", newName);
 						setFunction(program, fpa, lbAddr, newLbName, isFunction, false, log);
 						
 						monitor.setMessage(String.format("Symbol %s at 0x%08X", newLbName, lbAddr.getOffset()));
 						
-						if (isFunction) {
-							applied = true;
-						}
+						applied = true;
 					}
 				}
 				
@@ -126,14 +132,17 @@ public final class SigApplier {
 			
 			sig.setApplied(applied);
 			
-			if (applied) {
+			if (applied && !objectUsed) {
 				appliedObjs += 1;
+				objectUsed = true;
 			}
 		}
 		
-		if (showCount) {
-			log.appendMsg(String.format("Applied in %s: %d/%d", file, appliedObjs, totalObjs));
+		if (appliedObjs > 0) {
+			log.appendMsg(String.format("Applied for %s: %d/%d", file, appliedObjs, totalObjs));
 		}
+		
+		return appliedObjs;
 	}
 	
 	private static void disasmInstruction(Program program, Address address) {
