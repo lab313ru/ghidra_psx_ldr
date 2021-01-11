@@ -7,14 +7,19 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.io.File;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import generic.stl.Pair;
 import ghidra.app.cmd.disassemble.DisassembleCommand;
 import ghidra.app.util.importer.MessageLog;
 import ghidra.program.flatapi.FlatProgramAPI;
@@ -31,30 +36,33 @@ import ghidra.util.task.TaskMonitor;
 
 public final class SigApplier {
 	private final List<PsyqSig> signatures;
-	private final String file;
+	private final String shortLibName;
+	private final String gameId;
 	private final boolean sequential;
 	private final boolean onlyFirst;
 	private final float minEntropy;
 	
-	public SigApplier(final String file, boolean sequential, boolean onlyFirst, float minEntropy, TaskMonitor monitor) throws IOException {
+	public SigApplier(final String gameId, final String libJsonPath, final String patchesFile, boolean sequential, boolean onlyFirst, float minEntropy, TaskMonitor monitor) throws IOException {
+		this.gameId = gameId.replace("_", "").replace(".", "");
 		this.sequential = sequential;
 		this.onlyFirst = onlyFirst;
 		this.minEntropy = minEntropy;
 		
-		this.file = Path.of(file).getFileName().toString();
+		final File libJsonFile = new File(libJsonPath);
+		this.shortLibName = libJsonFile.getName().replace(".json", "");
 		
-		final byte[] bytes = Files.readAllBytes(Path.of(file));
-		final String json = new String(bytes, "UTF8");
+		final JsonArray root = jsonArrayFromFile(libJsonPath);
+		final JsonArray patches = jsonArrayFromFile(patchesFile);
 		
-		final JsonElement tokens = JsonParser.parseString(json);
-		final JsonArray root = tokens.getAsJsonArray();
+		final String psyLibVersion = libJsonFile.getParentFile().getName();
+		final JsonArray patchesObj = findGamePatches(patches, psyLibVersion);
 		
 		signatures = new ArrayList<>();
 //		StringBuilder sb = new StringBuilder();
 		
 		for (var item : root) {
 			final JsonObject itemObj = item.getAsJsonObject();
-			final PsyqSig sig = PsyqSig.fromJsonToken(itemObj);
+			final PsyqSig sig = PsyqSig.fromJsonToken(itemObj, patchesObj);
 			
 //			sb.append(String.format("%s/%s: %.2f", this.file, sig.getName(), sig.getEntropy()));
 //			sb.append("\n");
@@ -65,6 +73,60 @@ public final class SigApplier {
 //		try (BufferedWriter writer = new BufferedWriter(new FileWriter(new File(file + ".log")))) {
 //		    writer.write(sb.toString());
 //		}
+	}
+	
+	private static JsonArray jsonArrayFromFile(final String file) throws IOException {
+		if (file == null) {
+			return null;
+		}
+		
+		final byte[] bytes = Files.readAllBytes(Path.of(file));
+		final String json = new String(bytes, "UTF8");
+		
+		final JsonElement tokens = JsonParser.parseString(json);
+		return tokens.getAsJsonArray();
+	}
+	
+	private JsonArray findGamePatches(final JsonArray patches, final String version) {
+		if (patches == null) {
+			return null;
+		}
+		
+		for (var patch : patches) {
+			final JsonObject patchObj = patch.getAsJsonObject();
+			
+			final String patchGameName = patchObj.get("name").getAsString().replace("_", "").replace(".", "");
+			
+			if (!patchGameName.equalsIgnoreCase(gameId)) {
+				continue;
+			}
+			
+			final JsonArray libs = patchObj.getAsJsonArray("libs");
+			
+			for (var lib : libs) {
+				final JsonObject libObj = lib.getAsJsonObject();
+				
+				final String patchLibName = libObj.get("name").getAsString();
+				
+				if (!patchLibName.equalsIgnoreCase(shortLibName)) {
+					continue;
+				}
+				
+				final JsonArray patchLibVersions = libObj.get("versions").getAsJsonArray();
+				
+				for (var libVer : patchLibVersions) {
+					final String patchLibVer = libVer.getAsString().replace(".", "");
+					
+					if (!patchLibVer.equals(version)) {
+						continue;
+					}
+					
+					return libObj.getAsJsonArray("objs");
+				}
+			}
+		}
+		
+		return null;
 	}
 	
 	public List<PsyqSig> getSignatures() {
@@ -84,6 +146,8 @@ public final class SigApplier {
 		monitor.setMessage("Applying obj symbols...");
 		monitor.clearCanceled();
 		
+		Map<String, Float> objsList = new HashMap<>();
+		
 		for (final PsyqSig sig : signatures) {
 			if (monitor.isCancelled()) {
 				break;
@@ -94,7 +158,7 @@ public final class SigApplier {
 			}
 			
 			final MaskedBytes bytes = sig.getSig();
-			final Map<String, Long> labels = sig.getLabels();
+			final List<Pair<String, Integer>> labels = sig.getLabels();
 			
 			Address searchAddr = sequential ? fpa.toAddr(Math.max(startAddr.getOffset(), prevObjAddr)) : startAddr;
 			boolean applied = false;
@@ -112,9 +176,9 @@ public final class SigApplier {
 					prevObjAddr = Math.max(addr.getOffset(), prevObjAddr);
 				}
 				
-				for (var lb : labels.entrySet()) {
-					final String lbName = lb.getKey();
-					final long lbOffset = lb.getValue();
+				for (var lb : labels) {
+					final String lbName = lb.first;
+					final long lbOffset = lb.second;
 					
 					final Address lbAddr = addr.add(lbOffset);
 					final MemoryBlock block = memory.getBlock(lbAddr);
@@ -137,6 +201,7 @@ public final class SigApplier {
 						monitor.setMessage(String.format("Symbol %s at 0x%08X", newLbName, lbAddr.getOffset()));
 						
 						applied = true;
+						objsList.put(sig.getName(), sig.getEntropy());
 					}
 				}
 				
@@ -153,7 +218,11 @@ public final class SigApplier {
 		}
 		
 		if (appliedObjs > 0) {
-			log.appendMsg(String.format("Applied OBJs for %s: %d/%d", file, appliedObjs, totalObjs));
+			log.appendMsg(String.format("Applied OBJs for %s: %d/%d:", shortLibName, appliedObjs, totalObjs));
+			
+			for (var objName : objsList.entrySet()) {
+				log.appendMsg(String.format("\t%s: %.02f entropy", objName.getKey(), objName.getValue()));
+			}
 		}
 		
 		return appliedObjs;

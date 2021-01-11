@@ -17,7 +17,7 @@ import psx.PsxAnalyzer;
 
 public class DetectPsyQ {
 	private final static byte[] VERSION_BYTES = new byte[] {      0x50,       0x73,       0x07, 0x00, 0x00, 0x00, 0x47,       0x00}; //, 0x07 - is a lib number, 0x47 - a version
-	private final static byte[] VERSION_MASK = new byte[]  {(byte)0xFF, (byte)0xFF, (byte)0xE0, 0x00, 0x00, 0x00, 0x00, (byte)0x0F};
+	private final static byte[] VERSION_MASK = new byte[]  {(byte)0xFF, (byte)0xFF, (byte)0xE0, 0x00, 0x00, 0x00, 0x00, (byte)0xEE};
 	private final static long VERSION_OFFSET = 0x06L;
 	
 	private static final List<String> OLD_VERSIONS = Arrays.asList("26", "30", "33", "34", "35");
@@ -32,7 +32,12 @@ public class DetectPsyQ {
 		}
 		
 		short version = mem.getShort(result.add(VERSION_OFFSET), true);
-		return String.format("%03X", version >> 4);
+		
+		if ((version & 0xFF) == 0) {
+			return String.format("%03X", version >> 4);
+		}
+
+		return String.format("%X", version);
 	}
 	
 	private static String getOldPsyqVersion(Memory mem, final Address startAddress) throws FileNotFoundException, IOException {
@@ -46,7 +51,9 @@ public class DetectPsyQ {
 		});
 		
 		for (var verDir : dirs) {
-			final SigApplier sig = new SigApplier(new File(verDir, String.format("%s.json", OLD_UNIQUE_LIB)).getAbsolutePath(), PsxAnalyzer.sequential, PsxAnalyzer.onlyFirst, PsxAnalyzer.minEntropy, TaskMonitor.DUMMY);
+			final String gameId = mem.getProgram().getName();
+			final String libJsonFile = new File(verDir, String.format("%s.json", OLD_UNIQUE_LIB)).getAbsolutePath();
+			final SigApplier sig = new SigApplier(gameId, libJsonFile, null, PsxAnalyzer.sequential, PsxAnalyzer.onlyFirst, PsxAnalyzer.minEntropy, TaskMonitor.DUMMY);
 			
 			final List<PsyqSig> signatures = sig.getSignatures();
 			

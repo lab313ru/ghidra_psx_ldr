@@ -109,13 +109,14 @@ public class PsxAnalyzer extends AbstractAnalyzer {
 	}
 	
 	private void applyPsyqSignaturesByVersion(final String version, Program program, final Address startAddr, final Address endAddr, TaskMonitor monitor, MessageLog log) throws IOException {
+		final File patchesFile = Application.getModuleDataFile("psyq/patches.json").getFile(false);
 		final String psyDir = String.format("psyq/%s", version);
 		final File verDir = Application.getModuleDataSubDirectory(psyDir).getFile(false);
 		
 		File [] files = verDir.listFiles(new FilenameFilter() {
 		    @Override
 		    public boolean accept(File dir, String name) {
-		        return name.endsWith(".json");
+		        return name.endsWith(".json") && !name.equals("patches.json");
 		    }
 		});
 		
@@ -126,7 +127,7 @@ public class PsxAnalyzer extends AbstractAnalyzer {
 			if (appliers.containsKey(fileName)) {
 				sig = appliers.get(fileName);
 			} else {
-				sig = new SigApplier(file.getAbsolutePath(), sequential, onlyFirst, minEntropy, monitor);
+				sig = new SigApplier(program.getName(), file.getAbsolutePath(), patchesFile.getAbsolutePath(), sequential, onlyFirst, minEntropy, monitor);
 				appliers.put(fileName, sig);
 			}
 			

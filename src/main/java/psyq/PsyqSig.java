@@ -1,19 +1,21 @@
 package psyq;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
+import generic.stl.Pair;
+
 public final class PsyqSig {
 	private final String name;
 	private final MaskedBytes sig;
-	private final Map<String, Long> labels;
+	private final List<Pair<String, Integer>> labels;
 	private boolean applied = false;
 	private final float entropy;
 	
-	private PsyqSig(final String name, final MaskedBytes sig, final Map<String, Long> labels) {
+	private PsyqSig(final String name, final MaskedBytes sig, final List<Pair<String, Integer>> labels) {
 		this.name = name;
 		this.sig = sig;
 		this.labels = labels;
@@ -40,50 +42,57 @@ public final class PsyqSig {
 		return sig;
 	}
 
-	public Map<String, Long> getLabels() {
+	public List<Pair<String, Integer>> getLabels() {
 		return labels;
 	}
 	
-	public static PsyqSig fromJsonToken(final JsonObject token) {
+	public static PsyqSig fromJsonToken(final JsonObject token, final JsonArray patches) {
 		final String name = token.get("name").getAsString();
 		final String sig = token.get("sig").getAsString();
-		final MaskedBytes signature = fromMaskedString(sig);
 		
-		final Map<String, Long> labels = new HashMap<>();
+		final MaskedBytes signature = MaskedBytes.fromMaskedString(sig);
 		
+		final List<Pair<String, Integer>> labels = new ArrayList<>();
 		final JsonArray arr = token.get("labels").getAsJsonArray();
 		
 		for (var item : arr) {
 			final JsonObject itemObj = item.getAsJsonObject();
 			
 			final String itemName = itemObj.get("name").getAsString();
-			final long itemOffset = itemObj.get("offset").getAsLong();
-			labels.put(itemName, itemOffset);
+			final int itemOffset = itemObj.get("offset").getAsInt();
+			labels.add(new Pair<>(itemName, itemOffset));
 		}
 		
-		return new PsyqSig(name, signature, labels);
-	}
-	
-	private static MaskedBytes fromMaskedString(final String sig) {
-		int len = sig.length();
-	    byte[] bytes = new byte[len / 3];
-	    byte[] masks = new byte[len / 3];
-	    
-	    for (int i = 0; i < len; i += 3) {
-	    	char c1 = sig.charAt(i);
-	    	char c2 = sig.charAt(i + 1);
-	    	
-	    	masks[i / 3] = (byte) (
-	    			(((c1 == '?') ? 0x0 : 0xF) << 4) |
-	    			(((c2 == '?') ? 0x0 : 0xF))
-	    			);
-	    	bytes[i / 3] = (byte) (
-	    			(((c1 == '?') ? 0x0 : Character.digit(c1, 16)) << 4) |
-	    			(((c2 == '?') ? 0x0 : Character.digit(c2, 16)))
-	    			);
-	    }
-	    
-	    return new MaskedBytes(bytes, masks);
+		if (patches == null) {
+			return new PsyqSig(name, signature, labels);
+		}
+		
+		final List<Pair<Integer, Pair<String, String>>> patchesList = new ArrayList<>();
+		
+		for (var patch : patches) {
+			final JsonObject itemObj = patch.getAsJsonObject();
+			
+			final String patchObjName = itemObj.get("name").getAsString();
+			
+			if (!name.equalsIgnoreCase(patchObjName)) {
+				continue;
+			}
+			
+			final JsonArray posPatches = itemObj.getAsJsonArray("patches");
+			
+			for (var posPatch : posPatches) {
+				final JsonObject posPatchObj = posPatch.getAsJsonObject();
+				
+				final int itemPos = posPatchObj.get("pos").getAsInt();
+				final String itemData = posPatchObj.get("data").getAsString();
+				final String itemCheckData = posPatchObj.has("check") ? posPatchObj.get("check").getAsString() : null;
+				patchesList.add(new Pair<>(itemPos, new Pair<>(itemData, itemCheckData)));
+			}
+		}
+		
+		final List<Pair<String, Integer>> newLabels = signature.applyPatches(patchesList, labels);
+		
+		return new PsyqSig(name, signature, newLabels);
 	}
 	
     private static float calcEntropy(final MaskedBytes bytes) {

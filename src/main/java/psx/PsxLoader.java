@@ -235,8 +235,8 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 			opts.registerOption(PSYQ_VER_OPTION, "", null, "PsyQ version");
 
 			if (!psyqVersion.isEmpty()) {
-				char subVer = psyqVersion.charAt(2);
-				String ver = String.format("%s.%s%s", psyqVersion.charAt(0), psyqVersion.charAt(1), subVer != '0' ? subVer : "");
+				String subVer = psyqVersion.substring(2);
+				String ver = String.format("%s.%s%s", psyqVersion.charAt(0), psyqVersion.charAt(1), !subVer.equals("00") ? String.format(".%s", subVer) : "");
 				opts.setString(PSYQ_VER_OPTION, ver);
 			}
 		} catch (MemoryAccessException | AddressOutOfBoundsException | IOException ignored) {
