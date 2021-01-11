@@ -16,8 +16,8 @@ import ghidra.util.task.TaskMonitor;
 import psx.PsxAnalyzer;
 
 public class DetectPsyQ {
-	private final static byte[] VERSION_BYTES = new byte[] {      0x50,       0x73,       0x07, 0x00, 0x00, 0x00, 0x47,       0x00}; // 0x47 - a version
-	private final static byte[] VERSION_MASK = new byte[]  {(byte)0xFF, (byte)0xFF, (byte)0xFF, 0x00, 0x00, 0x00, 0x00, (byte)0xF0};
+	private final static byte[] VERSION_BYTES = new byte[] {      0x50,       0x73,       0x07, 0x00, 0x00, 0x00, 0x47,       0x00}; //, 0x07 - is a lib number, 0x47 - a version
+	private final static byte[] VERSION_MASK = new byte[]  {(byte)0xFF, (byte)0xFF, (byte)0xE0, 0x00, 0x00, 0x00, 0x00, (byte)0x0F};
 	private final static long VERSION_OFFSET = 0x06L;
 	
 	private static final List<String> OLD_VERSIONS = Arrays.asList("26", "30", "33", "34", "35");
