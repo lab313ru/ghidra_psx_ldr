@@ -23,7 +23,7 @@ import psyq.SigApplier;
 public class PsxAnalyzer extends AbstractAnalyzer {
 	private Map<String, SigApplier> appliers;
 	
-	public static boolean sequential = true;
+	public static boolean sequential = false;
 	public static boolean onlyFirst = true;
 	public static float minEntropy = 3.0f;
 	private String manualVer = "4.7";
