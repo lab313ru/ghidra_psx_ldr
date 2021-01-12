@@ -67,7 +67,7 @@ public class DetectPsyQ {
 				final Address result = mem.findBytes(startAddress, bytes.getBytes(), bytes.getMasks(), true, TaskMonitor.DUMMY);
 				
 				if (result != null) {
-					return verDir.getName() + '0';
+					return verDir.getName();
 				}
 			}
 		}
