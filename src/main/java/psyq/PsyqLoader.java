@@ -15,6 +15,7 @@
  */
 package psyq;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
@@ -140,13 +141,16 @@ public class PsyqLoader extends AbstractLibrarySupportLoader {
 				
 				Section sect = sections.get(sectionSwitch);
 				
-				byte[] oldBytes = sect.getBytes();
-				oldBytes = oldBytes == null ? new byte[0] : oldBytes;
-				byte[] newBytes = new byte[oldBytes.length + bytes.length];
-				System.arraycopy(oldBytes, 0, newBytes, 0, oldBytes.length);
-				System.arraycopy(bytes, 0, newBytes, oldBytes.length, bytes.length);
+				ByteArrayOutputStream prev = new ByteArrayOutputStream();
+				byte[] prevBytes = sect.getBytes();
 				
-				sect.setBytes(newBytes);
+				if (prevBytes != null) {
+					prev.write(prevBytes);
+				}
+				
+				prev.write(bytes);
+
+				sect.setBytes(prev.toByteArray());
 			} break;
 			case 4: {
 				int startSection = reader.readNextUnsignedShort();
@@ -161,13 +165,17 @@ public class PsyqLoader extends AbstractLibrarySupportLoader {
 				Section sect = sections.get(sectionSwitch);
 				byte[] bytes = new byte[(int)reader.readNextUnsignedInt()];
 				
-				byte[] oldBytes = sect.getBytes();
-				oldBytes = oldBytes == null ? new byte[0] : oldBytes;
-				byte[] newBytes = new byte[oldBytes.length + bytes.length];
-				System.arraycopy(oldBytes, 0, newBytes, 0, oldBytes.length);
-				System.arraycopy(bytes, 0, newBytes, oldBytes.length, bytes.length);
+				ByteArrayOutputStream prev = new ByteArrayOutputStream();
 				
-				sect.setBytes(newBytes);
+				byte[] oldBytes = sect.getBytes();
+				
+				if (oldBytes != null) {
+					prev.write(oldBytes);
+				}
+				
+				prev.write(bytes);
+
+				sect.setBytes(prev.toByteArray());
 			} break;
 			case 10: {
 				int patchOffset = sections.get(sectionSwitch).getPatchOffset();
@@ -181,7 +189,7 @@ public class PsyqLoader extends AbstractLibrarySupportLoader {
 				
 				String name = reader.readNextAsciiString(reader.readNextByte());
 				
-				XdefSymbol sym = new XdefSymbol(symIndex, name, sections.get(sectIndex).getPatchOffset() + offset, sectIndex);
+				XdefSymbol sym = new XdefSymbol(symIndex, name, offset, sectIndex);
 				xdefs.add(sym);
 				symbols.put(symIndex, sym);
 			} break;
@@ -584,7 +592,7 @@ public class PsyqLoader extends AbstractLibrarySupportLoader {
 
 				Instruction instr = listing.getInstructionAt(addr);
 				String line = instr.toString().replace("_", "");
-				System.out.print(String.format("%s[%X]: %s -> ", sect.getName(), patch.getOffset(), line));
+				// System.out.print(String.format("%s[%X]: %s -> ", sect.getName(), patch.getOffset(), line));
 				
 				String newLine = "";
 				
