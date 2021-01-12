@@ -144,7 +144,7 @@ public final class SigApplier {
 		monitor.setMessage("Applying obj symbols...");
 		monitor.clearCanceled();
 		
-		Map<String, Float> objsList = new HashMap<>();
+		Map<String, Pair<Long, Float>> objsList = new HashMap<>();
 		
 		for (final PsyqSig sig : signatures) {
 			if (monitor.isCancelled()) {
@@ -174,6 +174,8 @@ public final class SigApplier {
 					prevObjAddr = Math.max(addr.getOffset(), prevObjAddr);
 				}
 				
+				objsList.put(sig.getName(), new Pair<>(addr.getOffset(), sig.getEntropy()));
+				
 				for (var lb : labels) {
 					final String lbName = lb.first;
 					final long lbOffset = lb.second;
@@ -199,7 +201,6 @@ public final class SigApplier {
 						monitor.setMessage(String.format("Symbol %s at 0x%08X", newLbName, lbAddr.getOffset()));
 						
 						applied = true;
-						objsList.put(sig.getName(), sig.getEntropy());
 					}
 				}
 				
@@ -219,7 +220,8 @@ public final class SigApplier {
 			log.appendMsg(String.format("Applied OBJs for %s: %d/%d:", shortLibName, appliedObjs, totalObjs));
 			
 			for (var objName : objsList.entrySet()) {
-				log.appendMsg(String.format("\t%s: %.02f entropy", objName.getKey(), objName.getValue()));
+				var val = objName.getValue();
+				log.appendMsg(String.format("\t0x%08X: %s, %.02f entropy", val.first, objName.getKey(), val.second));
 			}
 		}
 		
