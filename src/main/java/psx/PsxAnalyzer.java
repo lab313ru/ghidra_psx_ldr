@@ -23,12 +23,10 @@ import psyq.SigApplier;
 public class PsxAnalyzer extends AbstractAnalyzer {
 	private Map<String, SigApplier> appliers;
 	
-	public static boolean sequential = false;
 	public static boolean onlyFirst = true;
 	public static float minEntropy = 3.0f;
 	private String manualVer = "4.7";
 	
-	private final String SEQ_OPTION = "Sequential search";
 	private final String FIRST_OPTION = "Only first match";
 	private final String MIN_ENTROPY = "Minimal signature entropy";
 	private final String MANUAL_VER_OPTION = "PsyQ Version if not found";
@@ -57,7 +55,6 @@ public class PsxAnalyzer extends AbstractAnalyzer {
 	
 	@Override
 	public void registerOptions(Options options, Program program) {
-		options.registerOption(SEQ_OPTION, sequential, null, "To decrease false positive signatures matching use LIBrary's OBJects order.");
 		options.registerOption(FIRST_OPTION, onlyFirst, null, "To increase signatures applying time set this option CHECKED. Applies only first entry!");
 		options.registerOption(MIN_ENTROPY, minEntropy, null, "To reduce false positive signatures applying set this value >= 3.0!");
 		options.registerOption(MANUAL_VER_OPTION, manualVer, null, "Use this version number if not found in the binary.");
@@ -66,8 +63,7 @@ public class PsxAnalyzer extends AbstractAnalyzer {
 	@Override
 	public void optionsChanged(Options options, Program program) {
 		super.optionsChanged(options, program);
-		
-		sequential = options.getBoolean(SEQ_OPTION, sequential);
+
 		onlyFirst = options.getBoolean(FIRST_OPTION, onlyFirst);
 		minEntropy = options.getFloat(MIN_ENTROPY, minEntropy);
 		manualVer = options.getString(MANUAL_VER_OPTION, manualVer);
@@ -127,7 +123,7 @@ public class PsxAnalyzer extends AbstractAnalyzer {
 			if (appliers.containsKey(fileName)) {
 				sig = appliers.get(fileName);
 			} else {
-				sig = new SigApplier(program.getName(), file.getAbsolutePath(), patchesFile.getAbsolutePath(), sequential, onlyFirst, minEntropy, monitor);
+				sig = new SigApplier(program.getName(), file.getAbsolutePath(), patchesFile.getAbsolutePath(), onlyFirst, minEntropy, monitor);
 				appliers.put(fileName, sig);
 			}
 			

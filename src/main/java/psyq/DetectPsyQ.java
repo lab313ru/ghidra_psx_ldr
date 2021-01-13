@@ -53,7 +53,7 @@ public class DetectPsyQ {
 		for (var verDir : dirs) {
 			final String gameId = mem.getProgram().getName();
 			final String libJsonFile = new File(verDir, String.format("%s.json", OLD_UNIQUE_LIB)).getAbsolutePath();
-			final SigApplier sig = new SigApplier(gameId, libJsonFile, null, PsxAnalyzer.sequential, PsxAnalyzer.onlyFirst, PsxAnalyzer.minEntropy, TaskMonitor.DUMMY);
+			final SigApplier sig = new SigApplier(gameId, libJsonFile, null, PsxAnalyzer.onlyFirst, PsxAnalyzer.minEntropy, TaskMonitor.DUMMY);
 			
 			final List<PsyqSig> signatures = sig.getSignatures();
 			
