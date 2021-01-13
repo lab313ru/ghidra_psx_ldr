@@ -23,6 +23,7 @@ import ghidra.app.util.importer.MessageLog;
 import ghidra.program.flatapi.FlatProgramAPI;
 import ghidra.program.model.address.Address;
 import ghidra.program.model.address.AddressSet;
+import ghidra.program.model.listing.CodeUnit;
 import ghidra.program.model.listing.Listing;
 import ghidra.program.model.listing.Program;
 import ghidra.program.model.mem.Memory;
@@ -36,13 +37,11 @@ public final class SigApplier {
 	private final List<PsyqSig> signatures;
 	private final String shortLibName;
 	private final String gameId;
-	private final boolean sequential;
 	private final boolean onlyFirst;
 	private final float minEntropy;
 	
-	public SigApplier(final String gameId, final String libJsonPath, final String patchesFile, boolean sequential, boolean onlyFirst, float minEntropy, TaskMonitor monitor) throws IOException {
+	public SigApplier(final String gameId, final String libJsonPath, final String patchesFile, boolean onlyFirst, float minEntropy, TaskMonitor monitor) throws IOException {
 		this.gameId = gameId.replace("_", "").replace(".", "");
-		this.sequential = sequential;
 		this.onlyFirst = onlyFirst;
 		this.minEntropy = minEntropy;
 		
@@ -138,7 +137,6 @@ public final class SigApplier {
 		
 		int appliedObjs = 0;
 		int totalObjs = signatures.size();
-		long prevObjAddr = 0L;
 		
 		monitor.initialize(totalObjs);
 		monitor.setMessage("Applying obj symbols...");
@@ -151,14 +149,14 @@ public final class SigApplier {
 				break;
 			}
 			
-			if ((sig.isApplied() && onlyFirst) || sig.getEntropy() < minEntropy) {
+			if (sig.isApplied() && onlyFirst) {
 				continue;
 			}
 			
 			final MaskedBytes bytes = sig.getSig();
 			final List<Pair<String, Integer>> labels = sig.getLabels();
 			
-			Address searchAddr = sequential ? fpa.toAddr(Math.max(startAddr.getOffset(), prevObjAddr)) : startAddr;
+			Address searchAddr = startAddr;
 			boolean applied = false;
 			boolean objectUsed = false;
 			
@@ -169,12 +167,10 @@ public final class SigApplier {
 					monitor.incrementProgress(1);
 					break;
 				}
-				
-				if (sequential) {
-					prevObjAddr = Math.max(addr.getOffset(), prevObjAddr);
-				}
-				
+
 				objsList.put(sig.getName(), new Pair<>(addr.getOffset(), sig.getEntropy()));
+				
+				boolean lowEntropy = sig.getEntropy() < minEntropy;
 				
 				for (var lb : labels) {
 					final String lbName = lb.first;
@@ -188,7 +184,7 @@ public final class SigApplier {
 					}
 					
 					if (block.isExecute() && block.isInitialized()) {
-						if (listing.getInstructionAt(lbAddr) == null) {
+						if (listing.getInstructionAt(lbAddr) == null && !lowEntropy) {
 							DisassembleCommand disCmd = new DisassembleCommand(new AddressSet(lbAddr), null);
 							disCmd.applyTo(program);
 						}
@@ -196,11 +192,18 @@ public final class SigApplier {
 						boolean isFunction = !lbName.startsWith("loc_");
 						final String newName = String.format("%s_", sig.getName().replace(".", "_"));
 						final String newLbName = lbName.replace("text_", newName).replace("loc_", newName);
-						setFunction(program, fpa, lbAddr, newLbName, isFunction, false, log);
 						
-						monitor.setMessage(String.format("Symbol %s at 0x%08X", newLbName, lbAddr.getOffset()));
-						
-						applied = true;
+						if (!lowEntropy) {
+							setFunction(program, fpa, lbAddr, newLbName, isFunction, false, log);
+							
+							monitor.setMessage(String.format("Symbol %s at 0x%08X", newLbName, lbAddr.getOffset()));
+							
+							applied = true;
+						} else {
+							listing.setComment(lbAddr, CodeUnit.PLATE_COMMENT, String.format("Possible %s", newLbName));
+							
+							monitor.setMessage(String.format("Possible symbol %s at 0x%08X", newLbName, lbAddr.getOffset()));
+						}
 					}
 				}
 				
