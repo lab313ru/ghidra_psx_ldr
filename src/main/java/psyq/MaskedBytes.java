@@ -30,7 +30,7 @@ public class MaskedBytes {
 		this.masks = masks;
 	}
 	
-	public List<Pair<String, Integer>> applyPatches(final List<Pair<Integer, Pair<String, String>>> patches, final List<Pair<String, Integer>> labels) {
+	public List<Pair<String, Integer>> applyPatches(final List<Pair<Integer, Pair<String, String>>> patches, final List<Pair<String, Integer>> labels) throws IOException {
 		if (patches == null || patches.isEmpty()) {
 			return labels;
 		}
@@ -50,17 +50,17 @@ public class MaskedBytes {
 			long shift = 0L;
 			
 			switch (patchData.first.charAt(0)) {
-			case '~': {
+			case '~': { // replace bytes
 				for (int i = 0; i < patchBytesLen; ++i) {
 					if (bytes[patchOff + i] != checkBytes[i]) {
-						continue;
+						throw new IOException(String.format("Wrong replace-patch data, OFF: %d, data: %s", patch.first, patchData.second));
 					}
 					
 					bytes[patchOff + i] = patchBytes.bytes[i];
 					masks[patchOff + i] = patchBytes.masks[i];
 				}
 			} break;
-			case '+': {
+			case '+': { // insert bytes
 				final MaskedBytes newData = expand(new MaskedBytes(bytes, masks), patchBytes, patchOff);
 				this.bytes = newData.getBytes();
 				this.masks = newData.getMasks();
@@ -68,13 +68,13 @@ public class MaskedBytes {
 				shift = patchBytesLen;
 				offsetDelta += patchBytesLen;
 			} break;
-			case '-': {
+			case '-': { // remove bytes
 				final int count = Integer.parseInt(patchData.first.substring(1));
 				final MaskedBytes newData = shrink(new MaskedBytes(bytes, masks), count, patchOff);
 				this.bytes = newData.getBytes();
 				this.masks = newData.getMasks();
 				
-				shift = count;
+				shift = -count;
 				offsetDelta -= count;
 			} break;
 			}
@@ -87,7 +87,7 @@ public class MaskedBytes {
 				final String lbName = labels.get(i).first;
 				int lbOffset = newLabels.get(i).second;
 				
-				if (patch.first < lbOffset) {
+				if (patchOff < lbOffset) {
 					lbOffset += shift;
 				}
 				
@@ -109,8 +109,8 @@ public class MaskedBytes {
 			newBytes.write(add.getBytes());
 			newMasks.write(add.getMasks());
 			
-			newBytes.write(Arrays.copyOfRange(src.getBytes(), offset, src.getLength() - offset));
-			newMasks.write(Arrays.copyOfRange(src.getMasks(), offset, src.getLength() - offset));
+			newBytes.write(Arrays.copyOfRange(src.getBytes(), offset, src.getLength()));
+			newMasks.write(Arrays.copyOfRange(src.getMasks(), offset, src.getLength()));
 			
 			return new MaskedBytes(newBytes.toByteArray(), newMasks.toByteArray());
 		} catch (IOException e) {
@@ -127,8 +127,8 @@ public class MaskedBytes {
 			newBytes.write(Arrays.copyOf(src.getBytes(), offset));
 			newMasks.write(Arrays.copyOf(src.getMasks(), offset));
 			
-			newBytes.write(Arrays.copyOfRange(src.getBytes(), offset + length, src.getLength() - (offset + length)));
-			newMasks.write(Arrays.copyOfRange(src.getMasks(), offset + length, src.getLength() - (offset + length)));
+			newBytes.write(Arrays.copyOfRange(src.getBytes(), offset + length, src.getLength()));
+			newMasks.write(Arrays.copyOfRange(src.getMasks(), offset + length, src.getLength()));
 			
 			return new MaskedBytes(newBytes.toByteArray(), newMasks.toByteArray());
 		} catch (IOException e) {

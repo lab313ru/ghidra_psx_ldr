@@ -1,5 +1,6 @@
 package psyq;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,7 +47,7 @@ public final class PsyqSig {
 		return labels;
 	}
 	
-	public static PsyqSig fromJsonToken(final JsonObject token, final JsonArray patches) {
+	public static PsyqSig fromJsonToken(final JsonObject token, final JsonArray patches) throws IOException {
 		final String name = token.get("name").getAsString();
 		final String sig = token.get("sig").getAsString();
 		
@@ -90,9 +91,12 @@ public final class PsyqSig {
 			}
 		}
 		
-		final List<Pair<String, Integer>> newLabels = signature.applyPatches(patchesList, labels);
-		
-		return new PsyqSig(name, signature, newLabels);
+		try {
+			final List<Pair<String, Integer>> newLabels = signature.applyPatches(patchesList, labels);
+			return new PsyqSig(name, signature, newLabels);
+		} catch (IOException e) {
+			throw new IOException(String.format("OBJ: %s, %s", name, e.getMessage()));
+		}
 	}
 	
     private static float calcEntropy(final MaskedBytes bytes) {
