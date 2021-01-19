@@ -26,8 +26,6 @@ import ghidra.program.model.address.AddressSet;
 import ghidra.program.model.listing.CodeUnit;
 import ghidra.program.model.listing.Listing;
 import ghidra.program.model.listing.Program;
-import ghidra.program.model.mem.Memory;
-import ghidra.program.model.mem.MemoryBlock;
 import ghidra.program.model.symbol.SourceType;
 import ghidra.program.model.symbol.Symbol;
 import ghidra.util.exception.InvalidInputException;
@@ -130,12 +128,10 @@ public final class SigApplier {
 		return signatures;
 	}
 	
-	public int applySignatures(Program program, Address startAddr, Address endAddr, TaskMonitor monitor, MessageLog log) {
+	public void applySignatures(Program program, Address startAddr, Address endAddr, TaskMonitor monitor, MessageLog log) {
 		FlatProgramAPI fpa = new FlatProgramAPI(program);
 		Listing listing = program.getListing();
-		Memory memory = program.getMemory();
 		
-		int appliedObjs = 0;
 		int totalObjs = signatures.size();
 		
 		monitor.initialize(totalObjs);
@@ -149,18 +145,14 @@ public final class SigApplier {
 				break;
 			}
 			
-			if (sig.isApplied() && onlyFirst) {
-				continue;
-			}
+			boolean lowEntropy = sig.getEntropy() < minEntropy;
 			
 			final MaskedBytes bytes = sig.getSig();
 			final List<Pair<String, Integer>> labels = sig.getLabels();
 			
 			Address searchAddr = startAddr;
-			boolean applied = false;
-			boolean objectUsed = false;
 			
-			while (!monitor.isCancelled() && searchAddr.compareTo(endAddr) == -1 && (!applied || !onlyFirst)) {
+			while (!monitor.isCancelled() && searchAddr.compareTo(endAddr) == -1) {
 				final Address addr = program.getMemory().findBytes(searchAddr, endAddr, bytes.getBytes(), bytes.getMasks(), true, monitor);
 				
 				if (addr == null) {
@@ -168,67 +160,52 @@ public final class SigApplier {
 					break;
 				}
 
-				objsList.put(sig.getName(), new Pair<>(addr.getOffset(), sig.getEntropy()));
-				
-				boolean lowEntropy = sig.getEntropy() < minEntropy;
+				if (!sig.isApplied()) {
+					objsList.put(sig.getName(), new Pair<>(addr.getOffset(), sig.getEntropy()));
+				}
 				
 				for (var lb : labels) {
 					final String lbName = lb.first;
 					final long lbOffset = lb.second;
 					
 					final Address lbAddr = addr.add(lbOffset);
-					final MemoryBlock block = memory.getBlock(lbAddr);
 					
-					if (block == null) {
-						continue;
+					if (listing.getInstructionAt(lbAddr) == null && !lowEntropy && !(sig.isApplied() && onlyFirst)) {
+						DisassembleCommand disCmd = new DisassembleCommand(new AddressSet(lbAddr), null);
+						disCmd.applyTo(program);
 					}
 					
-					if (block.isExecute() && block.isInitialized()) {
-						if (listing.getInstructionAt(lbAddr) == null && !lowEntropy) {
-							DisassembleCommand disCmd = new DisassembleCommand(new AddressSet(lbAddr), null);
-							disCmd.applyTo(program);
-						}
+					boolean isFunction = !lbName.startsWith("loc_");
+					final String newName = String.format("%s_", sig.getName().replace(".", "_"));
+					final String newLbName = lbName.replace("text_", newName).replace("loc_", newName);
+					
+					if (!lowEntropy && !(sig.isApplied() && onlyFirst) && !hasNonDefaultName(program, lbAddr, newLbName)) {
+						setFunction(program, fpa, lbAddr, newLbName, isFunction, false, log);
 						
-						boolean isFunction = !lbName.startsWith("loc_");
-						final String newName = String.format("%s_", sig.getName().replace(".", "_"));
-						final String newLbName = lbName.replace("text_", newName).replace("loc_", newName);
+						monitor.setMessage(String.format("Symbol %s at 0x%08X", newLbName, lbAddr.getOffset()));
+					} else {
+						final String prevComment = listing.getComment(CodeUnit.PLATE_COMMENT, lbAddr);
+						listing.setComment(lbAddr, CodeUnit.PLATE_COMMENT, String.format("%sPossible %s/%s", (prevComment != null) ? String.format("%s\n", prevComment) : "", sig.getName(), newLbName));
 						
-						if (!lowEntropy) {
-							setFunction(program, fpa, lbAddr, newLbName, isFunction, false, log);
-							
-							monitor.setMessage(String.format("Symbol %s at 0x%08X", newLbName, lbAddr.getOffset()));
-							
-							applied = true;
-						} else {
-							listing.setComment(lbAddr, CodeUnit.PLATE_COMMENT, String.format("Possible %s", newLbName));
-							
-							monitor.setMessage(String.format("Possible symbol %s at 0x%08X", newLbName, lbAddr.getOffset()));
-						}
+						monitor.setMessage(String.format("Possible symbol %s at 0x%08X", newLbName, lbAddr.getOffset()));
 					}
 				}
+
+				sig.setApplied(true);
 				
 				searchAddr = addr.add(4);
 				monitor.incrementProgress(1);
 			}
-			
-			sig.setApplied(applied);
-			
-			if (applied && !objectUsed) {
-				appliedObjs += 1;
-				objectUsed = true;
-			}
 		}
 		
-		if (appliedObjs > 0) {
-			log.appendMsg(String.format("Applied OBJs for %s: %d/%d:", shortLibName, appliedObjs, totalObjs));
+		if (objsList.size() > 0) {
+			log.appendMsg(String.format("Applied OBJs for %s: %d/%d:", shortLibName, objsList.size(), totalObjs));
 			
 			for (var objName : objsList.entrySet()) {
 				var val = objName.getValue();
 				log.appendMsg(String.format("\t0x%08X: %s, %.02f entropy", val.first, objName.getKey(), val.second));
 			}
 		}
-		
-		return appliedObjs;
 	}
 	
 	private static void disasmInstruction(Program program, Address address) {
@@ -247,14 +224,9 @@ public final class SigApplier {
 			if (isEntryPoint) {
 				fpa.addEntryPoint(address);
 			}
-			
-			Symbol[] existing = program.getSymbolTable().getSymbols(address);
-			if (isFunction && existing.length > 0) {
-				for (var sym : existing) {
-					if (sym.getSource() == SourceType.USER_DEFINED) {
-						return;
-					}
-				}
+
+			if (isFunction && hasNonDefaultName(program, address, null)) {
+				return;
 			}
 			
 			program.getSymbolTable().createLabel(address, name, SourceType.IMPORTED);
@@ -262,5 +234,19 @@ public final class SigApplier {
 			log.appendException(e);
 			e.printStackTrace();
 		}
+	}
+	
+	private static boolean hasNonDefaultName(Program program, final Address address, final String name) {
+		Symbol[] existing = program.getSymbolTable().getSymbols(address);
+		
+		if (existing.length > 0) {
+			for (var sym : existing) {
+				if ((sym.getSource() == SourceType.USER_DEFINED) || (sym.getSource() == SourceType.IMPORTED)) {
+					return (name == null) ? true : !sym.getName().equals(name);
+				}
+			}
+		}
+		
+		return false;
 	}
 }
