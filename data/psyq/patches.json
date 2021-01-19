@@ -1,6 +1,6 @@
 [
   {
-    "name": "SCUS_941.63",
+    "names": [ "SCUS_941.63" ],
     "libs": [
       {
         "name": "LIBCD.LIB",
@@ -407,6 +407,46 @@
                 "pos": 3792,
                 "data": "~50 ",
                 "check": "48 "
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "names": [ "SLUS_011.95", "SLES_027.69" ],
+    "libs": [
+      {
+        "name": "LIBGPU.LIB",
+        "versions": [ "4.4.0" ],
+        "objs": [
+          {
+            "name": "SYS.OBJ",
+            "patches": [
+              {
+                "pos": 372,
+                "data": "-368"
+              },
+              {
+                "pos": 1424,
+                "data": "-152"
+              },
+              {
+                "pos": 2720,
+                "data": "-216"
+              },
+              {
+                "pos": 4312,
+                "data": "-48"
+              },
+              {
+                "pos": 4488,
+                "data": "-64"
+              },
+              {
+                "pos": 10952,
+                "data": "-1048"
               }
             ]
           }
