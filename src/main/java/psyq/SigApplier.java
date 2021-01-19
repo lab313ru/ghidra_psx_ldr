@@ -90,33 +90,35 @@ public final class SigApplier {
 		for (var patch : patches) {
 			final JsonObject patchObj = patch.getAsJsonObject();
 			
-			final String patchGameName = patchObj.get("name").getAsString().replace("_", "").replace(".", "");
-			
-			if (!patchGameName.equalsIgnoreCase(gameId)) {
-				continue;
-			}
-			
-			final JsonArray libs = patchObj.getAsJsonArray("libs");
-			
-			for (var lib : libs) {
-				final JsonObject libObj = lib.getAsJsonObject();
+			for (var game : patchObj.get("names").getAsJsonArray()) {
+				final String patchGameName = game.getAsString().replace("_", "").replace(".", "");
 				
-				final String patchLibName = libObj.get("name").getAsString();
-				
-				if (!patchLibName.equalsIgnoreCase(shortLibName)) {
+				if (!patchGameName.equalsIgnoreCase(gameId)) {
 					continue;
 				}
 				
-				final JsonArray patchLibVersions = libObj.get("versions").getAsJsonArray();
+				final JsonArray libs = patchObj.getAsJsonArray("libs");
 				
-				for (var libVer : patchLibVersions) {
-					final String patchLibVer = libVer.getAsString().replace(".", "");
+				for (var lib : libs) {
+					final JsonObject libObj = lib.getAsJsonObject();
 					
-					if (!patchLibVer.equals(version)) {
+					final String patchLibName = libObj.get("name").getAsString();
+					
+					if (!patchLibName.equalsIgnoreCase(shortLibName)) {
 						continue;
 					}
 					
-					return libObj.getAsJsonArray("objs");
+					final JsonArray patchLibVersions = libObj.get("versions").getAsJsonArray();
+					
+					for (var libVer : patchLibVersions) {
+						final String patchLibVer = libVer.getAsString().replace(".", "");
+						
+						if (!patchLibVer.equals(version)) {
+							continue;
+						}
+						
+						return libObj.getAsJsonArray("objs");
+					}
 				}
 			}
 		}
@@ -166,7 +168,11 @@ public final class SigApplier {
 				
 				for (var lb : labels) {
 					final String lbName = lb.first;
-					final long lbOffset = lb.second;
+					final int lbOffset = lb.second;
+					
+					if (lbName.isEmpty()) { // removed label
+						continue;
+					}
 					
 					final Address lbAddr = addr.add(lbOffset);
 					
