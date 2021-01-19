@@ -84,8 +84,13 @@ public class MaskedBytes {
 			}
 			
 			for (int i = 0; i < labels.size(); ++i) {
-				final String lbName = labels.get(i).first;
+				String lbName = newLabels.get(i).first;
 				int lbOffset = newLabels.get(i).second;
+				int oldOffset = labels.get(i).second;
+				
+				if (shift < 0 && (oldOffset >= patch.first) && (oldOffset < patch.first + (-1 * shift))) { // remove labels within removed range
+					lbName = "";
+				}
 				
 				if (patchOff < lbOffset) {
 					lbOffset += shift;
