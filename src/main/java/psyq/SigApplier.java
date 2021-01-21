@@ -190,10 +190,15 @@ public final class SigApplier {
 						
 						monitor.setMessage(String.format("Symbol %s at 0x%08X", newLbName, lbAddr.getOffset()));
 					} else {
-						final String prevComment = listing.getComment(CodeUnit.PLATE_COMMENT, lbAddr);
-						listing.setComment(lbAddr, CodeUnit.PLATE_COMMENT, String.format("%sPossible %s/%s", (prevComment != null) ? String.format("%s\n", prevComment) : "", sig.getName(), newLbName));
+						String prevComment = listing.getComment(CodeUnit.PLATE_COMMENT, lbAddr);
+						prevComment = (prevComment != null) ? String.format("%s\n", prevComment) : "";
 						
-						monitor.setMessage(String.format("Possible symbol %s at 0x%08X", newLbName, lbAddr.getOffset()));
+						final String newComment = String.format("Possible %s/%s", sig.getName(), newLbName);
+						
+						if (prevComment.indexOf(newComment) == -1) {
+							listing.setComment(lbAddr, CodeUnit.PLATE_COMMENT, String.format("%s%s", prevComment, newComment));
+							monitor.setMessage(String.format("Possible symbol %s at 0x%08X", newLbName, lbAddr.getOffset()));
+						}
 					}
 				}
 
