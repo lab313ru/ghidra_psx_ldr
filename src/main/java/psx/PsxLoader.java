@@ -382,7 +382,13 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 		Instruction jalMain = listing.getInstructionAt(mainRefAddr);
 		
 		if (jalMain == null) {
-			return null;
+			disasmInstruction(program, mainRefAddr);
+			
+			jalMain = listing.getInstructionAt(mainRefAddr);
+			
+			if (jalMain == null) {
+				return null;
+			}
 		}
 		
 		Reference[] jalMainRefs = jalMain.getReferencesFrom();
