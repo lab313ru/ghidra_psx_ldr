@@ -107,6 +107,16 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 			(byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF, // break 1
 	};
 	
+	private static final byte[] GP_SET_SIGNATURE = new byte[] {
+			(byte)0x9C, 0x27, 0x21, (byte)0xF0, (byte)0xA0, 0x03 // li gp, 0xADDR; move $fp, $sp
+	};
+	
+	private static final byte[] GP_SET_SIGNATURE_MASK = new byte[] {
+			(byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF
+	};
+	
+	private static final long GP_SET_SIGNATURE_DELTA = -6L;
+	
 	public static final String PSX_LOADER = "PSX Executables Loader";
 	
 	private PsxExe psxExe;
@@ -206,8 +216,31 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 		createSegments(provider, fpa, log);
 		addPsyqVerOption(program, ramBase, log);
 		
-		setFunction(program, fpa.toAddr(psxExe.getInitPc()), "start", true, true, log);
+		final Address initPc = fpa.toAddr(psxExe.getInitPc());
+		
+		setFunction(program, initPc, "start", true, true, log);
 
+		if (psxExe.getInitGp() == 0L) {
+			Address gpSet = program.getMemory().findBytes(initPc, GP_SET_SIGNATURE, GP_SET_SIGNATURE_MASK, true, TaskMonitor.DUMMY);
+			
+			if (gpSet != null) {
+				gpSet = gpSet.add(GP_SET_SIGNATURE_DELTA);
+				
+				byte[] gp1 = new byte[2];
+				byte[] gp2 = new byte[2];
+				try {
+					program.getMemory().getBytes(gpSet, gp1);
+					program.getMemory().getBytes(gpSet.add(4), gp2);
+
+					psxExe.setInitGp(((gp1[1] & 0xFF) << 24) | ((gp1[0] & 0xFF) << 16) | ((gp2[1] & 0xFF) << 8) | ((gp2[0] & 0xFF) << 0));
+				} catch (MemoryAccessException e) {
+					e.printStackTrace();
+					log.appendException(e);
+					return;
+				}
+			}
+		}
+		
 		setRegisterValue(fpa, "gp", psxExe.getInitPc(), psxExe.getInitGp(), log);
 		setRegisterValue(fpa, "sp", psxExe.getInitPc(), psxExe.getSpBase() + psxExe.getSpOff(), log);
 		

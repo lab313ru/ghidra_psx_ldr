@@ -117,6 +117,10 @@ public class PsxExe implements StructConverter {
 	public long getInitGp() {
 		return initGp;
 	}
+	
+	public void setInitGp(long value) {
+		initGp = value;
+	}
 
 	@Override
 	public DataType toDataType() {
