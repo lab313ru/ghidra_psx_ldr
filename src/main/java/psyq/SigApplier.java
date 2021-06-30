@@ -147,9 +147,10 @@ public final class SigApplier {
 				break;
 			}
 			
-			boolean lowEntropy = sig.getEntropy() < minEntropy;
-			
 			final MaskedBytes bytes = sig.getSig();
+			
+			boolean lowEntropy = !bytes.isBiosCall() && (sig.getEntropy() < minEntropy);
+			
 			final List<Pair<String, Integer>> labels = sig.getLabels();
 			
 			Address searchAddr = startAddr;

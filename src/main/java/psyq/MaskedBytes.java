@@ -30,6 +30,14 @@ public class MaskedBytes {
 		this.masks = masks;
 	}
 	
+	public boolean isBiosCall() {
+		return ((this.bytes[0] == (byte)0xA0) || (this.bytes[0] == (byte)0xB0) || (this.bytes[0] == (byte)0xC0)) &&
+				(this.bytes[1] == (byte)0x00) && (this.bytes[2] == (byte)0x0A) &&
+				(this.bytes[3] == (byte)0x24) && (this.bytes[4] == (byte)0x08) &&
+				(this.bytes[5] == (byte)0x00) && (this.bytes[6] == (byte)0x40) &&
+				(this.bytes[7] == (byte)0x01);
+	}
+	
 	public List<Pair<String, Integer>> applyPatches(final List<Pair<Integer, Pair<String, String>>> patches, final List<Pair<String, Integer>> labels) throws IOException {
 		if (patches == null || patches.isEmpty()) {
 			return labels;
