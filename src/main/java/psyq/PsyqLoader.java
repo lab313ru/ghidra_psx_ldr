@@ -312,7 +312,9 @@ public class PsyqLoader extends AbstractLibrarySupportLoader {
 				String name = reader.readNextAsciiString(reader.readNextByte());
 				
 				List<XbssSymbol> prevList = xbssList.getOrDefault(sectionIndex, new ArrayList<>());
-				XbssSymbol sym = new XbssSymbol(symIndex, name, xbssList.size() * 4, symSize, sectionIndex);
+				long prevLength = (int)prevList.stream().mapToLong(XbssSymbol::getLength).sum();
+				
+				XbssSymbol sym = new XbssSymbol(symIndex, name, prevLength, symSize, sectionIndex);
 				prevList.add(sym);
 				xbssList.put(sectionIndex, prevList);
 				symbols.put(symIndex, sym);
