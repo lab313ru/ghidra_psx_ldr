@@ -518,6 +518,13 @@ public class PsyqLoader extends AbstractLibrarySupportLoader {
 				int typeIndex = reader.readNextUnsignedShort();
 				long size = reader.readNextUnsignedInt();
 				
+				Section sect = sections.getOrDefault(section, null);
+				
+				long delta = size % sect.getAlignment();
+				if (delta != 0L) {
+					size += sect.getAlignment() - delta;
+				}
+				
 				String name = reader.readNextAsciiString(reader.readNextByte());
 				
 				Definition def = new Definition(section, value, classIndex, typeIndex, size, name);
@@ -530,6 +537,13 @@ public class PsyqLoader extends AbstractLibrarySupportLoader {
 				int typeIndex = reader.readNextUnsignedShort();
 				long size = reader.readNextUnsignedInt();
 				int dims = reader.readNextUnsignedShort();
+				
+				Section sect = sections.getOrDefault(section, null);
+				
+				long delta = size % sect.getAlignment();
+				if (delta != 0L) {
+					size += sect.getAlignment() - delta;
+				}
 				
 				List<Long> longs = new ArrayList<>();
 				for (int i = 0; i < dims; ++i) {
