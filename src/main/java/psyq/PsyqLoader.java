@@ -125,7 +125,7 @@ public class PsyqLoader extends AbstractLibrarySupportLoader {
 		File [] files = currDir.listFiles(new FilenameFilter() {
 		    @Override
 		    public boolean accept(File dir, String name) {
-		        return name.startsWith("PSYQ_LIB");
+		        return name.startsWith("PSYQ_");
 		    }
 		});
 		
@@ -143,7 +143,7 @@ public class PsyqLoader extends AbstractLibrarySupportLoader {
 			return null;
 		}
 		
-		var libRegex = Pattern.compile("^PSYQ_(LIB|OBJ)(\\w+)_(\\w+)$");
+		var libRegex = Pattern.compile("^PSYQ(_LIB\\w+)?(_\\w+)$");
 		var matcher = libRegex.matcher(infoFile);
 		
 		if (!matcher.matches()) {
@@ -154,15 +154,17 @@ public class PsyqLoader extends AbstractLibrarySupportLoader {
 			foundFile[0] = infoFile;
 		}
 		
-		final String ext = matcher.group(1);
+		final String prefix = matcher.group(1);
 		
 		if (libObjName != null) {
-			libObjName[0] = String.format("%s%s.%s", ext.equals("OBJ") ? "" : "LIB", matcher.group(2), ext);
+			if (prefix != null) {
+				libObjName[0] = String.format("%s.LIB", prefix.substring(1));
+			} else {
+				libObjName[0] = currFile.getName().toUpperCase();
+			}
 		}
 		
-		final String version = matcher.group(3);
-		
-		return version;
+		return matcher.group(2).substring(1);
 	}
 	
 	private List<JsonArray> loadXbssList(final String libPath) throws FileNotFoundException, IOException {
