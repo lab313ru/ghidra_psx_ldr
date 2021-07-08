@@ -118,8 +118,8 @@ public class PsyqLoader extends AbstractLibrarySupportLoader {
 		return loadSpecs;
 	}
 	
-	private List<JsonArray> loadXbssList(Program program) throws FileNotFoundException, IOException {
-		final File currFile = new File(program.getExecutablePath());
+	public static String detectPsyqFileVersion(final String path, String[] libObjName, String[] foundFile) {
+		final File currFile = new File(path);
 		final File currDir = currFile.getParentFile();
 		
 		File [] files = currDir.listFiles(new FilenameFilter() {
@@ -128,6 +128,10 @@ public class PsyqLoader extends AbstractLibrarySupportLoader {
 		        return name.startsWith("PSYQ_LIB");
 		    }
 		});
+		
+		if (foundFile != null) {
+			foundFile[0] = null;
+		}
 		
 		String infoFile = "";
 		
@@ -146,17 +150,35 @@ public class PsyqLoader extends AbstractLibrarySupportLoader {
 			return null;
 		}
 		
+		if (foundFile != null) {
+			foundFile[0] = infoFile;
+		}
+		
 		final String ext = matcher.group(1);
 		
-		final String libObjName = String.format("%s%s.%s", ext.equals("OBJ") ? "" : "LIB", matcher.group(2), ext);
+		if (libObjName != null) {
+			libObjName[0] = String.format("%s%s.%s", ext.equals("OBJ") ? "" : "LIB", matcher.group(2), ext);
+		}
+		
 		final String version = matcher.group(3);
+		
+		return version;
+	}
+	
+	private List<JsonArray> loadXbssList(final String libPath) throws FileNotFoundException, IOException {
+		String[] libObjName = new String[1];
+		final String version = detectPsyqFileVersion(libPath, libObjName, null);
+		
+		if (version == null) {
+			return null;
+		}
 			
 		final String psyDir = String.format("psyq/%s", version);
 		final File verDir = Application.getModuleDataSubDirectory(psyDir).getFile(false);
 		
 		List<JsonArray> possibleObjs = new ArrayList<>();
 		
-		final var json = SigApplier.jsonArrayFromFile(String.format("%s/%s.json", verDir.getAbsolutePath(), libObjName));
+		final var json = SigApplier.jsonArrayFromFile(String.format("%s/%s.json", verDir.getAbsolutePath(), libObjName[0]));
 		
 		for (final var item : json) {
 			final var itemObj = item.getAsJsonObject();
@@ -178,7 +200,18 @@ public class PsyqLoader extends AbstractLibrarySupportLoader {
 		SymbolTable symTbl = program.getSymbolTable();
 		Listing listing = program.getListing();
 		
-		final var objsXbss = loadXbssList(program);
+		String libObjPath = program.getExecutablePath();
+		var root = provider.getFSRL();
+		
+		while (root != null) {
+			root = root.getFS().getContainer();
+			
+			if (root != null) {
+				libObjPath = root.getPath();
+			}
+		}
+		
+		final var objsXbss = loadXbssList(libObjPath);
 		
 		BinaryReader reader = new BinaryReader(provider, true);
 		reader.setPointerIndex(4);
@@ -263,7 +296,7 @@ public class PsyqLoader extends AbstractLibrarySupportLoader {
 				Section imps = sections.getOrDefault(Section.importsSectionIndex, new Section(Section.importsSectionIndex, Section.importsSectionName, 0, (byte) 8));
 				sections.put(imps.getNumber(), imps);
 				
-				long symSize = 4;
+				long symSize = 0x1000;
 				boolean found = false;
 				
 				if (objsXbss != null) {
