@@ -70,7 +70,7 @@ public final class SigApplier {
 //		}
 	}
 	
-	private static JsonArray jsonArrayFromFile(final String file) throws IOException {
+	public static JsonArray jsonArrayFromFile(final String file) throws IOException {
 		if (file == null) {
 			return null;
 		}

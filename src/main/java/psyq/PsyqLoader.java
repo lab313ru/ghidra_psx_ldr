@@ -16,11 +16,17 @@
 package psyq;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.*;
+import java.util.regex.Pattern;
+
+import com.google.gson.JsonArray;
 
 import static java.util.stream.Collectors.*;
 
@@ -37,6 +43,7 @@ import ghidra.app.util.bin.ByteProvider;
 import ghidra.app.util.importer.MessageLog;
 import ghidra.app.util.opinion.AbstractLibrarySupportLoader;
 import ghidra.app.util.opinion.LoadSpec;
+import ghidra.framework.Application;
 import ghidra.framework.model.DomainObject;
 import ghidra.program.flatapi.FlatProgramAPI;
 import ghidra.program.model.address.Address;
@@ -110,6 +117,59 @@ public class PsyqLoader extends AbstractLibrarySupportLoader {
 
 		return loadSpecs;
 	}
+	
+	private List<JsonArray> loadXbssList(Program program) throws FileNotFoundException, IOException {
+		final File currFile = new File(program.getExecutablePath());
+		final File currDir = currFile.getParentFile();
+		
+		File [] files = currDir.listFiles(new FilenameFilter() {
+		    @Override
+		    public boolean accept(File dir, String name) {
+		        return name.startsWith("PSYQ_LIB");
+		    }
+		});
+		
+		String infoFile = "";
+		
+		if (files.length > 0) {
+			infoFile = files[0].getName();
+		}
+		
+		if (infoFile.isEmpty()) {
+			return null;
+		}
+		
+		var libRegex = Pattern.compile("^PSYQ_(LIB|OBJ)(\\w+)_(\\w+)$");
+		var matcher = libRegex.matcher(infoFile);
+		
+		if (!matcher.matches()) {
+			return null;
+		}
+		
+		final String ext = matcher.group(1);
+		
+		final String libObjName = String.format("%s%s.%s", ext.equals("OBJ") ? "" : "LIB", matcher.group(2), ext);
+		final String version = matcher.group(3);
+			
+		final String psyDir = String.format("psyq/%s", version);
+		final File verDir = Application.getModuleDataSubDirectory(psyDir).getFile(false);
+		
+		List<JsonArray> possibleObjs = new ArrayList<>();
+		
+		final var json = SigApplier.jsonArrayFromFile(String.format("%s/%s.json", verDir.getAbsolutePath(), libObjName));
+		
+		for (final var item : json) {
+			final var itemObj = item.getAsJsonObject();
+
+			if (!itemObj.has("xbss")) {
+				continue;
+			}
+			
+			possibleObjs.add(itemObj.getAsJsonArray("xbss"));
+		}
+		
+		return possibleObjs;
+	}
 
 	@Override
 	protected void load(ByteProvider provider, LoadSpec loadSpec, List<Option> options, Program program, TaskMonitor monitor, MessageLog log)
@@ -117,6 +177,8 @@ public class PsyqLoader extends AbstractLibrarySupportLoader {
 		
 		SymbolTable symTbl = program.getSymbolTable();
 		Listing listing = program.getListing();
+		
+		final var objsXbss = loadXbssList(program);
 		
 		BinaryReader reader = new BinaryReader(provider, true);
 		reader.setPointerIndex(4);
@@ -198,12 +260,40 @@ public class PsyqLoader extends AbstractLibrarySupportLoader {
 				
 				String name = reader.readNextAsciiString(reader.readNextByte());
 				
-				XrefSymbol sym = new XrefSymbol(symIndex, name, xrefs.size() * 4, Section.importsSectionIndex);
-				xrefs.put(symIndex, sym);
-				symbols.put(symIndex, sym);
-				
 				Section imps = sections.getOrDefault(Section.importsSectionIndex, new Section(Section.importsSectionIndex, Section.importsSectionName, 0, (byte) 8));
 				sections.put(imps.getNumber(), imps);
+				
+				long symSize = 4;
+				boolean found = false;
+				
+				if (objsXbss != null) {
+					for (final var objXbss : objsXbss) {
+						for (final var item : objXbss) {
+							final var itemObj = item.getAsJsonObject();
+							
+							if (itemObj.get("name").getAsString().equals(name)) {
+								symSize = itemObj.get("size").getAsLong();
+								found = true;
+								break;
+							}
+						}
+						
+						if (found) {
+							break;
+						}
+					}
+				}
+				
+				long delta = symSize % imps.getAlignment();
+				if (delta != 0L) {
+					symSize += imps.getAlignment() - delta;
+				}
+				
+				long prevLength = (int)xrefs.values().stream().mapToLong(XrefSymbol::getLength).sum();
+				
+				XrefSymbol sym = new XrefSymbol(symIndex, name, prevLength, symSize, found, Section.importsSectionIndex);
+				xrefs.put(symIndex, sym);
+				symbols.put(symIndex, sym);
 			} break;
 			case 16: {
 				int symIndex = reader.readNextUnsignedShort();
@@ -308,6 +398,13 @@ public class PsyqLoader extends AbstractLibrarySupportLoader {
 				int symIndex = reader.readNextUnsignedShort();
 				int sectionIndex = reader.readNextUnsignedShort();
 				long symSize = reader.readNextUnsignedInt();
+				
+				Section sect = sections.getOrDefault(sectionIndex, null);
+				
+				long delta = symSize % sect.getAlignment();
+				if (delta != 0L) {
+					symSize += sect.getAlignment() - delta;
+				}
 				
 				String name = reader.readNextAsciiString(reader.readNextByte());
 				
@@ -476,7 +573,7 @@ public class PsyqLoader extends AbstractLibrarySupportLoader {
 		
 		List<Section> sortedSections = sections.entrySet().stream()
 			    .sorted(Comparator.comparing(Map.Entry::getKey))
-			    .filter(p -> p.getValue().getLength() > 0)
+			    .filter(p -> p.getValue().getLength() > 0L)
 			    .map(Map.Entry::getValue)
 			    .collect(toList());
 		
@@ -484,7 +581,7 @@ public class PsyqLoader extends AbstractLibrarySupportLoader {
 			sect.doAlign();
 		}
 		
-		long lastOffset = 0x100;
+		long lastOffset = 0x10100L;
 		for (Section sect : sortedSections) {
 			sect.setAddress(lastOffset);
 			lastOffset += sect.getLength();
@@ -538,11 +635,16 @@ public class PsyqLoader extends AbstractLibrarySupportLoader {
 				block = fpa.createMemoryBlock(name, start, bytes, false);
 				
 				switch (name) {
-				case ".rdata": 
-				case ".imps": {
+				case ".rdata": {
 					block.setRead(true);
 					block.setExecute(false);
 					block.setWrite(false);
+					block.setVolatile(false);
+				} break;
+				case ".imps": {
+					block.setRead(true);
+					block.setExecute(false);
+					block.setWrite(true);
 					block.setVolatile(false);
 				} break;
 				case ".text": {
@@ -572,6 +674,67 @@ public class PsyqLoader extends AbstractLibrarySupportLoader {
 			} catch (Exception e) {
 				log.appendException(e);
 				return;
+			}
+		}
+		
+		for (XdefSymbol xdef : xdefs) {
+			Address offset = fpa.toAddr(xdef.getAddress());
+			try {
+				symTbl.createLabel(offset, xdef.getName(), SourceType.ANALYSIS);
+			} catch (InvalidInputException e) {
+				log.appendException(e);
+				return;
+			}
+			
+			DisassembleCommand dism = new DisassembleCommand(offset, null, true);
+			dism.applyTo(program, TaskMonitor.DUMMY);
+			
+			fpa.addEntryPoint(offset);
+			fpa.createFunction(offset, xdef.getName());
+		}
+		
+		for (XrefSymbol xref : xrefs.values()) {
+			Address offset = fpa.toAddr(xref.getAddress());
+			try {
+				symTbl.createLabel(offset, xref.getName(), SourceType.IMPORTED);
+			} catch (Exception e) {
+				log.appendException(e);
+				return;
+			}
+		}
+		
+		for (LocalSymbol local : locals) {
+			Address offset = fpa.toAddr(local.getAddress());
+			try {
+				symTbl.createLabel(offset, local.getName(), SourceType.IMPORTED);
+			} catch (Exception e) {
+				log.appendException(e);
+				return;
+			}
+		}
+		
+		for (LocalSymbol vlocal : vlocals) {
+			Address offset = fpa.toAddr(vlocal.getAddress());
+			try {
+				symTbl.createLabel(offset, vlocal.getName(), SourceType.IMPORTED);
+			} catch (Exception e) {
+				log.appendException(e);
+				return;
+			}
+		}
+		
+		for (List<XbssSymbol> xbss_ : xbssList.values()) {
+			for (XbssSymbol xbss : xbss_) {
+				Address offset = fpa.toAddr(xbss.getAddress());
+				try {
+					symTbl.createLabel(offset, xbss.getName(), SourceType.IMPORTED);
+					
+					CreateArrayCmd array = new CreateArrayCmd(offset, (int) xbss.getLength(), ByteDataType.dataType, 1);
+					array.applyTo(program);
+				} catch (InvalidInputException e) {
+					log.appendException(e);
+					return;
+				}
 			}
 		}
 
@@ -658,72 +821,12 @@ public class PsyqLoader extends AbstractLibrarySupportLoader {
 				Symbol sym = symbols.get(patch.getExternalIndex());
 				Address refAddr = fpa.toAddr(sym.getAddress());
 				try {
-					if (listing.isUndefined(refAddr, refAddr.add(PointerDataType.dataType.getLength()))) {
+					if ((sym instanceof XrefSymbol && !((XrefSymbol)sym).isXbssSymbol()) &&
+							listing.isUndefined(refAddr, refAddr.add(PointerDataType.dataType.getLength()))) {
 						fpa.createFunction(refAddr, sym.getName());
 						listing.createData(refAddr, PointerDataType.dataType);
 					}
 				} catch (CodeUnitInsertionException | DataTypeConflictException e) {
-					log.appendException(e);
-					return;
-				}
-			}
-		}
-		
-		for (XdefSymbol xdef : xdefs) {
-			Address offset = fpa.toAddr(xdef.getAddress());
-			try {
-				symTbl.createLabel(offset, xdef.getName(), SourceType.ANALYSIS);
-			} catch (InvalidInputException e) {
-				log.appendException(e);
-				return;
-			}
-			
-			DisassembleCommand dism = new DisassembleCommand(offset, null, true);
-			dism.applyTo(program, TaskMonitor.DUMMY);
-			
-			fpa.addEntryPoint(offset);
-			fpa.createFunction(offset, xdef.getName());
-		}
-		
-		for (XrefSymbol xref : xrefs.values()) {
-			Address offset = fpa.toAddr(xref.getAddress());
-			try {
-				symTbl.createLabel(offset, xref.getName(), SourceType.IMPORTED);
-			} catch (Exception e) {
-				log.appendException(e);
-				return;
-			}
-		}
-		
-		for (LocalSymbol local : locals) {
-			Address offset = fpa.toAddr(local.getAddress());
-			try {
-				symTbl.createLabel(offset, local.getName(), SourceType.IMPORTED);
-			} catch (Exception e) {
-				log.appendException(e);
-				return;
-			}
-		}
-		
-		for (LocalSymbol vlocal : vlocals) {
-			Address offset = fpa.toAddr(vlocal.getAddress());
-			try {
-				symTbl.createLabel(offset, vlocal.getName(), SourceType.IMPORTED);
-			} catch (Exception e) {
-				log.appendException(e);
-				return;
-			}
-		}
-		
-		for (List<XbssSymbol> xbss_ : xbssList.values()) {
-			for (XbssSymbol xbss : xbss_) {
-				Address offset = fpa.toAddr(xbss.getAddress());
-				try {
-					symTbl.createLabel(offset, xbss.getName(), SourceType.IMPORTED);
-					
-					CreateArrayCmd array = new CreateArrayCmd(offset, (int) xbss.getLength(), ByteDataType.dataType, 1);
-					array.applyTo(program);
-				} catch (InvalidInputException e) {
 					log.appendException(e);
 					return;
 				}
