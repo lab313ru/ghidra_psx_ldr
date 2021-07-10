@@ -49,7 +49,13 @@ public final class PsyqSig {
 	
 	public static PsyqSig fromJsonToken(final JsonObject token, final JsonArray patches) throws IOException {
 		final String name = token.get("name").getAsString();
-		final String sig = token.get("sig").getAsString();
+		
+		final String sig;
+		if (token.has("sig")) {
+			sig = token.get("sig").getAsString();
+		} else {
+			return null;
+		}
 		
 		final MaskedBytes signature = MaskedBytes.fromMaskedString(sig);
 		

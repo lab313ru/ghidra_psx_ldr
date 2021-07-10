@@ -59,6 +59,10 @@ public final class SigApplier {
 			final JsonObject itemObj = item.getAsJsonObject();
 			final PsyqSig sig = PsyqSig.fromJsonToken(itemObj, patchesObj);
 			
+			if (sig == null) {
+				continue;
+			}
+			
 //			sb.append(String.format("%s/%s: %.2f", this.file, sig.getName(), sig.getEntropy()));
 //			sb.append("\n");
 			
