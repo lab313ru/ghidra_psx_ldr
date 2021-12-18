@@ -16,16 +16,17 @@
 package psyq;
 
 import java.io.*;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 import ghidra.app.util.bin.BinaryReader;
 import ghidra.app.util.bin.ByteProvider;
-import ghidra.app.util.bin.ByteProviderInputStream;
+import ghidra.app.util.bin.ByteProviderWrapper;
 import ghidra.formats.gfilesystem.*;
 import ghidra.formats.gfilesystem.annotations.FileSystemInfo;
-import ghidra.formats.gfilesystem.factory.GFileSystemFactoryFull;
-import ghidra.formats.gfilesystem.factory.GFileSystemProbeFull;
+import ghidra.formats.gfilesystem.factory.GFileSystemFactoryByteProvider;
+import ghidra.formats.gfilesystem.factory.GFileSystemProbeByteProvider;
+import ghidra.formats.gfilesystem.fileinfo.FileAttributeType;
+import ghidra.formats.gfilesystem.fileinfo.FileAttributes;
 import ghidra.util.exception.CancelledException;
 import ghidra.util.task.TaskMonitor;
 
@@ -205,11 +206,11 @@ public class PsyqLibFileSystem implements GFileSystem {
 	}
 
 	@Override
-	public InputStream getInputStream(GFile file, TaskMonitor monitor)
+	public ByteProvider getByteProvider(GFile file, TaskMonitor monitor)
 			throws IOException, CancelledException {
 		LibFileItem metadata = fsih.getMetadata(file);
 		return (metadata != null)
-				? new ByteProviderInputStream(provider, metadata.offset, metadata.size)
+				? new ByteProviderWrapper(provider, metadata.offset, metadata.size, file.getFSRL())
 				: null;
 	}
 
@@ -219,27 +220,25 @@ public class PsyqLibFileSystem implements GFileSystem {
 	}
 
 	@Override
-	public String getInfo(GFile file, TaskMonitor monitor) {
+	public FileAttributes getFileAttributes(GFile file, TaskMonitor monitor) {
 		LibFileItem metadata = fsih.getMetadata(file);
-		return (metadata == null) ? null : FSUtilities.infoMapToString(getInfoMap(metadata));
-	}
-
-	public Map<String, String> getInfoMap(LibFileItem metadata) {
-		Map<String, String> info = new LinkedHashMap<>();
-		info.put("Name", metadata.name);
-		info.put("Size", "0x" + Long.toHexString(metadata.size));
-		info.put("Date", (new SimpleDateFormat("dd-MM-yy HH:mm:ss")).format(metadata.date));
-		return info;
+		FileAttributes result = new FileAttributes();
+		if (metadata != null) {
+			result.add(FileAttributeType.NAME_ATTR, metadata.name);
+			result.add(FileAttributeType.SIZE_ATTR, metadata.size);
+			result.add(FileAttributeType.CREATE_DATE_ATTR, metadata.date);
+		}
+		return result;
 	}
 
 	// TODO: Customize for the real file system.
 	public static class PsyqFileSystemFactory
-			implements GFileSystemFactoryFull<PsyqLibFileSystem>, GFileSystemProbeFull {
+			implements GFileSystemFactoryByteProvider<PsyqLibFileSystem>, GFileSystemProbeByteProvider {
 
 		@Override
-		public PsyqLibFileSystem create(FSRL containerFSRL, FSRLRoot targetFSRL,
-				ByteProvider byteProvider, File containerFile, FileSystemService fsService,
-				TaskMonitor monitor) throws IOException, CancelledException {
+		public PsyqLibFileSystem create(FSRLRoot targetFSRL,
+				ByteProvider byteProvider, FileSystemService fsService, TaskMonitor monitor)
+						throws IOException, CancelledException {
 
 			PsyqLibFileSystem fs = new PsyqLibFileSystem(targetFSRL, byteProvider);
 			fs.mount(monitor);
@@ -247,9 +246,8 @@ public class PsyqLibFileSystem implements GFileSystem {
 		}
 
 		@Override
-		public boolean probe(FSRL containerFSRL, ByteProvider byteProvider, File containerFile,
-				FileSystemService fsService, TaskMonitor monitor)
-				throws IOException, CancelledException {
+		public boolean probe(ByteProvider byteProvider, FileSystemService fsService,
+				TaskMonitor monitor) throws IOException, CancelledException {
 
 			byte[] tag = byteProvider.readBytes(0, 4);
 			return Arrays.equals(tag, new byte[] {0x4C, 0x49, 0x42, 0x01}) || Arrays.equals(tag, new byte[] {0x4C, 0x49, 0x42, 0x02}); // LIB\x02
