@@ -185,4 +185,8 @@ public class InstructionPcodeOverride implements PcodeOverride {
 	public boolean hasPotentialOverride() {
 		return !primaryOverridingReferences.isEmpty();
 	}
+	
+	public Reference getPrimaryOverridingReference() {
+		return !primaryOverridingReferences.isEmpty() ? primaryOverridingReferences.get(0) : null;
+	}
 }
