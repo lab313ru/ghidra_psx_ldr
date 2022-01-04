@@ -25,7 +25,7 @@ public class PsxAnalyzer extends AbstractAnalyzer {
 	
 	public static boolean onlyFirst = true;
 	public static float minEntropy = 3.0f;
-	private String manualVer = "4.7";
+	private String manualVer = "4.7.0";
 	
 	private final String FIRST_OPTION = "Only first match";
 	private final String MIN_ENTROPY = "Minimal signature entropy";
