@@ -61,6 +61,7 @@ public class OverlayManager extends JPanel {
 	private final ButtonGroup buttonGroup = new ButtonGroup();
 	private JRadioButton chkDeleteBlock;
 	private JButton btnDeleteBlock;
+	private int lastOvrIndex;
 	
 	/**
 	 * Create the panel.
@@ -69,6 +70,8 @@ public class OverlayManager extends JPanel {
 		this.provider = provider;
 		this.program = program;
 		this.memory = program.getMemory();
+		
+		lastOvrIndex = 0;
 		
 		setBorder(new EmptyBorder(5, 5, 5, 5));
 		GridBagLayout gridBagLayout = new GridBagLayout();
@@ -131,7 +134,8 @@ public class OverlayManager extends JPanel {
 		pnlNewBlock.add(lblBlockName, gbc_lblBlockName);
 		lblBlockName.setHorizontalAlignment(SwingConstants.RIGHT);
 		
-		blockName = new JTextField("OVR1");
+		blockName = new JTextField(null);
+		updateOvrName(true);
 		GridBagConstraints gbc_blockName = new GridBagConstraints();
 		gbc_blockName.fill = GridBagConstraints.HORIZONTAL;
 		gbc_blockName.insets = new Insets(0, 0, 5, 5);
@@ -197,8 +201,8 @@ public class OverlayManager extends JPanel {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				setEnabledDeleteBlock(false);
-				setEnabledFillBlock(false);
+				btnDeleteBlock.setEnabled(false);
+				btnFillBlock.setEnabled(false);
 				setEnabledNewBlock(true);
 				
 				checkNameAndAddress();
@@ -210,10 +214,8 @@ public class OverlayManager extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				setEnabledNewBlock(false);
-				setEnabledDeleteBlock(false);
-				setEnabledFillBlock(true);
-				
-				refreshBlocks();
+				btnDeleteBlock.setEnabled(false);
+				setEnabledFillBlock();
 			}
 		});
 		
@@ -222,10 +224,8 @@ public class OverlayManager extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				setEnabledNewBlock(false);
-				setEnabledFillBlock(false);
-				setEnabledDeleteBlock(true);
-				
-				refreshBlocks();
+				btnFillBlock.setEnabled(false);
+				setEnabledDeleteBlock();
 			}
 		});
 		
@@ -239,33 +239,49 @@ public class OverlayManager extends JPanel {
 		setMinimumSize(new Dimension(130, 50));
 	}
 	
+	private void updateOvrName(boolean inc) {
+		lastOvrIndex += inc ? 1 : -1;
+		
+		if (lastOvrIndex < 1) {
+			lastOvrIndex = 1;
+		}
+		
+		blockName.setText(String.format("OVR%d", lastOvrIndex));
+	}
+	
 	private void setEnabledNewBlock(boolean enabled) {
+		boolean more = refreshOverlaysList();
+		
 		lblBlockName.setEnabled(enabled);
 		blockName.setEnabled(enabled);
 		lblBlockStart.setEnabled(enabled);
 		blockStart.setEnabled(enabled);
 		btnNewBlock.setEnabled(enabled);
-	}
-	
-	private void refreshOverlaysList() {
-		refreshBlocks();
-		overlaysList.setSelectedIndex((overlays.size() > 0) ? 0 : -1);
-	}
-	
-	private void setEnabledFillBlock(boolean enabled) {
-		refreshOverlaysList();
-		btnFillBlock.setEnabled(overlays.size() > 0);
 		
-		overlaysList.setEnabled(enabled);
-		btnFillBlock.setEnabled(enabled);
+		overlaysList.setEnabled(more);
+	}
+	
+	private boolean refreshOverlaysList() {
+		refreshBlocks();
+		boolean more = overlays.size() > 0;
+		overlaysList.setSelectedIndex(more ? 0 : -1);
+		return more;
+	}
+	
+	private void setEnabledFillBlock() {
+		boolean more = refreshOverlaysList();
+		btnFillBlock.setEnabled(more);
+		
+		overlaysList.setEnabled(more);
+		btnFillBlock.setEnabled(more);
 		provider.clearStatusText();
 	}
 	
-	private void setEnabledDeleteBlock(boolean enabled) {
-		refreshOverlaysList();
+	private void setEnabledDeleteBlock() {
+		boolean more = refreshOverlaysList();
 		
-		overlaysList.setEnabled(enabled);
-		btnDeleteBlock.setEnabled(enabled);
+		overlaysList.setEnabled(more);
+		btnDeleteBlock.setEnabled(more);
 		provider.clearStatusText();
 	}
 	
@@ -312,6 +328,11 @@ public class OverlayManager extends JPanel {
 	}
 	
 	private boolean nameChanged() {
+		if (!chkNewBlock.isSelected()) {
+			provider.clearStatusText();
+			return false;
+		}
+		
 		String name = blockName.getText().trim();
 		
 		if (name.isEmpty()) {
@@ -383,6 +404,7 @@ public class OverlayManager extends JPanel {
 					
 					refreshBlocks();
 					checkNameAndAddress();
+					updateOvrName(true);
 					
 					Msg.showInfo(this, OverlayManager.this, "Information", "Overlay block has been created!");
 				} catch (IOException e1) {
@@ -442,23 +464,26 @@ public class OverlayManager extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				int index = overlaysList.getSelectedIndex();
+				
 				MemoryBlock block = memory.getBlock(overlays.get(index));
 				
-				if (OptionDialog.YES_OPTION == OptionDialog.showYesNoDialogWithNoAsDefaultButton(null,
+				if (block != null && OptionDialog.YES_OPTION == OptionDialog.showYesNoDialogWithNoAsDefaultButton(null,
 						"Question", String.format("Are you sure you want to delete %s block?", block.getName()))) {
 					try {
 						
 						int transId = program.startTransaction(String.format("Removing block %s", block.getName()));
 						memory.removeBlock(block, TaskMonitor.DUMMY);
 						program.endTransaction(transId, true);
-						
-						refreshBlocks();
+
+						updateOvrName(false);
 						
 						Msg.showInfo(this, OverlayManager.this, "Information", "Overlay block has been deleted!");
 					} catch (LockException e1) {
 						Msg.showError(this, OverlayManager.this, "Error", "Cannot remove memory block!", e1);
 					}
 				}
+				
+				setEnabledDeleteBlock();
 			}
 		});
 	}
