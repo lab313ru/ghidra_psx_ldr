@@ -15,25 +15,46 @@
  */
 package psx;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import docking.ActionContext;
 import docking.DialogComponentProvider;
 import docking.action.DockingAction;
 import docking.action.MenuData;
 import docking.tool.ToolConstants;
+import generic.test.TestUtils;
+import ghidra.app.decompiler.DecompileResults;
+import ghidra.app.decompiler.component.DecompileData;
+import ghidra.app.decompiler.component.DecompilerCallbackHandler;
+import ghidra.app.decompiler.component.DecompilerController;
 import ghidra.app.plugin.PluginCategoryNames;
 import ghidra.app.plugin.ProgramPlugin;
+import ghidra.app.plugin.core.decompile.DecompilePlugin;
+import ghidra.app.plugin.core.decompile.DecompilerProvider;
 import ghidra.app.services.GoToService;
 import ghidra.framework.plugintool.*;
 import ghidra.framework.plugintool.util.PluginStatus;
 import ghidra.program.model.address.Address;
 import ghidra.program.model.address.AddressFactory;
+import ghidra.program.model.address.AddressIterator;
+import ghidra.program.model.address.AddressSetView;
 import ghidra.program.model.address.AddressSpace;
+import ghidra.program.model.listing.Function;
+import ghidra.program.model.listing.Instruction;
+import ghidra.program.model.listing.Listing;
 import ghidra.program.model.listing.Program;
+import ghidra.program.model.pcode.HighFunction;
+import ghidra.program.model.symbol.Reference;
 import ghidra.program.model.symbol.Symbol;
 import ghidra.program.model.symbol.SymbolTable;
+import ghidra.program.util.ProgramLocation;
+import ghidra.program.util.ProgramSelection;
+import ghidra.util.bean.field.AnnotatedTextFieldElement;
+import ghidra.util.task.TaskLauncher;
 import psx.debug.DebuggerProvider;
+import utility.function.Callback;
 import ghidra.MiscellaneousPluginPackage;
 
 //@formatter:off
@@ -50,6 +71,10 @@ public class PsxPlugin extends ProgramPlugin {
 
 	private DebuggerProvider dbgProvider;
 	private OverlayManagerProvider omProvider;
+	private DecompilerController decompController;
+	private DecompilerProvider decompProvider;
+	private boolean updatingDecompiler;
+	private DecompilerCallbackHandler callbackHandler;
 
 	public PsxPlugin(PluginTool tool) {
 		super(tool, true, false);
@@ -57,15 +82,162 @@ public class PsxPlugin extends ProgramPlugin {
 	
 	@Override
 	public void programActivated(Program program) {
-		super.programActivated(program);
-		
 		if (PsxAnalyzer.isPsxLoader(program)) {
 			createOmAction();
 			createDbgAction();
 			
+			DecompilePlugin decompiler = getDecompilerPlugin(tool);
+			
+			decompProvider = (DecompilerProvider)TestUtils.getInstanceField("connectedProvider", decompiler);
+			
+			decompController = (DecompilerController)TestUtils.getInstanceField("controller", decompProvider);
+			callbackHandler = (DecompilerCallbackHandler)TestUtils.getInstanceField("callbackHandler", decompController);
+			
+			updatingDecompiler = false;
+			
+			TestUtils.setInstanceField("callbackHandler", decompController, new DecompilerCallbackHandler() {
+
+				@Override
+				public void decompileDataChanged(DecompileData decompileData) {
+					if (updatingDecompiler) {
+						return;
+					}
+					
+					updatingDecompiler = true;
+					
+					if (decompileData != null) {
+						DecompileResults results = decompileData.getDecompileResults();
+						
+						if (results != null) {
+							if (results.decompileCompleted()) {
+								HighFunction highFunc = decompileData.getHighFunction();
+								if (highFunc != null) {
+									decompileFunc(highFunc.getFunction());
+								}
+							}
+						}
+					}
+					
+					updatingDecompiler = false;
+				
+					callbackHandler.decompileDataChanged(decompileData);
+				}
+
+				@Override
+				public void contextChanged() {
+					callbackHandler.contextChanged();
+				}
+
+				@Override
+				public void setStatusMessage(String message) {
+					callbackHandler.setStatusMessage(message);
+				}
+
+				@Override
+				public void locationChanged(ProgramLocation programLocation) {
+					callbackHandler.locationChanged(programLocation);
+				}
+
+				@Override
+				public void selectionChanged(ProgramSelection programSelection) {
+					callbackHandler.selectionChanged(programSelection);
+				}
+
+				@Override
+				public void annotationClicked(AnnotatedTextFieldElement annotation, boolean newWindow) {
+					callbackHandler.annotationClicked(annotation, newWindow);
+				}
+
+				@Override
+				public void goToLabel(String labelName, boolean newWindow) {
+					callbackHandler.goToLabel(labelName, newWindow);
+				}
+
+				@Override
+				public void goToAddress(Address addr, boolean newWindow) {
+					callbackHandler.goToAddress(addr, newWindow);
+				}
+
+				@Override
+				public void goToScalar(long value, boolean newWindow) {
+					callbackHandler.goToScalar(value, newWindow);
+				}
+
+				@Override
+				public void exportLocation() {
+					callbackHandler.exportLocation();
+				}
+
+				@Override
+				public void goToFunction(Function function, boolean newWindow) {
+					callbackHandler.goToFunction(function, newWindow);
+				}
+
+				@Override
+				public void doWheNotBusy(Callback c) {
+					callbackHandler.doWheNotBusy(c);
+				}
+				
+			});
+			
 			// PsxLoader.loadPsyqGdt(program);
 			gotoMain(this.getTool(), program);
 		}
+	}
+	
+	@Override
+	protected void programDeactivated(Program program) {
+		TestUtils.setInstanceField("callbackHandler", decompController, callbackHandler);
+	}
+	
+	private void decompileFunc(Function func) {
+		Program program = decompProvider.getProgram();
+		Listing listing = program.getListing();
+		AddressSpace defaultSpace = program.getAddressFactory().getDefaultAddressSpace();
+		
+		AddressSetView set = func.getBody();
+		
+		AddressIterator addrIter = set.getAddresses(true);
+		
+		Map<String, Address> entries = new HashMap<>();
+		
+		while (addrIter.hasNext()) {
+			Address addr = addrIter.next();
+			
+			Instruction instr = listing.getInstructionAt(addr);
+			
+			if (instr == null) {
+				continue;
+			}
+			
+			Reference[] instrRefs = instr.getReferencesFrom();
+			
+			for (Reference ref : instrRefs) {
+				if (!isDifferentFromToAddressSpace(ref)) {
+					continue;
+				}
+				
+				Address symAddr = defaultSpace.getAddress(ref.getToAddress().getOffset());
+				Symbol sym = program.getSymbolTable().getPrimarySymbol(symAddr);
+				
+				if (sym == null) {
+					continue;
+				}
+
+				entries.put(sym.getName(), ref.getToAddress());
+			}
+		}
+		
+		PsxUpdateAddressSpacesTask task = new PsxUpdateAddressSpacesTask(decompProvider, entries);
+		new TaskLauncher(task, tool.getToolFrame());
+	}
+	
+	private boolean isDifferentFromToAddressSpace(final Reference ref) {
+		return !ref.getFromAddress().getAddressSpace().equals(ref.getToAddress().getAddressSpace());
+	}
+	
+	private static DecompilePlugin getDecompilerPlugin(PluginTool tool) {
+		return (DecompilePlugin) tool.getManagedPlugins().stream().filter(p -> p.getClass() == DecompilePlugin.class).findFirst().get();
 	}
 	
 	@Override

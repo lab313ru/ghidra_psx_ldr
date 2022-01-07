@@ -37,7 +37,7 @@ public class PsxAnalyzer extends AbstractAnalyzer {
 	
 	public PsxAnalyzer() {
 		super("PsyQ Signatures", "PSX signatures applier", AnalyzerType.INSTRUCTION_ANALYZER);
-		
+
 		setSupportsOneTimeAnalysis();
 		
 		appliers = new HashMap<>();
@@ -76,17 +76,30 @@ public class PsxAnalyzer extends AbstractAnalyzer {
 		try {
 			String psyqVersion = PsxLoader.getProgramPsyqVersion(program);
 			
+			if (psyqVersion.isEmpty() && !manualVer.isEmpty()) {
+				psyqVersion = manualVer.replace(".", "");
+				PsxLoader.setProgramPsyqVersion(program, psyqVersion);
+			}
+			
+			final File patchesFile = Application.getModuleDataFile("psyq/patches.json").getFile(false);
+			final String psyDir = String.format("psyq/%s", psyqVersion);
+			final File verDir = Application.getModuleDataSubDirectory(psyDir).getFile(false);
+			
+			File [] files = verDir.listFiles(new FilenameFilter() {
+			    @Override
+			    public boolean accept(File dir, String name) {
+			        return name.endsWith(".json") && !name.equals("patches.json");
+			    }
+			});
+			
+			final String patchesFilePath = patchesFile.getAbsolutePath();
+			
 			AddressRangeIterator i = set.getAddressRanges();
 			
 			while (i.hasNext()) {
 				AddressRange next = i.next();
-
-				if (psyqVersion.isEmpty() && !manualVer.isEmpty()) {
-					psyqVersion = manualVer.replace(".", "");
-					PsxLoader.setProgramPsyqVersion(program, psyqVersion);
-				}
-				
-				applyPsyqSignaturesByVersion(psyqVersion, program, next.getMinAddress(), next.getMaxAddress(), monitor, log);
+			
+				applyPsyqSignaturesByVersion(files, patchesFilePath, program, next.getMinAddress(), next.getMaxAddress(), monitor, log);
 			}
 			
 			monitor.setMessage("Applying PsyQ functions and data types...");
@@ -104,26 +117,19 @@ public class PsxAnalyzer extends AbstractAnalyzer {
 		return true;
 	}
 	
-	private void applyPsyqSignaturesByVersion(final String version, Program program, final Address startAddr, final Address endAddr, TaskMonitor monitor, MessageLog log) throws IOException {
-		final File patchesFile = Application.getModuleDataFile("psyq/patches.json").getFile(false);
-		final String psyDir = String.format("psyq/%s", version);
-		final File verDir = Application.getModuleDataSubDirectory(psyDir).getFile(false);
-		
-		File [] files = verDir.listFiles(new FilenameFilter() {
-		    @Override
-		    public boolean accept(File dir, String name) {
-		        return name.endsWith(".json") && !name.equals("patches.json");
-		    }
-		});
-		
-		for (var file : files) {
+	private void applyPsyqSignaturesByVersion(final File [] files, final String patchesFile, Program program, final Address startAddr, final Address endAddr, TaskMonitor monitor, MessageLog log) throws IOException {
+		for (final var file : files) {
+			if (monitor.isCancelled()) {
+				break;
+			}
+			
 			final String fileName = file.getName();
 			SigApplier sig;
 			
 			if (appliers.containsKey(fileName)) {
 				sig = appliers.get(fileName);
 			} else {
-				sig = new SigApplier(program.getName(), file.getAbsolutePath(), patchesFile.getAbsolutePath(), onlyFirst, minEntropy, monitor);
+				sig = new SigApplier(program.getName(), file.getAbsolutePath(), patchesFile, onlyFirst, minEntropy, monitor);
 				appliers.put(fileName, sig);
 			}
 			
