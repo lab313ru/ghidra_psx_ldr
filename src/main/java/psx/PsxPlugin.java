@@ -15,6 +15,7 @@
  */
 package psx;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,6 +34,7 @@ import ghidra.app.plugin.PluginCategoryNames;
 import ghidra.app.plugin.ProgramPlugin;
 import ghidra.app.plugin.core.decompile.DecompilePlugin;
 import ghidra.app.plugin.core.decompile.DecompilerProvider;
+import ghidra.app.plugin.core.decompile.actions.PsxUpdateAddressSpacesAction;
 import ghidra.app.services.GoToService;
 import ghidra.framework.plugintool.*;
 import ghidra.framework.plugintool.util.PluginStatus;
@@ -45,15 +47,16 @@ import ghidra.program.model.listing.Function;
 import ghidra.program.model.listing.Instruction;
 import ghidra.program.model.listing.Listing;
 import ghidra.program.model.listing.Program;
+import ghidra.program.model.listing.ProgramUserData;
 import ghidra.program.model.pcode.HighFunction;
 import ghidra.program.model.symbol.Reference;
 import ghidra.program.model.symbol.Symbol;
 import ghidra.program.model.symbol.SymbolTable;
+import ghidra.program.model.util.ObjectPropertyMap;
 import ghidra.program.util.ProgramLocation;
 import ghidra.program.util.ProgramSelection;
 import ghidra.util.bean.field.AnnotatedTextFieldElement;
 import ghidra.util.task.TaskLauncher;
-import psx.debug.DebuggerProvider;
 import utility.function.Callback;
 import ghidra.MiscellaneousPluginPackage;
 
@@ -61,7 +64,7 @@ import ghidra.MiscellaneousPluginPackage;
 @PluginInfo(
 	status = PluginStatus.RELEASED,
 	packageName = MiscellaneousPluginPackage.NAME,
-	category = PluginCategoryNames.ANALYSIS,
+	category = PluginCategoryNames.DECOMPILER,
 	shortDescription = "This plugin creates/imports overlayed binaries for PSX.",
 	description = "This plugin gives an ability to create/import binaries into an overlayed blocks for PSX.",
 	servicesRequired = { GoToService.class }
@@ -69,12 +72,13 @@ import ghidra.MiscellaneousPluginPackage;
 //@formatter:on
 public class PsxPlugin extends ProgramPlugin {
 
-	private DebuggerProvider dbgProvider;
 	private OverlayManagerProvider omProvider;
 	private DecompilerController decompController;
 	private DecompilerProvider decompProvider;
 	private boolean updatingDecompiler;
 	private DecompilerCallbackHandler callbackHandler;
+	
+	private PsxUpdateAddressSpacesOverrides oldMap;
 
 	public PsxPlugin(PluginTool tool) {
 		super(tool, true, false);
@@ -84,11 +88,14 @@ public class PsxPlugin extends ProgramPlugin {
 	public void programActivated(Program program) {
 		if (PsxAnalyzer.isPsxLoader(program)) {
 			createOmAction();
-			createDbgAction();
+
+			oldMap = getOverrides(program);
 			
 			DecompilePlugin decompiler = getDecompilerPlugin(tool);
 			
 			decompProvider = (DecompilerProvider)TestUtils.getInstanceField("connectedProvider", decompiler);
+			
+			decompProvider.addLocalAction(new PsxUpdateAddressSpacesAction());
 			
 			decompController = (DecompilerController)TestUtils.getInstanceField("controller", decompProvider);
 			callbackHandler = (DecompilerCallbackHandler)TestUtils.getInstanceField("callbackHandler", decompController);
@@ -111,6 +118,7 @@ public class PsxPlugin extends ProgramPlugin {
 						if (results != null) {
 							if (results.decompileCompleted()) {
 								HighFunction highFunc = decompileData.getHighFunction();
+								
 								if (highFunc != null) {
 									decompileFunc(highFunc.getFunction());
 								}
@@ -188,18 +196,55 @@ public class PsxPlugin extends ProgramPlugin {
 	@Override
 	protected void programDeactivated(Program program) {
 		TestUtils.setInstanceField("callbackHandler", decompController, callbackHandler);
+		
+		setOverrides(program, oldMap);
 	}
 	
-	private void decompileFunc(Function func) {
+	private PsxUpdateAddressSpacesOverrides getOverrides(Program program) {
+		ProgramUserData data = program.getProgramUserData();
+		
+		int transactionId = data.startTransaction();
+		ObjectPropertyMap map = data.getObjectProperty(PsxPlugin.class.getName(), PsxUpdateAddressSpacesTask.OVERRIDES, PsxUpdateAddressSpacesOverrides.class, true);
+		Address objAddress = program.getAddressFactory().getDefaultAddressSpace().getAddress(PsxUpdateAddressSpacesOverrides.ADDRESS);
+
+		data.endTransaction(transactionId);
+		if (map.hasProperty(objAddress)) {
+			return (PsxUpdateAddressSpacesOverrides) map.getObject(objAddress);
+		}
+		
+		return new PsxUpdateAddressSpacesOverrides();
+	}
+	
+	private void setOverrides(Program program, PsxUpdateAddressSpacesOverrides newOverrides) {
+		ProgramUserData data = program.getProgramUserData();
+		
+		int transactionId = data.startTransaction();
+		ObjectPropertyMap map = data.getObjectProperty(PsxPlugin.class.getName(), PsxUpdateAddressSpacesTask.OVERRIDES, PsxUpdateAddressSpacesOverrides.class, true);
+		
+		Address objAddress = program.getAddressFactory().getDefaultAddressSpace().getAddress(PsxUpdateAddressSpacesOverrides.ADDRESS);
+		map.remove(objAddress);
+		map.add(objAddress, newOverrides);
+		
+		data.endTransaction(transactionId);
+	}
+	
+	public PsxUpdateAddressSpacesOverrides getOverrides() {
+		return oldMap;
+	}
+	
+	public void mergeOverrides(final List<PsxUpdateAddressSpacesOverride> newMap) {
+		oldMap.mergeOverrides(newMap);
+	}
+	
+	public static Map<Address, String> collectFunctionOverlayedEntries(DecompilerProvider decompProvider, final Function func) {
 		Program program = decompProvider.getProgram();
 		Listing listing = program.getListing();
-		AddressSpace defaultSpace = program.getAddressFactory().getDefaultAddressSpace();
 		
 		AddressSetView set = func.getBody();
 		
 		AddressIterator addrIter = set.getAddresses(true);
 		
-		Map<String, Address> entries = new HashMap<>();
+		Map<Address, String> entries = new HashMap<>();
 		
 		while (addrIter.hasNext()) {
 			Address addr = addrIter.next();
@@ -210,43 +255,60 @@ public class PsxPlugin extends ProgramPlugin {
 				continue;
 			}
 			
-			Reference[] instrRefs = instr.getReferencesFrom();
+			final Reference[] instrRefs = instr.getReferencesFrom();
 			
-			for (Reference ref : instrRefs) {
-				if (!isDifferentFromToAddressSpace(ref)) {
-					continue;
-				}
+			for (final Reference ref : instrRefs) {
+				final Address[] overRefs = getOverlayRefAddresses(ref); 
 				
-				Address symAddr = defaultSpace.getAddress(ref.getToAddress().getOffset());
-				Symbol sym = program.getSymbolTable().getPrimarySymbol(symAddr);
-				
-				if (sym == null) {
-					continue;
+				for (final Address overRef : overRefs) {
+					Symbol sym = program.getSymbolTable().getPrimarySymbol(overRef);
+					
+					if (sym != null) {
+						entries.put(overRef, sym.getName());
+					}
 				}
-
-				entries.put(sym.getName(), ref.getToAddress());
 			}
 		}
 		
-		PsxUpdateAddressSpacesTask task = new PsxUpdateAddressSpacesTask(decompProvider, entries);
-		new TaskLauncher(task, tool.getToolFrame());
+		return entries;
 	}
 	
-	private boolean isDifferentFromToAddressSpace(final Reference ref) {
-		return !ref.getFromAddress().getAddressSpace().equals(ref.getToAddress().getAddressSpace());
+	private void decompileFunc(final Function func) {
+		List<PsxUpdateAddressSpacesOverride> newMap = new ArrayList<>();
+		Map<Address, String> entries = collectFunctionOverlayedEntries(decompProvider, func);
+		PsxUpdateAddressSpacesTask task = new PsxUpdateAddressSpacesTask(this, decompProvider, newMap, entries, null);
+		new TaskLauncher(task, tool.getToolFrame());
+		
+		oldMap.mergeOverrides(newMap);
+	}
+
+	private static Address[] getOverlayRefAddresses(final Reference ref) {
+		if (!ref.isPrimary()) {
+			return null;
+		}
+		
+		AddressSpace fromSpace = ref.getFromAddress().getAddressSpace();
+		AddressSpace toSpace = ref.getToAddress().getAddressSpace();
+		
+		List<Address> refs = new ArrayList<>();
+		
+		if (fromSpace.isOverlaySpace()) {
+			refs.add(ref.getFromAddress());
+		}
+		
+		if (toSpace.isOverlaySpace()) {
+			refs.add(ref.getToAddress());
+		}
+		
+		return refs.toArray(Address[]::new);
 	}
 	
 	private static DecompilePlugin getDecompilerPlugin(PluginTool tool) {
 		return (DecompilePlugin) tool.getManagedPlugins().stream().filter(p -> p.getClass() == DecompilePlugin.class).findFirst().get();
 	}
 	
-	@Override
-	protected void dispose() {
-		if (dbgProvider == null) {
-			return;
-		}
-		
-		dbgProvider.close();
+	public static PsxPlugin getPsxPlugin(PluginTool tool) {
+		return (PsxPlugin) tool.getManagedPlugins().stream().filter(p -> p.getClass() == PsxPlugin.class).findFirst().get();
 	}
 	
 	private static void gotoMain(PluginTool tool, Program program) {
@@ -290,27 +352,6 @@ public class PsxPlugin extends ProgramPlugin {
 		
 		openOverlayManagerAction.setMenuBarData(new MenuData(new String[] {ToolConstants.MENU_TOOLS, "PSX Overlay Manager..."}, "Psx"));
 		tool.addAction(openOverlayManagerAction);
-	}
-	
-	private void createDbgAction() {
-		DockingAction createDebuggerAction = new DockingAction("PsxDebugger", getName()) {
-
-			@Override
-			public void actionPerformed(ActionContext context) {
-				if (dbgProvider == null) {
-					dbgProvider = new DebuggerProvider(getTool(), getName(), currentProgram);
-				}
-				
-				if (!dbgProvider.isVisible()) {
-					dbgProvider.setVisible(true);
-				}
-				
-				dbgProvider.toFront();
-			}
-		};
-		
-		createDebuggerAction.setMenuBarData(new MenuData(new String[] {ToolConstants.MENU_TOOLS, "PSX Debugger..."}, "Psx"));
-		tool.addAction(createDebuggerAction);
 	}
 	
 	private static class OverlayManagerProvider extends DialogComponentProvider {
