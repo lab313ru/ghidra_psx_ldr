@@ -171,6 +171,9 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 	@Override
 	protected void load(ByteProvider provider, LoadSpec loadSpec, List<Option> options, Program program, TaskMonitor monitor, MessageLog log)
 			throws IOException {
+		
+		Options aOpts = program.getOptions(Program.ANALYSIS_PROPERTIES);
+		aOpts.setBoolean("Non-Returning Functions - Discovered", false);
 
 		if (!psxExe.isParsed()) {
 			monitor.setMessage(String.format("%s : Cannot load", getName()));
