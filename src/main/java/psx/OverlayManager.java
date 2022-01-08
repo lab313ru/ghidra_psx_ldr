@@ -11,11 +11,10 @@ import javax.swing.event.DocumentListener;
 
 import docking.DialogComponentProvider;
 import docking.widgets.OptionDialog;
+import docking.widgets.textfield.HexOrDecimalInput;
 import ghidra.app.cmd.memory.AddInitializedMemoryBlockCmd;
-import ghidra.app.util.AddressInput;
 import ghidra.framework.store.LockException;
-import ghidra.program.model.address.Address;
-import ghidra.program.model.address.AddressFactory;
+import ghidra.program.model.address.AddressSpace;
 import ghidra.program.model.listing.Program;
 import ghidra.program.model.mem.Memory;
 import ghidra.program.model.mem.MemoryAccessException;
@@ -48,7 +47,7 @@ public class OverlayManager extends JPanel {
 	private final JTextField blockName;
 	private final JButton btnNewBlock;
 	private final JLabel lblBlockStart;
-	private final AddressInput blockStart;
+	private final HexOrDecimalInput blockStart;
 	private final DialogComponentProvider provider;
 	private final Memory memory;
 	private final Program program;
@@ -154,7 +153,7 @@ public class OverlayManager extends JPanel {
 		pnlNewBlock.add(lblBlockStart, gbc_lblBlockStart);
 		lblBlockStart.setHorizontalAlignment(SwingConstants.RIGHT);
 		
-		blockStart = new AddressInput();
+		blockStart = new HexOrDecimalInput();
 		GridBagConstraints gbc_blockStart = new GridBagConstraints();
 		gbc_blockStart.fill = GridBagConstraints.HORIZONTAL;
 		gbc_blockStart.insets = new Insets(0, 0, 5, 0);
@@ -192,10 +191,9 @@ public class OverlayManager extends JPanel {
 		gbc_btnDeleteBlock.gridy = 3;
 		add(btnDeleteBlock, gbc_btnDeleteBlock);
 		
-		AddressFactory addrFactory = program.getAddressFactory();
-		blockStart.setAddressFactory(addrFactory, true, false);
-		blockStart.setAddress(program.getImageBase());
-		blockStart.addChangeListener(ev -> checkNameAndAddress());
+		blockStart.setHexMode();
+		blockStart.setAllowNegative(false);
+		blockStart.setValue(program.getImageBase().getOffset());
 		
 		chkNewBlock.addActionListener(new ActionListener() {
 			
@@ -230,6 +228,7 @@ public class OverlayManager extends JPanel {
 		});
 		
 		setBlockNameListener();
+		setBlockStartListener();
 		setNewBlockListener();
 		setFillBlockListener();
 		setDeleteBlockListener();
@@ -304,25 +303,13 @@ public class OverlayManager extends JPanel {
 	
 	private boolean addressChanged() {
 		btnNewBlock.setEnabled(false);
-		Address addr = null;
-
-		try {
-			addr = blockStart.getAddress();
-		}
-		catch (IllegalArgumentException ignored) {
-		}
+		long addr = blockStart.getValue();
 		
-		if (addr == null) {
-			provider.setStatusText("Please enter a valid starting address", MessageType.ERROR);
-			return false;
-		}
-		
-		if ((addr.getOffset() < PsxLoader.ramBase) || (addr.getOffset() >= (PsxLoader.ramBase + PsxLoader.RAM_SIZE))) {
+		if ((addr < PsxLoader.ramBase) || (addr >= (PsxLoader.ramBase + PsxLoader.RAM_SIZE))) {
 			provider.setStatusText(String.format("An address must be in range: %08X-%08X", PsxLoader.ramBase, PsxLoader.ramBase + PsxLoader.RAM_SIZE - 1));
 			return false;
 		}
 		
-		blockStart.setAddress(addr);
 		provider.clearStatusText();
 		return true;
 	}
@@ -369,6 +356,26 @@ public class OverlayManager extends JPanel {
 			}
 		});
 	}
+	
+	private void setBlockStartListener() {
+		blockStart.getDocument().addDocumentListener(new DocumentListener() {
+			
+			@Override
+			public void removeUpdate(DocumentEvent e) {
+				checkNameAndAddress();
+			}
+			
+			@Override
+			public void insertUpdate(DocumentEvent e) {
+				checkNameAndAddress();
+			}
+			
+			@Override
+			public void changedUpdate(DocumentEvent e) {
+				checkNameAndAddress();
+			}
+		});
+	}
 
 	private void setNewBlockListener() {
 		JFileChooser jfc = new JFileChooser(program.getExecutablePath());
@@ -389,10 +396,12 @@ public class OverlayManager extends JPanel {
 					fis.close();
 					
 					Memory mem = program.getMemory();
-
+					AddressSpace defSpace = program.getAddressFactory().getDefaultAddressSpace();
+					
 					int tranId = program.startTransaction(String.format("Creating overlayed block %s from a binary", blockName.getText()));
+
 					AddInitializedMemoryBlockCmd cmd = new AddInitializedMemoryBlockCmd(
-							blockName.getText(), null, filePath, blockStart.getAddress(),
+							blockName.getText(), null, filePath, defSpace.getAddressInThisSpaceOnly(blockStart.getValue()),
 							fileData.length,
 							true, true, true, false, (byte) 0x00, true);
 					cmd.applyTo(program);
