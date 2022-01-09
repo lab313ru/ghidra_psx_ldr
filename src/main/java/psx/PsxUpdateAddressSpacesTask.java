@@ -17,6 +17,7 @@ import ghidra.program.model.address.AddressSpace;
 import ghidra.program.model.listing.Program;
 import ghidra.program.model.listing.VariableStorage;
 import ghidra.program.model.pcode.HighFunction;
+import ghidra.program.model.pcode.HighFunctionShellSymbol;
 import ghidra.program.model.pcode.HighSymbol;
 import ghidra.program.model.pcode.HighVariable;
 import ghidra.program.model.pcode.PcodeOp;
@@ -202,7 +203,10 @@ public class PsxUpdateAddressSpacesTask extends Task {
 			TestUtils.setInstanceField("address", symbolVarnode, newAddr);
 			TestUtils.setInstanceField("spaceID", symbolVarnode, spaceId);
 			
-			TestUtils.setInstanceField("symbol", symbol, newSymbol);
+			if (!(symbol instanceof HighFunctionShellSymbol)) { // like some function has been passed as an argument to another function
+				TestUtils.setInstanceField("symbol", symbol, newSymbol);
+			}
+			
 			TestUtils.setInstanceField("id", symbol, newSymbol.getID());
 			TestUtils.setInstanceField("name", symbol, newSymbol.getName());
 		}
