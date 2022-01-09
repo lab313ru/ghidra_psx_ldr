@@ -258,7 +258,11 @@ public class PsxPlugin extends ProgramPlugin {
 			final Reference[] instrRefs = instr.getReferencesFrom();
 			
 			for (final Reference ref : instrRefs) {
-				final Address[] overRefs = getOverlayRefAddresses(ref); 
+				final Address[] overRefs = getOverlayRefAddresses(ref);
+				
+				if (overRefs == null) {
+					break;
+				}
 				
 				for (final Address overRef : overRefs) {
 					Symbol sym = program.getSymbolTable().getPrimarySymbol(overRef);
