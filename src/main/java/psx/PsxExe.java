@@ -119,7 +119,7 @@ public class PsxExe implements StructConverter {
 	}
 	
 	public void setInitGp(long value) {
-		initGp = value;
+		initGp = value & 0xFFFFFFFFL;
 	}
 
 	@Override
