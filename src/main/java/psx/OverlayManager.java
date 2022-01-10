@@ -13,6 +13,7 @@ import docking.DialogComponentProvider;
 import docking.widgets.OptionDialog;
 import docking.widgets.textfield.HexOrDecimalInput;
 import ghidra.app.cmd.memory.AddInitializedMemoryBlockCmd;
+import ghidra.app.util.importer.MessageLog;
 import ghidra.framework.store.LockException;
 import ghidra.program.model.address.AddressSpace;
 import ghidra.program.model.listing.Program;
@@ -304,7 +305,7 @@ public class OverlayManager extends JPanel {
 	private boolean addressChanged() {
 		btnNewBlock.setEnabled(false);
 		long addr = blockStart.getValue();
-		
+
 		if ((addr < PsxLoader.ramBase) || (addr >= (PsxLoader.ramBase + PsxLoader.RAM_SIZE))) {
 			provider.setStatusText(String.format("An address must be in range: %08X-%08X", PsxLoader.ramBase, PsxLoader.ramBase + PsxLoader.RAM_SIZE - 1));
 			return false;
@@ -410,6 +411,9 @@ public class OverlayManager extends JPanel {
 					mem.setBytes(block.getStart(), fileData);
 					
 					program.endTransaction(tranId, true);
+					
+					MessageLog log = new MessageLog();
+					PsxLoader.setRegisterValue(program, "gp", block.getStart(), block.getEnd(), PsxLoader.psxGpReg, log);
 					
 					refreshBlocks();
 					checkNameAndAddress();

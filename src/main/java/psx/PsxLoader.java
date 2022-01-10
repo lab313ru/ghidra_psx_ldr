@@ -66,6 +66,9 @@ import psyq.DetectPsyQ;
 public class PsxLoader extends AbstractLibrarySupportLoader {
 	
 	public static final String PSYQ_VER_OPTION = "PsyQ Version";
+	public static final String GP_REG_VAL_OPTION = "GP Register";
+	public static final String SP_REG_VAL_OPTION = "SP Register";
+	public static final String PSX_RAM_BASE_OPTION = "RAM Base Address";
 
 	private static final long DEF_RAM_BASE = 0x80000000L;
 	public static final long RAM_SIZE = 0x200000L;
@@ -123,6 +126,7 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 	
 	private static final String OPTION_NAME = "RAM Base Address: ";
 	public static long ramBase = DEF_RAM_BASE;
+	public static long psxGpReg = DEF_RAM_BASE;
 
 	@Override
 	public String getName() {
@@ -217,7 +221,6 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 		}
 		
 		createSegments(provider, fpa, log);
-		addPsyqVerOption(program, ramBase, log);
 		
 		final Address initPc = fpa.toAddr(psxExe.getInitPc());
 		
@@ -244,8 +247,10 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 			}
 		}
 		
-		setRegisterValue(fpa, "gp", psxExe.getInitPc(), psxExe.getInitGp(), log);
-		setRegisterValue(fpa, "sp", psxExe.getInitPc(), psxExe.getSpBase() + psxExe.getSpOff(), log);
+		addPsyqVerOption(program, ramBase, log);
+		psxGpReg = psxExe.getInitGp();
+		setRegisterValue(program, "gp", fpa.toAddr(psxExe.getInitPc()), psxGpReg, log);
+		setRegisterValue(program, "sp", fpa.toAddr(psxExe.getInitPc()), psxExe.getSpBase() + psxExe.getSpOff(), log);
 		
 		Address romStart = fpa.toAddr(psxExe.getRomStart());
 		Reference mainRef = findAndAppyMain(provider, fpa, romStart, log);
@@ -268,7 +273,7 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 			String psyqVersion = DetectPsyQ.getPsyqVersion(mem, program.getAddressFactory().getDefaultAddressSpace().getAddress(searchBase));
 			
 			Options opts = program.getOptions(Program.PROGRAM_INFO);
-			opts.registerOption(PSYQ_VER_OPTION, "", null, "PsyQ version");
+			opts.registerOption(PSYQ_VER_OPTION, "", null, PSYQ_VER_OPTION);
 
 			if (!psyqVersion.isEmpty()) {
 				String subVer = psyqVersion.substring(2);
@@ -354,15 +359,21 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 		opts.setString(PsxLoader.PSYQ_VER_OPTION, newVersion.replace(".", ""));
 	}
 	
-	private static void setRegisterValue(FlatProgramAPI fpa, String name, long startAddress, long value, MessageLog log) {
-		Program program = fpa.getCurrentProgram();
-		
+	public static void setRegisterValue(Program program, String name, Address start, long value, MessageLog log) {
+		setRegisterValue(program, name, start, start, value, log);
+	}
+	
+	public static void setRegisterValue(Program program, String name, Address start, Address end, long value, MessageLog log) {
+		int transId = program.startTransaction(String.format("Apply %s register value", name));
 		RegisterValue regVal = new RegisterValue(program.getRegister(name), BigInteger.valueOf(value));
-		Address start = fpa.toAddr(startAddress);
+
 		try {
-			program.getProgramContext().setRegisterValue(start, start, regVal);
+			program.getProgramContext().setRegisterValue(start, end, regVal);
 		} catch (ContextChangeException e) {
 			log.appendException(e);
+		}
+		finally {
+			program.endTransaction(transId, true);
 		}
 	}
 	
@@ -549,7 +560,7 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 			_sdata_block.setWrite(true);
 			_sdata_block.setExecute(false);
 			
-			setRegisterValue(fpa, "gp", mainRef.getToAddress().getOffset(), _sdata_addr.getOffset(), log);
+			setRegisterValue(program, "gp", mainRef.getToAddress(), _sdata_addr.getOffset(), log);
 			
 			Address _sbss_addr = fpa.toAddr((sbss1.getUnsignedValue() << 16) + ((Scalar)(sbss2[0])).getSignedValue());
 			MemoryBlock _sbss_block = mem.getBlock(_sbss_addr);
