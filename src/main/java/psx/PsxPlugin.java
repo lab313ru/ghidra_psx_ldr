@@ -195,7 +195,9 @@ public class PsxPlugin extends ProgramPlugin {
 	
 	@Override
 	protected void programDeactivated(Program program) {
-		TestUtils.setInstanceField("callbackHandler", decompController, callbackHandler);
+		if (decompController != null) {
+			TestUtils.setInstanceField("callbackHandler", decompController, callbackHandler);
+		}
 		
 		setOverrides(program, oldMap);
 	}
@@ -216,6 +218,10 @@ public class PsxPlugin extends ProgramPlugin {
 	}
 	
 	private void setOverrides(Program program, PsxUpdateAddressSpacesOverrides newOverrides) {
+		if (newOverrides == null) {
+			return;
+		}
+		
 		ProgramUserData data = program.getProgramUserData();
 		
 		int transactionId = data.startTransaction();

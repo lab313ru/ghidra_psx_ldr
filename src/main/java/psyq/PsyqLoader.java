@@ -111,7 +111,7 @@ public class PsyqLoader extends AbstractLibrarySupportLoader {
 			int version = reader.readByte(3);
 			
 			if (version == 2) {
-				loadSpecs.add(new LoadSpec(this, 0, new LanguageCompilerSpecPair("MIPS:LE:32:default", "default"), true));
+				loadSpecs.add(new LoadSpec(this, 0, new LanguageCompilerSpecPair("PSX:LE:32:default", "default"), true));
 			}
 		}
 

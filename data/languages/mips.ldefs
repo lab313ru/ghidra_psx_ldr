@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<language_definitions>
+  <language processor="PSX"
+            endian="little"
+            size="32"
+            variant="default"
+            version="1.5"
+            slafile="mips32le.sla"
+            processorspec="mips32.pspec"
+            id="PSX:LE:32:default">
+    <description>PSX 32-bit addresses, little endian</description>
+    <compiler name="default" spec="mips32le.cspec" id="default"/>
+  </language>
+</language_definitions>

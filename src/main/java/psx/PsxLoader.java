@@ -142,7 +142,7 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 		psxExe = new PsxExe(reader);
 		
 		if (psxExe.isParsed()) {
-			loadSpecs.add(new LoadSpec(this, 0, new LanguageCompilerSpecPair("MIPS:LE:32:default", "default"), true));
+			loadSpecs.add(new LoadSpec(this, 0, new LanguageCompilerSpecPair("PSX:LE:32:default", "default"), true));
 		}
 
 		return loadSpecs;
