@@ -135,186 +135,54 @@ is_addi: is $(AMODE) & REL6=0 & prime=8 & RT {}
 is_mfc2: is $(AMODE) & prime=0x12 & copop=0 {}
 
 lwc2_0_0: is is_lwc2 & OFF_BASE & simmed=0 & rt=0 {}
-lwc2_0_4: is is_lwc2 & OFF_BASE & simmed=4 & rt=0 {}
-lwc2_0_8: is is_lwc2 & OFF_BASE & simmed=8 & rt=0 {}
-lwc2_0_12: is is_lwc2 & OFF_BASE & simmed=12 & rt=0 {}
-lwc2_0_16: is is_lwc2 & OFF_BASE & simmed=16 & rt=0 {}
-lwc2_0_20: is is_lwc2 & OFF_BASE & simmed=20 & rt=0 {}
-lwc2_0_24: is is_lwc2 & OFF_BASE & simmed=24 & rt=0 {}
-lwc2_0_28: is is_lwc2 & OFF_BASE & simmed=28 & rt=0 {}
 
-lwc2_1_0: is is_lwc2 & OFF_BASE & simmed=0 & rt=1 {}
 lwc2_1_4: is is_lwc2 & OFF_BASE & simmed=4 & rt=1 {}
 lwc2_1_8: is is_lwc2 & OFF_BASE & simmed=8 & rt=1 {}
-lwc2_1_12: is is_lwc2 & OFF_BASE & simmed=12 & rt=1 {}
-lwc2_1_16: is is_lwc2 & OFF_BASE & simmed=16 & rt=1 {}
-lwc2_1_20: is is_lwc2 & OFF_BASE & simmed=20 & rt=1 {}
-lwc2_1_24: is is_lwc2 & OFF_BASE & simmed=24 & rt=1 {}
-lwc2_1_28: is is_lwc2 & OFF_BASE & simmed=28 & rt=1 {}
 
 lwc2_2_0: is is_lwc2 & OFF_BASE & simmed=0 & rt=2 {}
-lwc2_2_4: is is_lwc2 & OFF_BASE & simmed=4 & rt=2 {}
 lwc2_2_8: is is_lwc2 & OFF_BASE & simmed=8 & rt=2 {}
 lwc2_2_12: is is_lwc2 & OFF_BASE & simmed=12 & rt=2 {}
-lwc2_2_16: is is_lwc2 & OFF_BASE & simmed=16 & rt=2 {}
-lwc2_2_20: is is_lwc2 & OFF_BASE & simmed=20 & rt=2 {}
-lwc2_2_24: is is_lwc2 & OFF_BASE & simmed=24 & rt=2 {}
-lwc2_2_28: is is_lwc2 & OFF_BASE & simmed=28 & rt=2 {}
 
-lwc2_3_0: is is_lwc2 & OFF_BASE & simmed=0 & rt=3 {}
 lwc2_3_4: is is_lwc2 & OFF_BASE & simmed=4 & rt=3 {}
-lwc2_3_8: is is_lwc2 & OFF_BASE & simmed=8 & rt=3 {}
 lwc2_3_12: is is_lwc2 & OFF_BASE & simmed=12 & rt=3 {}
 lwc2_3_16: is is_lwc2 & OFF_BASE & simmed=16 & rt=3 {}
-lwc2_3_20: is is_lwc2 & OFF_BASE & simmed=20 & rt=3 {}
-lwc2_3_24: is is_lwc2 & OFF_BASE & simmed=24 & rt=3 {}
-lwc2_3_28: is is_lwc2 & OFF_BASE & simmed=28 & rt=3 {}
 
 lwc2_4_0: is is_lwc2 & OFF_BASE & simmed=0 & rt=4 {}
-lwc2_4_4: is is_lwc2 & OFF_BASE & simmed=4 & rt=4 {}
-lwc2_4_8: is is_lwc2 & OFF_BASE & simmed=8 & rt=4 {}
-lwc2_4_12: is is_lwc2 & OFF_BASE & simmed=12 & rt=4 {}
 lwc2_4_16: is is_lwc2 & OFF_BASE & simmed=16 & rt=4 {}
-lwc2_4_20: is is_lwc2 & OFF_BASE & simmed=20 & rt=4 {}
 lwc2_4_24: is is_lwc2 & OFF_BASE & simmed=24 & rt=4 {}
-lwc2_4_28: is is_lwc2 & OFF_BASE & simmed=28 & rt=4 {}
 
-lwc2_5_0: is is_lwc2 & OFF_BASE & simmed=0 & rt=5 {}
 lwc2_5_4: is is_lwc2 & OFF_BASE & simmed=4 & rt=5 {}
-lwc2_5_8: is is_lwc2 & OFF_BASE & simmed=8 & rt=5 {}
-lwc2_5_12: is is_lwc2 & OFF_BASE & simmed=12 & rt=5 {}
-lwc2_5_16: is is_lwc2 & OFF_BASE & simmed=16 & rt=5 {}
 lwc2_5_20: is is_lwc2 & OFF_BASE & simmed=20 & rt=5 {}
-lwc2_5_24: is is_lwc2 & OFF_BASE & simmed=24 & rt=5 {}
 lwc2_5_28: is is_lwc2 & OFF_BASE & simmed=28 & rt=5 {}
 
 lwc2_6_0: is is_lwc2 & OFF_BASE & simmed=0 & rt=6 {}
-lwc2_6_4: is is_lwc2 & OFF_BASE & simmed=4 & rt=6 {}
 lwc2_6_8: is is_lwc2 & OFF_BASE & simmed=8 & rt=6 {}
-lwc2_6_12: is is_lwc2 & OFF_BASE & simmed=12 & rt=6 {}
-lwc2_6_16: is is_lwc2 & OFF_BASE & simmed=16 & rt=6 {}
-lwc2_6_20: is is_lwc2 & OFF_BASE & simmed=20 & rt=6 {}
-lwc2_6_24: is is_lwc2 & OFF_BASE & simmed=24 & rt=6 {}
-lwc2_6_28: is is_lwc2 & OFF_BASE & simmed=28 & rt=6 {}
-
-lwc2_7_0: is is_lwc2 & OFF_BASE & simmed=0 & rt=7 {}
-lwc2_7_4: is is_lwc2 & OFF_BASE & simmed=4 & rt=7 {}
-lwc2_7_8: is is_lwc2 & OFF_BASE & simmed=8 & rt=7 {}
-lwc2_7_12: is is_lwc2 & OFF_BASE & simmed=12 & rt=7 {}
-lwc2_7_16: is is_lwc2 & OFF_BASE & simmed=16 & rt=7 {}
-lwc2_7_20: is is_lwc2 & OFF_BASE & simmed=20 & rt=7 {}
-lwc2_7_24: is is_lwc2 & OFF_BASE & simmed=24 & rt=7 {}
-lwc2_7_28: is is_lwc2 & OFF_BASE & simmed=28 & rt=7 {}
-
-lwc2_8_0: is is_lwc2 & OFF_BASE & simmed=0 & rt=8 {}
-lwc2_8_4: is is_lwc2 & OFF_BASE & simmed=4 & rt=8 {}
-lwc2_8_8: is is_lwc2 & OFF_BASE & simmed=8 & rt=8 {}
-lwc2_8_12: is is_lwc2 & OFF_BASE & simmed=12 & rt=8 {}
-lwc2_8_16: is is_lwc2 & OFF_BASE & simmed=16 & rt=8 {}
-lwc2_8_20: is is_lwc2 & OFF_BASE & simmed=20 & rt=8 {}
-lwc2_8_24: is is_lwc2 & OFF_BASE & simmed=24 & rt=8 {}
-lwc2_8_28: is is_lwc2 & OFF_BASE & simmed=28 & rt=8 {}
 
 lwc2_9_0: is is_lwc2 & OFF_BASE & simmed=0 & rt=9 {}
-lwc2_9_4: is is_lwc2 & OFF_BASE & simmed=4 & rt=9 {}
-lwc2_9_8: is is_lwc2 & OFF_BASE & simmed=8 & rt=9 {}
-lwc2_9_12: is is_lwc2 & OFF_BASE & simmed=12 & rt=9 {}
-lwc2_9_16: is is_lwc2 & OFF_BASE & simmed=16 & rt=9 {}
-lwc2_9_20: is is_lwc2 & OFF_BASE & simmed=20 & rt=9 {}
-lwc2_9_24: is is_lwc2 & OFF_BASE & simmed=24 & rt=9 {}
-lwc2_9_28: is is_lwc2 & OFF_BASE & simmed=28 & rt=9 {}
 
-lwc2_10_0: is is_lwc2 & OFF_BASE & simmed=0 & rt=10 {}
 lwc2_10_4: is is_lwc2 & OFF_BASE & simmed=4 & rt=10 {}
-lwc2_10_8: is is_lwc2 & OFF_BASE & simmed=8 & rt=10 {}
-lwc2_10_12: is is_lwc2 & OFF_BASE & simmed=12 & rt=10 {}
-lwc2_10_16: is is_lwc2 & OFF_BASE & simmed=16 & rt=10 {}
-lwc2_10_20: is is_lwc2 & OFF_BASE & simmed=20 & rt=10 {}
-lwc2_10_24: is is_lwc2 & OFF_BASE & simmed=24 & rt=10 {}
-lwc2_10_28: is is_lwc2 & OFF_BASE & simmed=28 & rt=10 {}
 
-lwc2_11_0: is is_lwc2 & OFF_BASE & simmed=0 & rt=11 {}
-lwc2_11_4: is is_lwc2 & OFF_BASE & simmed=4 & rt=11 {}
 lwc2_11_8: is is_lwc2 & OFF_BASE & simmed=8 & rt=11 {}
-lwc2_11_12: is is_lwc2 & OFF_BASE & simmed=12 & rt=11 {}
-lwc2_11_16: is is_lwc2 & OFF_BASE & simmed=16 & rt=11 {}
-lwc2_11_20: is is_lwc2 & OFF_BASE & simmed=20 & rt=11 {}
-lwc2_11_24: is is_lwc2 & OFF_BASE & simmed=24 & rt=11 {}
-lwc2_11_28: is is_lwc2 & OFF_BASE & simmed=28 & rt=11 {}
 
 lwc2_12_0: is is_lwc2 & OFF_BASE & simmed=0 & rt=12 {}
-lwc2_12_4: is is_lwc2 & OFF_BASE & simmed=4 & rt=12 {}
-lwc2_12_8: is is_lwc2 & OFF_BASE & simmed=8 & rt=12 {}
-lwc2_12_12: is is_lwc2 & OFF_BASE & simmed=12 & rt=12 {}
-lwc2_12_16: is is_lwc2 & OFF_BASE & simmed=16 & rt=12 {}
-lwc2_12_20: is is_lwc2 & OFF_BASE & simmed=20 & rt=12 {}
-lwc2_12_24: is is_lwc2 & OFF_BASE & simmed=24 & rt=12 {}
-lwc2_12_28: is is_lwc2 & OFF_BASE & simmed=28 & rt=12 {}
 
-lwc2_13_0: is is_lwc2 & OFF_BASE & simmed=0 & rt=13 {}
 lwc2_13_4: is is_lwc2 & OFF_BASE & simmed=4 & rt=13 {}
-lwc2_13_8: is is_lwc2 & OFF_BASE & simmed=8 & rt=13 {}
-lwc2_13_12: is is_lwc2 & OFF_BASE & simmed=12 & rt=13 {}
-lwc2_13_16: is is_lwc2 & OFF_BASE & simmed=16 & rt=13 {}
-lwc2_13_20: is is_lwc2 & OFF_BASE & simmed=20 & rt=13 {}
-lwc2_13_24: is is_lwc2 & OFF_BASE & simmed=24 & rt=13 {}
-lwc2_13_28: is is_lwc2 & OFF_BASE & simmed=28 & rt=13 {}
 
-lwc2_14_0: is is_lwc2 & OFF_BASE & simmed=0 & rt=14 {}
-lwc2_14_4: is is_lwc2 & OFF_BASE & simmed=4 & rt=14 {}
 lwc2_14_8: is is_lwc2 & OFF_BASE & simmed=8 & rt=14 {}
-lwc2_14_12: is is_lwc2 & OFF_BASE & simmed=12 & rt=14 {}
-lwc2_14_16: is is_lwc2 & OFF_BASE & simmed=16 & rt=14 {}
-lwc2_14_20: is is_lwc2 & OFF_BASE & simmed=20 & rt=14 {}
-lwc2_14_24: is is_lwc2 & OFF_BASE & simmed=24 & rt=14 {}
-lwc2_14_28: is is_lwc2 & OFF_BASE & simmed=28 & rt=14 {}
 
 lwc2_20_0: is is_lwc2 & OFF_BASE & simmed=0 & rt=20 {}
-lwc2_20_4: is is_lwc2 & OFF_BASE & simmed=4 & rt=20 {}
-lwc2_20_8: is is_lwc2 & OFF_BASE & simmed=8 & rt=20 {}
-lwc2_20_12: is is_lwc2 & OFF_BASE & simmed=12 & rt=20 {}
-lwc2_20_16: is is_lwc2 & OFF_BASE & simmed=16 & rt=20 {}
-lwc2_20_20: is is_lwc2 & OFF_BASE & simmed=20 & rt=20 {}
-lwc2_20_24: is is_lwc2 & OFF_BASE & simmed=24 & rt=20 {}
-lwc2_20_28: is is_lwc2 & OFF_BASE & simmed=28 & rt=20 {}
 
 lwc2_21_0: is is_lwc2 & OFF_BASE & simmed=0 & rt=21 {}
 lwc2_21_4: is is_lwc2 & OFF_BASE & simmed=4 & rt=21 {}
-lwc2_21_8: is is_lwc2 & OFF_BASE & simmed=8 & rt=21 {}
-lwc2_21_12: is is_lwc2 & OFF_BASE & simmed=12 & rt=21 {}
-lwc2_21_16: is is_lwc2 & OFF_BASE & simmed=16 & rt=21 {}
-lwc2_21_20: is is_lwc2 & OFF_BASE & simmed=20 & rt=21 {}
-lwc2_21_24: is is_lwc2 & OFF_BASE & simmed=24 & rt=21 {}
-lwc2_21_28: is is_lwc2 & OFF_BASE & simmed=28 & rt=21 {}
 
 lwc2_22_0: is is_lwc2 & OFF_BASE & simmed=0 & rt=22 {}
-lwc2_22_4: is is_lwc2 & OFF_BASE & simmed=4 & rt=22 {}
 lwc2_22_8: is is_lwc2 & OFF_BASE & simmed=8 & rt=22 {}
-lwc2_22_12: is is_lwc2 & OFF_BASE & simmed=12 & rt=22 {}
-lwc2_22_16: is is_lwc2 & OFF_BASE & simmed=16 & rt=22 {}
-lwc2_22_20: is is_lwc2 & OFF_BASE & simmed=20 & rt=22 {}
-lwc2_22_24: is is_lwc2 & OFF_BASE & simmed=24 & rt=22 {}
-lwc2_22_28: is is_lwc2 & OFF_BASE & simmed=28 & rt=22 {}
 
 lhu_12_0: is is_lhu & OFF_BASE & simmed=0 & rt=12 {}
-lhu_12_4: is is_lhu & OFF_BASE & simmed=4 & rt=12 {}
-lhu_12_8: is is_lhu & OFF_BASE & simmed=8 & rt=12 {}
-lhu_12_12: is is_lhu & OFF_BASE & simmed=12 & rt=12 {}
-lhu_12_16: is is_lhu & OFF_BASE & simmed=16 & rt=12 {}
-lhu_12_20: is is_lhu & OFF_BASE & simmed=20 & rt=12 {}
-lhu_12_24: is is_lhu & OFF_BASE & simmed=24 & rt=12 {}
-lhu_12_28: is is_lhu & OFF_BASE & simmed=28 & rt=12 {}
 
-lhu_13_0: is is_lhu & OFF_BASE & simmed=0 & rt=13 {}
 lhu_13_2: is is_lhu & OFF_BASE & simmed=2 & rt=13 {}
 lhu_13_4: is is_lhu & OFF_BASE & simmed=4 & rt=13 {}
 lhu_13_6: is is_lhu & OFF_BASE & simmed=6 & rt=13 {}
-lhu_13_8: is is_lhu & OFF_BASE & simmed=8 & rt=13 {}
-lhu_13_12: is is_lhu & OFF_BASE & simmed=12 & rt=13 {}
-lhu_13_16: is is_lhu & OFF_BASE & simmed=16 & rt=13 {}
-lhu_13_20: is is_lhu & OFF_BASE & simmed=20 & rt=13 {}
-lhu_13_24: is is_lhu & OFF_BASE & simmed=24 & rt=13 {}
-lhu_13_28: is is_lhu & OFF_BASE & simmed=28 & rt=13 {}
 
 lhu_14_4: is is_lhu & OFF_BASE & simmed=4 & rt=14 {}
 lhu_14_12: is is_lhu & OFF_BASE & simmed=12 & rt=14 {}
@@ -322,7 +190,8 @@ lhu_14_12: is is_lhu & OFF_BASE & simmed=12 & rt=14 {}
 sra_12_12_2: is is_sra & rd=12 & rt=12 & sa=2 {}
 sra_12_12_16: is is_sra & rd=12 & rt=12 & sa=16 {}
 sra_13_13_16: is is_sra & rd=13 & rt=13 & sa=16 {}
-sra_14_14_16: is is_sra & rd=14 & rt=14 & sa=16 {}
+sra_14_14_16_1: is is_sra & rd1=14 & rt1=14 & sa_1=16 {}
+sra_14_14_16_2: is is_sra & rd2=14 & rt2=14 & sa_2=16 {}
 sra_15_12_16: is is_sra & rd=15 & rt=12 & sa=16 {}
 sra_15_13_16: is is_sra & rd=15 & rt=13 & sa=16 {}
 sll_12_x_4: is is_sll & rd=12 & sa=4 {}
@@ -332,57 +201,29 @@ sll_13_x_16: is is_sll & rd=13 & sa=16 {}
 sll_13_13_16: is is_sll & rd=13 & rt=13 & sa=16 {}
 sll_14_12_16: is is_sll & rd=14 & rt=12 & sa=16 {}
 sll_14_13_16: is is_sll & rd=14 & rt=13 & sa=16 {}
-sll_14_14_16: is is_sll & rd=14 & rt=14 & sa=16 {}
-sll_15_15_16: is is_sll & rd=15 & rt=15 & sa=16 {}
+sll_14_14_16_1: is is_sll & rd1=14 & rt1=14 & sa_1=16 {}
+sll_14_14_16_2: is is_sll & rd2=14 & rt2=14 & sa_2=16 {}
+sll_15_15_16_1: is is_sll & rd1=15 & rt1=15 & sa_1=16 {}
+sll_15_15_16_2: is is_sll & rd2=15 & rt2=15 & sa_2=16 {}
 sll_14_x_4: is is_sll & rd=14 & sa=4 {}
-srl_14_14_16: is is_srl & rd=14 & rt=14 & sa=16 {}
+srl_14_14_16_1: is is_srl & rd1=14 & rt1=14 & sa_1=16 {}
+srl_14_14_16_2: is is_srl & rd2=14 & rt2=14 & sa_2=16 {}
 
 or_12_12_13: is is_or & rd=12 & rs=12 & rt=13 {}
+or_14_14_15_1: is is_or & rd1=14 & rs1=14 & rt1=15 {}
+or_14_14_15_2: is is_or & rd2=14 & rs2=14 & rt2=15 {}
 
 mtc2_12_0: is is_mtc2 & rt=12 & immed=0 {}
-mtc2_12_1: is is_mtc2 & rt=12 & immed=1 {}
-mtc2_12_2: is is_mtc2 & rt=12 & immed=2 {}
-mtc2_12_3: is is_mtc2 & rt=12 & immed=3 {}
-mtc2_12_4: is is_mtc2 & rt=12 & immed=4 {}
-mtc2_12_5: is is_mtc2 & rt=12 & immed=5 {}
-mtc2_12_6: is is_mtc2 & rt=12 & immed=6 {}
-mtc2_12_7: is is_mtc2 & rt=12 & immed=7 {}
-mtc2_12_8: is is_mtc2 & rt=12 & immed=8 {}
 mtc2_12_9: is is_mtc2 & rt=12 & immed=9 {}
-mtc2_12_10: is is_mtc2 & rt=12 & immed=10 {}
-mtc2_12_11: is is_mtc2 & rt=12 & immed=11 {}
 
-mtc2_13_0: is is_mtc2 & rt=13 & immed=0 {}
-mtc2_13_1: is is_mtc2 & rt=13 & immed=1 {}
-mtc2_13_2: is is_mtc2 & rt=13 & immed=2 {}
-mtc2_13_3: is is_mtc2 & rt=13 & immed=3 {}
-mtc2_13_4: is is_mtc2 & rt=13 & immed=4 {}
-mtc2_13_5: is is_mtc2 & rt=13 & immed=5 {}
-mtc2_13_6: is is_mtc2 & rt=13 & immed=6 {}
-mtc2_13_7: is is_mtc2 & rt=13 & immed=7 {}
-mtc2_13_8: is is_mtc2 & rt=13 & immed=8 {}
-mtc2_13_9: is is_mtc2 & rt=13 & immed=9 {}
 mtc2_13_10: is is_mtc2 & rt=13 & immed=10 {}
-mtc2_13_11: is is_mtc2 & rt=13 & immed=11 {}
 
-mtc2_14_0: is is_mtc2 & rt=14 & immed=0 {}
-mtc2_14_1: is is_mtc2 & rt=14 & immed=1 {}
-mtc2_14_2: is is_mtc2 & rt=14 & immed=2 {}
-mtc2_14_3: is is_mtc2 & rt=14 & immed=3 {}
-mtc2_14_4: is is_mtc2 & rt=14 & immed=4 {}
-mtc2_14_5: is is_mtc2 & rt=14 & immed=5 {}
-mtc2_14_6: is is_mtc2 & rt=14 & immed=6 {}
-mtc2_14_7: is is_mtc2 & rt=14 & immed=7 {}
-mtc2_14_8: is is_mtc2 & rt=14 & immed=8 {}
-mtc2_14_9: is is_mtc2 & rt=14 & immed=9 {}
-mtc2_14_10: is is_mtc2 & rt=14 & immed=10 {}
 mtc2_14_11: is is_mtc2 & rt=14 & immed=11 {}
 
 mtc2_x_8: is is_mtc2 & immed=8 {}
 mtc2_x_12: is is_mtc2 & immed=12 {}
 mtc2_x_13: is is_mtc2 & immed=13 {}
 mtc2_x_14: is is_mtc2 & immed=14 {}
-mtc2_x_15: is is_mtc2 & immed=15 {}
 mtc2_x_16: is is_mtc2 & immed=16 {}
 mtc2_x_17: is is_mtc2 & immed=17 {}
 mtc2_x_18: is is_mtc2 & immed=18 {}
@@ -506,187 +347,63 @@ cfc2_14_20: is is_cfc2 & rt=14 & immed=(20<<11) {}
 cfc2_14_23: is is_cfc2 & rt=14 & immed=(23<<11) {}
 
 swc2_7_0: is is_swc2 & OFF_BASE & simmed=0 & rt=7 {}
-swc2_7_4: is is_swc2 & OFF_BASE & simmed=4 & rt=7 {}
-swc2_7_8: is is_swc2 & OFF_BASE & simmed=8 & rt=7 {}
-swc2_7_12: is is_swc2 & OFF_BASE & simmed=12 & rt=7 {}
-swc2_7_16: is is_swc2 & OFF_BASE & simmed=16 & rt=7 {}
-swc2_7_20: is is_swc2 & OFF_BASE & simmed=20 & rt=7 {}
-swc2_7_24: is is_swc2 & OFF_BASE & simmed=24 & rt=7 {}
-swc2_7_28: is is_swc2 & OFF_BASE & simmed=28 & rt=7 {}
 
 swc2_8_0: is is_swc2 & OFF_BASE & simmed=0 & rt=8 {}
-swc2_8_4: is is_swc2 & OFF_BASE & simmed=4 & rt=8 {}
-swc2_8_8: is is_swc2 & OFF_BASE & simmed=8 & rt=8 {}
-swc2_8_12: is is_swc2 & OFF_BASE & simmed=12 & rt=8 {}
-swc2_8_16: is is_swc2 & OFF_BASE & simmed=16 & rt=8 {}
-swc2_8_20: is is_swc2 & OFF_BASE & simmed=20 & rt=8 {}
-swc2_8_24: is is_swc2 & OFF_BASE & simmed=24 & rt=8 {}
-swc2_8_28: is is_swc2 & OFF_BASE & simmed=28 & rt=8 {}
 
 swc2_9_0: is is_swc2 & OFF_BASE & simmed=0 & rt=9 {}
-swc2_9_4: is is_swc2 & OFF_BASE & simmed=4 & rt=9 {}
-swc2_9_8: is is_swc2 & OFF_BASE & simmed=8 & rt=9 {}
-swc2_9_12: is is_swc2 & OFF_BASE & simmed=12 & rt=9 {}
-swc2_9_16: is is_swc2 & OFF_BASE & simmed=16 & rt=9 {}
-swc2_9_20: is is_swc2 & OFF_BASE & simmed=20 & rt=9 {}
-swc2_9_24: is is_swc2 & OFF_BASE & simmed=24 & rt=9 {}
-swc2_9_28: is is_swc2 & OFF_BASE & simmed=28 & rt=9 {}
 
-swc2_10_0: is is_swc2 & OFF_BASE & simmed=0 & rt=10 {}
 swc2_10_4: is is_swc2 & OFF_BASE & simmed=4 & rt=10 {}
-swc2_10_8: is is_swc2 & OFF_BASE & simmed=8 & rt=10 {}
-swc2_10_12: is is_swc2 & OFF_BASE & simmed=12 & rt=10 {}
-swc2_10_16: is is_swc2 & OFF_BASE & simmed=16 & rt=10 {}
-swc2_10_20: is is_swc2 & OFF_BASE & simmed=20 & rt=10 {}
-swc2_10_24: is is_swc2 & OFF_BASE & simmed=24 & rt=10 {}
-swc2_10_28: is is_swc2 & OFF_BASE & simmed=28 & rt=10 {}
 
-swc2_11_0: is is_swc2 & OFF_BASE & simmed=0 & rt=11 {}
-swc2_11_4: is is_swc2 & OFF_BASE & simmed=4 & rt=11 {}
 swc2_11_8: is is_swc2 & OFF_BASE & simmed=8 & rt=11 {}
-swc2_11_12: is is_swc2 & OFF_BASE & simmed=12 & rt=11 {}
-swc2_11_16: is is_swc2 & OFF_BASE & simmed=16 & rt=11 {}
-swc2_11_20: is is_swc2 & OFF_BASE & simmed=20 & rt=11 {}
-swc2_11_24: is is_swc2 & OFF_BASE & simmed=24 & rt=11 {}
-swc2_11_28: is is_swc2 & OFF_BASE & simmed=28 & rt=11 {}
 
 swc2_12_0: is is_swc2 & OFF_BASE & simmed=0 & rt=12 {}
-swc2_12_4: is is_swc2 & OFF_BASE & simmed=4 & rt=12 {}
 swc2_12_8: is is_swc2 & OFF_BASE & simmed=8 & rt=12 {}
-swc2_12_12: is is_swc2 & OFF_BASE & simmed=12 & rt=12 {}
-swc2_12_16: is is_swc2 & OFF_BASE & simmed=16 & rt=12 {}
-swc2_12_20: is is_swc2 & OFF_BASE & simmed=20 & rt=12 {}
-swc2_12_24: is is_swc2 & OFF_BASE & simmed=24 & rt=12 {}
-swc2_12_28: is is_swc2 & OFF_BASE & simmed=28 & rt=12 {}
 
 swc2_13_0: is is_swc2 & OFF_BASE & simmed=0 & rt=13 {}
 swc2_13_4: is is_swc2 & OFF_BASE & simmed=4 & rt=13 {}
-swc2_13_8: is is_swc2 & OFF_BASE & simmed=8 & rt=13 {}
 swc2_13_12: is is_swc2 & OFF_BASE & simmed=12 & rt=13 {}
 swc2_13_16: is is_swc2 & OFF_BASE & simmed=16 & rt=13 {}
 swc2_13_20: is is_swc2 & OFF_BASE & simmed=20 & rt=13 {}
-swc2_13_24: is is_swc2 & OFF_BASE & simmed=24 & rt=13 {}
-swc2_13_28: is is_swc2 & OFF_BASE & simmed=28 & rt=13 {}
 
 swc2_14_0: is is_swc2 & OFF_BASE & simmed=0 & rt=14 {}
-swc2_14_4: is is_swc2 & OFF_BASE & simmed=4 & rt=14 {}
 swc2_14_8: is is_swc2 & OFF_BASE & simmed=8 & rt=14 {}
-swc2_14_12: is is_swc2 & OFF_BASE & simmed=12 & rt=14 {}
 swc2_14_16: is is_swc2 & OFF_BASE & simmed=16 & rt=14 {}
-swc2_14_20: is is_swc2 & OFF_BASE & simmed=20 & rt=14 {}
 swc2_14_24: is is_swc2 & OFF_BASE & simmed=24 & rt=14 {}
-swc2_14_28: is is_swc2 & OFF_BASE & simmed=28 & rt=14 {}
 swc2_14_32: is is_swc2 & OFF_BASE & simmed=32 & rt=14 {}
 
 swc2_16_0: is is_swc2 & OFF_BASE & simmed=0 & rt=16 {}
-swc2_16_4: is is_swc2 & OFF_BASE & simmed=4 & rt=16 {}
-swc2_16_8: is is_swc2 & OFF_BASE & simmed=8 & rt=16 {}
-swc2_16_12: is is_swc2 & OFF_BASE & simmed=12 & rt=16 {}
-swc2_16_16: is is_swc2 & OFF_BASE & simmed=16 & rt=16 {}
-swc2_16_20: is is_swc2 & OFF_BASE & simmed=20 & rt=16 {}
-swc2_16_24: is is_swc2 & OFF_BASE & simmed=24 & rt=16 {}
-swc2_16_28: is is_swc2 & OFF_BASE & simmed=28 & rt=16 {}
-swc2_16_32: is is_swc2 & OFF_BASE & simmed=32 & rt=16 {}
 
 swc2_17_0: is is_swc2 & OFF_BASE & simmed=0 & rt=17 {}
 swc2_17_4: is is_swc2 & OFF_BASE & simmed=4 & rt=17 {}
-swc2_17_8: is is_swc2 & OFF_BASE & simmed=8 & rt=17 {}
-swc2_17_12: is is_swc2 & OFF_BASE & simmed=12 & rt=17 {}
-swc2_17_16: is is_swc2 & OFF_BASE & simmed=16 & rt=17 {}
-swc2_17_20: is is_swc2 & OFF_BASE & simmed=20 & rt=17 {}
-swc2_17_24: is is_swc2 & OFF_BASE & simmed=24 & rt=17 {}
-swc2_17_28: is is_swc2 & OFF_BASE & simmed=28 & rt=17 {}
-swc2_17_32: is is_swc2 & OFF_BASE & simmed=32 & rt=17 {}
 
 swc2_18_0: is is_swc2 & OFF_BASE & simmed=0 & rt=18 {}
 swc2_18_4: is is_swc2 & OFF_BASE & simmed=4 & rt=18 {}
 swc2_18_8: is is_swc2 & OFF_BASE & simmed=8 & rt=18 {}
-swc2_18_12: is is_swc2 & OFF_BASE & simmed=12 & rt=18 {}
-swc2_18_16: is is_swc2 & OFF_BASE & simmed=16 & rt=18 {}
-swc2_18_20: is is_swc2 & OFF_BASE & simmed=20 & rt=18 {}
-swc2_18_24: is is_swc2 & OFF_BASE & simmed=24 & rt=18 {}
-swc2_18_28: is is_swc2 & OFF_BASE & simmed=28 & rt=18 {}
-swc2_18_32: is is_swc2 & OFF_BASE & simmed=32 & rt=18 {}
 
 swc2_19_0: is is_swc2 & OFF_BASE & simmed=0 & rt=19 {}
-swc2_19_4: is is_swc2 & OFF_BASE & simmed=4 & rt=19 {}
 swc2_19_8: is is_swc2 & OFF_BASE & simmed=8 & rt=19 {}
 swc2_19_12: is is_swc2 & OFF_BASE & simmed=12 & rt=19 {}
-swc2_19_16: is is_swc2 & OFF_BASE & simmed=16 & rt=19 {}
-swc2_19_20: is is_swc2 & OFF_BASE & simmed=20 & rt=19 {}
-swc2_19_24: is is_swc2 & OFF_BASE & simmed=24 & rt=19 {}
-swc2_19_28: is is_swc2 & OFF_BASE & simmed=28 & rt=19 {}
-swc2_19_32: is is_swc2 & OFF_BASE & simmed=32 & rt=19 {}
 
 swc2_20_0: is is_swc2 & OFF_BASE & simmed=0 & rt=20 {}
 swc2_20_4: is is_swc2 & OFF_BASE & simmed=4 & rt=20 {}
-swc2_20_8: is is_swc2 & OFF_BASE & simmed=8 & rt=20 {}
-swc2_20_12: is is_swc2 & OFF_BASE & simmed=12 & rt=20 {}
-swc2_20_16: is is_swc2 & OFF_BASE & simmed=16 & rt=20 {}
-swc2_20_20: is is_swc2 & OFF_BASE & simmed=20 & rt=20 {}
-swc2_20_24: is is_swc2 & OFF_BASE & simmed=24 & rt=20 {}
-swc2_20_28: is is_swc2 & OFF_BASE & simmed=28 & rt=20 {}
-swc2_20_32: is is_swc2 & OFF_BASE & simmed=32 & rt=20 {}
 
 swc2_21_0: is is_swc2 & OFF_BASE & simmed=0 & rt=21 {}
-swc2_21_4: is is_swc2 & OFF_BASE & simmed=4 & rt=21 {}
-swc2_21_8: is is_swc2 & OFF_BASE & simmed=8 & rt=21 {}
 swc2_21_12: is is_swc2 & OFF_BASE & simmed=12 & rt=21 {}
 swc2_21_16: is is_swc2 & OFF_BASE & simmed=16 & rt=21 {}
-swc2_21_20: is is_swc2 & OFF_BASE & simmed=20 & rt=21 {}
-swc2_21_24: is is_swc2 & OFF_BASE & simmed=24 & rt=21 {}
-swc2_21_28: is is_swc2 & OFF_BASE & simmed=28 & rt=21 {}
-swc2_21_32: is is_swc2 & OFF_BASE & simmed=32 & rt=21 {}
 
 swc2_22_0: is is_swc2 & OFF_BASE & simmed=0 & rt=22 {}
-swc2_22_4: is is_swc2 & OFF_BASE & simmed=4 & rt=22 {}
-swc2_22_8: is is_swc2 & OFF_BASE & simmed=8 & rt=22 {}
-swc2_22_12: is is_swc2 & OFF_BASE & simmed=12 & rt=22 {}
-swc2_22_16: is is_swc2 & OFF_BASE & simmed=16 & rt=22 {}
 swc2_22_20: is is_swc2 & OFF_BASE & simmed=20 & rt=22 {}
-swc2_22_24: is is_swc2 & OFF_BASE & simmed=24 & rt=22 {}
 swc2_22_28: is is_swc2 & OFF_BASE & simmed=28 & rt=22 {}
-swc2_22_32: is is_swc2 & OFF_BASE & simmed=32 & rt=22 {}
 
 swc2_24_0: is is_swc2 & OFF_BASE & simmed=0 & rt=24 {}
-swc2_24_4: is is_swc2 & OFF_BASE & simmed=4 & rt=24 {}
-swc2_24_8: is is_swc2 & OFF_BASE & simmed=8 & rt=24 {}
-swc2_24_12: is is_swc2 & OFF_BASE & simmed=12 & rt=24 {}
-swc2_24_16: is is_swc2 & OFF_BASE & simmed=16 & rt=24 {}
-swc2_24_20: is is_swc2 & OFF_BASE & simmed=20 & rt=24 {}
-swc2_24_24: is is_swc2 & OFF_BASE & simmed=24 & rt=24 {}
-swc2_24_28: is is_swc2 & OFF_BASE & simmed=28 & rt=24 {}
-swc2_24_32: is is_swc2 & OFF_BASE & simmed=32 & rt=24 {}
 
 swc2_25_0: is is_swc2 & OFF_BASE & simmed=0 & rt=25 {}
-swc2_25_4: is is_swc2 & OFF_BASE & simmed=4 & rt=25 {}
-swc2_25_8: is is_swc2 & OFF_BASE & simmed=8 & rt=25 {}
-swc2_25_12: is is_swc2 & OFF_BASE & simmed=12 & rt=25 {}
-swc2_25_16: is is_swc2 & OFF_BASE & simmed=16 & rt=25 {}
-swc2_25_20: is is_swc2 & OFF_BASE & simmed=20 & rt=25 {}
-swc2_25_24: is is_swc2 & OFF_BASE & simmed=24 & rt=25 {}
-swc2_25_28: is is_swc2 & OFF_BASE & simmed=28 & rt=25 {}
-swc2_25_32: is is_swc2 & OFF_BASE & simmed=32 & rt=25 {}
 
 swc2_26_0: is is_swc2 & OFF_BASE & simmed=0 & rt=26 {}
 swc2_26_4: is is_swc2 & OFF_BASE & simmed=4 & rt=26 {}
-swc2_26_8: is is_swc2 & OFF_BASE & simmed=8 & rt=26 {}
-swc2_26_12: is is_swc2 & OFF_BASE & simmed=12 & rt=26 {}
-swc2_26_16: is is_swc2 & OFF_BASE & simmed=16 & rt=26 {}
-swc2_26_20: is is_swc2 & OFF_BASE & simmed=20 & rt=26 {}
-swc2_26_24: is is_swc2 & OFF_BASE & simmed=24 & rt=26 {}
-swc2_26_28: is is_swc2 & OFF_BASE & simmed=28 & rt=26 {}
-swc2_26_32: is is_swc2 & OFF_BASE & simmed=32 & rt=26 {}
 
 swc2_27_0: is is_swc2 & OFF_BASE & simmed=0 & rt=27 {}
-swc2_27_4: is is_swc2 & OFF_BASE & simmed=4 & rt=27 {}
 swc2_27_8: is is_swc2 & OFF_BASE & simmed=8 & rt=27 {}
-swc2_27_12: is is_swc2 & OFF_BASE & simmed=12 & rt=27 {}
-swc2_27_16: is is_swc2 & OFF_BASE & simmed=16 & rt=27 {}
-swc2_27_20: is is_swc2 & OFF_BASE & simmed=20 & rt=27 {}
-swc2_27_24: is is_swc2 & OFF_BASE & simmed=24 & rt=27 {}
-swc2_27_28: is is_swc2 & OFF_BASE & simmed=28 & rt=27 {}
-swc2_27_32: is is_swc2 & OFF_BASE & simmed=32 & rt=27 {}
 
 swc2_31_0: is is_swc2 & OFF_BASE & simmed=0 & rt=31 {}
 
@@ -699,9 +416,13 @@ mfc2_14_11: is is_mfc2 & rt=14 & immed=(11<<11) {}
 mfc2_14_27: is is_mfc2 & rt=14 & immed=(27<<11) {}
 
 and_12_12_13: is is_and & rd=12 & rs=12 & rt=13 {}
+subu_12_0_12: is is_subu & rd=12 & rs=0 & rt=12 {}
 subu_12_12_13: is is_subu & rd=12 & rs=12 & rt=13 {}
-addu_12_12_13: is is_addu & rd=12 & rs=12 & rt=13 {}
+subu_14_0_14_1: is is_subu & rd1=14 & rs1=0 & rt1=14 {}
+subu_14_0_14_2: is is_subu & rd2=14 & rs2=0 & rt2=14 {}
+subu_15_0_15: is is_subu & rd=15 & rs=0 & rt=15 {}
 subu_15_12_13: is is_subu & rd=15 & rs=12 & rt=13 {}
+addu_12_12_13: is is_addu & rd=12 & rs=12 & rt=13 {}
 addu_15_12_13: is is_addu & rd=15 & rs=12 & rt=13 {}
 addi_13_0_4: is is_addi & rt=13 & rs=0 & simmed=4 {}
 
@@ -910,10 +631,6 @@ addi_13_0_4: is is_addi & rt=13 & rs=0 & simmed=4 {}
 	gte_stsxy3c(base);
 }
 
-:stsxy2 base is swc2_14_0 & base {
-	gte_stsxy2(base);
-}
-
 :stsxy1 base is swc2_13_0 & base {
 	gte_stsxy1(base);
 }
@@ -1038,7 +755,7 @@ addi_13_0_4: is is_addi & rt=13 & rs=0 & simmed=4 {}
     gte_strgb3_gt3(base);
 }
 
-:ReadGeomOffset base1,base2 is cfc2_12_24; cfc2_13_25; sra_12_12_16; sra_13_13_16; sw_12_0 & base; sw_13_0 {
+:ReadGeomOffset base1,base2 is cfc2_12_24; cfc2_13_25; sra_12_12_16; sra_13_13_16; sw_12_0 & base1; sw_13_0 & base2 {
     gte_ReadGeomOffset(base1,base2);
 }
 
@@ -1090,7 +807,7 @@ addi_13_0_4: is is_addi & rt=13 & rs=0 & simmed=4 {}
     gte_adddvd(base1,base2,base3);
 }
 
-:FlipRotMatrixX is cfc2_12_0; cfc2_13_1; sll_14_12_16; sra_14_14_16; subu_14_0_14; sra_15_12_16; subu_15_0_15; sll_15_15_16; sll_14_14_16; srl_14_14_16; or_14_14_15; ctc2_14_0; sll_14_13_16; sra_14_14_16; subu_14_0_14; sra_15_13_16; sll_15_15_16; sll_14_14_16; srl_14_14_16; or_14_14_15; ctc2_14_1 {
+:FlipRotMatrixX is cfc2_12_0; cfc2_13_1; sll_14_12_16; sra_14_14_16_1; subu_14_0_14_1; sra_15_12_16; subu_15_0_15; sll_15_15_16_1; sll_14_14_16_1; srl_14_14_16_1; or_14_14_15_1; ctc2_14_0; sll_14_13_16; sra_14_14_16_2; subu_14_0_14_2; sra_15_13_16; sll_15_15_16_2; sll_14_14_16_2; srl_14_14_16_2; or_14_14_15_2; ctc2_14_1 {
     gte_FlipRotMatrixX();
 }
 
