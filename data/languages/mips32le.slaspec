@@ -7,4 +7,4 @@
 @include "mips.sinc"
 @include "mips32Instructions.sinc"
 @include "inline_s.sinc"
-@include "getnom.sinc"
+@include "inline_c.sinc"
