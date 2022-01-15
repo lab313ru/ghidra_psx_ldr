@@ -185,4 +185,1158 @@ mfc2_13_26: is is_mfc2 & rt=13 & immed=(26<<11) {}
 mfc2_14_11: is is_mfc2 & rt=14 & immed=(11<<11) {}
 mfc2_14_27: is is_mfc2 & rt=14 & immed=(27<<11) {}
 
-@include "cop2_data_regs.sinc"
+define pcodeop gte_set_vxy0;
+define pcodeop gte_set_vz0;
+define pcodeop gte_set_vxy1;
+define pcodeop gte_set_vz1;
+define pcodeop gte_set_vxy2;
+define pcodeop gte_set_vz2;
+define pcodeop gte_set_rgbc;
+define pcodeop gte_set_otz;
+define pcodeop gte_set_ir0;
+define pcodeop gte_set_ir1;
+define pcodeop gte_set_ir2;
+define pcodeop gte_set_ir3;
+define pcodeop gte_set_sxy0;
+define pcodeop gte_set_sxy1;
+define pcodeop gte_set_sxy2;
+define pcodeop gte_set_sxyp;
+define pcodeop gte_set_sz0;
+define pcodeop gte_set_sz1;
+define pcodeop gte_set_sz2;
+define pcodeop gte_set_sz3;
+define pcodeop gte_set_rgb0;
+define pcodeop gte_set_rgb1;
+define pcodeop gte_set_rgb2;
+define pcodeop gte_set_mac0;
+define pcodeop gte_set_mac1;
+define pcodeop gte_set_mac2;
+define pcodeop gte_set_mac3;
+define pcodeop gte_set_irgb;
+define pcodeop gte_set_orgb;
+define pcodeop gte_set_lzcs;
+define pcodeop gte_set_lzcr;
+
+define pcodeop gte_write_vxy0;
+define pcodeop gte_write_vz0;
+define pcodeop gte_write_vxy1;
+define pcodeop gte_write_vz1;
+define pcodeop gte_write_vxy2;
+define pcodeop gte_write_vz2;
+define pcodeop gte_write_rgbc;
+define pcodeop gte_write_otz;
+define pcodeop gte_write_ir0;
+define pcodeop gte_write_ir1;
+define pcodeop gte_write_ir2;
+define pcodeop gte_write_ir3;
+define pcodeop gte_write_sxy0;
+define pcodeop gte_write_sxy1;
+define pcodeop gte_write_sxy2;
+define pcodeop gte_write_sxyp;
+define pcodeop gte_write_sz0;
+define pcodeop gte_write_sz1;
+define pcodeop gte_write_sz2;
+define pcodeop gte_write_sz3;
+define pcodeop gte_write_rgb0;
+define pcodeop gte_write_rgb1;
+define pcodeop gte_write_rgb2;
+define pcodeop gte_write_mac0;
+define pcodeop gte_write_mac1;
+define pcodeop gte_write_mac2;
+define pcodeop gte_write_mac3;
+define pcodeop gte_write_irgb;
+define pcodeop gte_write_orgb;
+define pcodeop gte_write_lzcs;
+define pcodeop gte_write_lzcr;
+
+define pcodeop gte_get_vxy0;
+define pcodeop gte_get_vz0;
+define pcodeop gte_get_vxy1;
+define pcodeop gte_get_vz1;
+define pcodeop gte_get_vxy2;
+define pcodeop gte_get_vz2;
+define pcodeop gte_get_rgbc;
+define pcodeop gte_get_otz;
+define pcodeop gte_get_ir0;
+define pcodeop gte_get_ir1;
+define pcodeop gte_get_ir2;
+define pcodeop gte_get_ir3;
+define pcodeop gte_get_sxy0;
+define pcodeop gte_get_sxy1;
+define pcodeop gte_get_sxy2;
+define pcodeop gte_get_sxyp;
+define pcodeop gte_get_sz0;
+define pcodeop gte_get_sz1;
+define pcodeop gte_get_sz2;
+define pcodeop gte_get_sz3;
+define pcodeop gte_get_rgb0;
+define pcodeop gte_get_rgb1;
+define pcodeop gte_get_rgb2;
+define pcodeop gte_get_mac0;
+define pcodeop gte_get_mac1;
+define pcodeop gte_get_mac2;
+define pcodeop gte_get_mac3;
+define pcodeop gte_get_irgb;
+define pcodeop gte_get_orgb;
+define pcodeop gte_get_lzcs;
+define pcodeop gte_get_lzcr;
+
+define pcodeop gte_read_vxy0;
+define pcodeop gte_read_vz0;
+define pcodeop gte_read_vxy1;
+define pcodeop gte_read_vz1;
+define pcodeop gte_read_vxy2;
+define pcodeop gte_read_vz2;
+define pcodeop gte_read_rgbc;
+define pcodeop gte_read_otz;
+define pcodeop gte_read_ir0;
+define pcodeop gte_read_ir1;
+define pcodeop gte_read_ir2;
+define pcodeop gte_read_ir3;
+define pcodeop gte_read_sxy0;
+define pcodeop gte_read_sxy1;
+define pcodeop gte_read_sxy2;
+define pcodeop gte_read_sxyp;
+define pcodeop gte_read_sz0;
+define pcodeop gte_read_sz1;
+define pcodeop gte_read_sz2;
+define pcodeop gte_read_sz3;
+define pcodeop gte_read_rgb0;
+define pcodeop gte_read_rgb1;
+define pcodeop gte_read_rgb2;
+define pcodeop gte_read_mac0;
+define pcodeop gte_read_mac1;
+define pcodeop gte_read_mac2;
+define pcodeop gte_read_mac3;
+define pcodeop gte_read_irgb;
+define pcodeop gte_read_orgb;
+define pcodeop gte_read_lzcs;
+define pcodeop gte_read_lzcr;
+
+define pcodeop gte_set_rt11rt12;
+define pcodeop gte_set_rt13rt21;
+define pcodeop gte_set_rt22rt23;
+define pcodeop gte_set_rt31rt32;
+define pcodeop gte_set_rt33;
+define pcodeop gte_set_trx;
+define pcodeop gte_set_try;
+define pcodeop gte_set_trz;
+define pcodeop gte_set_l11l12;
+define pcodeop gte_set_l13l21;
+define pcodeop gte_set_l22l23;
+define pcodeop gte_set_l31l32;
+define pcodeop gte_set_l33;
+define pcodeop gte_set_rbk;
+define pcodeop gte_set_gbk;
+define pcodeop gte_set_bbk;
+define pcodeop gte_set_lr1lr2;
+define pcodeop gte_set_lr3lg1;
+define pcodeop gte_set_lg2lg3;
+define pcodeop gte_set_lb1lb2;
+define pcodeop gte_set_lb3;
+define pcodeop gte_set_rfc;
+define pcodeop gte_set_gfc;
+define pcodeop gte_set_bfc;
+define pcodeop gte_set_ofx;
+define pcodeop gte_set_ofy;
+define pcodeop gte_set_h;
+define pcodeop gte_set_dqa;
+define pcodeop gte_set_dqb;
+define pcodeop gte_set_zsf3;
+define pcodeop gte_set_zsf4;
+define pcodeop gte_set_flag;
+
+define pcodeop gte_get_rt11rt12;
+define pcodeop gte_get_rt13rt21;
+define pcodeop gte_get_rt22rt23;
+define pcodeop gte_get_rt31rt32;
+define pcodeop gte_get_rt33;
+define pcodeop gte_get_trx;
+define pcodeop gte_get_try;
+define pcodeop gte_get_trz;
+define pcodeop gte_get_l11l12;
+define pcodeop gte_get_l13l21;
+define pcodeop gte_get_l22l23;
+define pcodeop gte_get_l31l32;
+define pcodeop gte_get_l33;
+define pcodeop gte_get_rbk;
+define pcodeop gte_get_gbk;
+define pcodeop gte_get_bbk;
+define pcodeop gte_get_lr1lr2;
+define pcodeop gte_get_lr3lg1;
+define pcodeop gte_get_lg2lg3;
+define pcodeop gte_get_lb1lb2;
+define pcodeop gte_get_lb3;
+define pcodeop gte_get_rfc;
+define pcodeop gte_get_gfc;
+define pcodeop gte_get_bfc;
+define pcodeop gte_get_ofx;
+define pcodeop gte_get_ofy;
+define pcodeop gte_get_h;
+define pcodeop gte_get_dqa;
+define pcodeop gte_get_dqb;
+define pcodeop gte_get_zsf3;
+define pcodeop gte_get_zsf4;
+define pcodeop gte_get_flag;
+
+mtc2_x_0: is is_mtc2 & immed=(0<<11) {}
+mtc2_x_1: is is_mtc2 & immed=(1<<11) {}
+mtc2_x_2: is is_mtc2 & immed=(2<<11) {}
+mtc2_x_3: is is_mtc2 & immed=(3<<11) {}
+mtc2_x_4: is is_mtc2 & immed=(4<<11) {}
+mtc2_x_5: is is_mtc2 & immed=(5<<11) {}
+mtc2_x_6: is is_mtc2 & immed=(6<<11) {}
+mtc2_x_7: is is_mtc2 & immed=(7<<11) {}
+mtc2_x_8: is is_mtc2 & immed=(8<<11) {}
+mtc2_x_9: is is_mtc2 & immed=(9<<11) {}
+mtc2_x_10: is is_mtc2 & immed=(10<<11) {}
+mtc2_x_11: is is_mtc2 & immed=(11<<11) {}
+mtc2_x_12: is is_mtc2 & immed=(12<<11) {}
+mtc2_x_13: is is_mtc2 & immed=(13<<11) {}
+mtc2_x_14: is is_mtc2 & immed=(14<<11) {}
+mtc2_x_15: is is_mtc2 & immed=(15<<11) {}
+mtc2_x_16: is is_mtc2 & immed=(16<<11) {}
+mtc2_x_17: is is_mtc2 & immed=(17<<11) {}
+mtc2_x_18: is is_mtc2 & immed=(18<<11) {}
+mtc2_x_19: is is_mtc2 & immed=(19<<11) {}
+mtc2_x_20: is is_mtc2 & immed=(20<<11) {}
+mtc2_x_21: is is_mtc2 & immed=(21<<11) {}
+mtc2_x_22: is is_mtc2 & immed=(22<<11) {}
+mtc2_x_24: is is_mtc2 & immed=(24<<11) {}
+mtc2_x_25: is is_mtc2 & immed=(25<<11) {}
+mtc2_x_26: is is_mtc2 & immed=(26<<11) {}
+mtc2_x_27: is is_mtc2 & immed=(27<<11) {}
+mtc2_x_28: is is_mtc2 & immed=(28<<11) {}
+mtc2_x_29: is is_mtc2 & immed=(29<<11) {}
+mtc2_x_30: is is_mtc2 & immed=(30<<11) {}
+mtc2_x_31: is is_mtc2 & immed=(31<<11) {}
+
+mfc2_x_0: is is_mfc2 & immed=(0<<11) {}
+mfc2_x_1: is is_mfc2 & immed=(1<<11) {}
+mfc2_x_2: is is_mfc2 & immed=(2<<11) {}
+mfc2_x_3: is is_mfc2 & immed=(3<<11) {}
+mfc2_x_4: is is_mfc2 & immed=(4<<11) {}
+mfc2_x_5: is is_mfc2 & immed=(5<<11) {}
+mfc2_x_6: is is_mfc2 & immed=(6<<11) {}
+mfc2_x_7: is is_mfc2 & immed=(7<<11) {}
+mfc2_x_8: is is_mfc2 & immed=(8<<11) {}
+mfc2_x_9: is is_mfc2 & immed=(9<<11) {}
+mfc2_x_10: is is_mfc2 & immed=(10<<11) {}
+mfc2_x_11: is is_mfc2 & immed=(11<<11) {}
+mfc2_x_12: is is_mfc2 & immed=(12<<11) {}
+mfc2_x_13: is is_mfc2 & immed=(13<<11) {}
+mfc2_x_14: is is_mfc2 & immed=(14<<11) {}
+mfc2_x_15: is is_mfc2 & immed=(15<<11) {}
+mfc2_x_16: is is_mfc2 & immed=(16<<11) {}
+mfc2_x_17: is is_mfc2 & immed=(17<<11) {}
+mfc2_x_18: is is_mfc2 & immed=(18<<11) {}
+mfc2_x_19: is is_mfc2 & immed=(19<<11) {}
+mfc2_x_20: is is_mfc2 & immed=(20<<11) {}
+mfc2_x_21: is is_mfc2 & immed=(21<<11) {}
+mfc2_x_22: is is_mfc2 & immed=(22<<11) {}
+mfc2_x_24: is is_mfc2 & immed=(24<<11) {}
+mfc2_x_25: is is_mfc2 & immed=(25<<11) {}
+mfc2_x_26: is is_mfc2 & immed=(26<<11) {}
+mfc2_x_27: is is_mfc2 & immed=(27<<11) {}
+mfc2_x_28: is is_mfc2 & immed=(28<<11) {}
+mfc2_x_29: is is_mfc2 & immed=(29<<11) {}
+mfc2_x_30: is is_mfc2 & immed=(30<<11) {}
+mfc2_x_31: is is_mfc2 & immed=(31<<11) {}
+
+lwc2_x_0: is is_lwc2 & rt=0 {}
+lwc2_x_1: is is_lwc2 & rt=1 {}
+lwc2_x_2: is is_lwc2 & rt=2 {}
+lwc2_x_3: is is_lwc2 & rt=3 {}
+lwc2_x_4: is is_lwc2 & rt=4 {}
+lwc2_x_5: is is_lwc2 & rt=5 {}
+lwc2_x_6: is is_lwc2 & rt=6 {}
+lwc2_x_7: is is_lwc2 & rt=7 {}
+lwc2_x_8: is is_lwc2 & rt=8 {}
+lwc2_x_9: is is_lwc2 & rt=9 {}
+lwc2_x_10: is is_lwc2 & rt=10 {}
+lwc2_x_11: is is_lwc2 & rt=11 {}
+lwc2_x_12: is is_lwc2 & rt=12 {}
+lwc2_x_13: is is_lwc2 & rt=13 {}
+lwc2_x_14: is is_lwc2 & rt=14 {}
+lwc2_x_15: is is_lwc2 & rt=15 {}
+lwc2_x_16: is is_lwc2 & rt=16 {}
+lwc2_x_17: is is_lwc2 & rt=17 {}
+lwc2_x_18: is is_lwc2 & rt=18 {}
+lwc2_x_19: is is_lwc2 & rt=19 {}
+lwc2_x_20: is is_lwc2 & rt=20 {}
+lwc2_x_21: is is_lwc2 & rt=21 {}
+lwc2_x_22: is is_lwc2 & rt=22 {}
+lwc2_x_24: is is_lwc2 & rt=24 {}
+lwc2_x_25: is is_lwc2 & rt=25 {}
+lwc2_x_26: is is_lwc2 & rt=26 {}
+lwc2_x_27: is is_lwc2 & rt=27 {}
+lwc2_x_28: is is_lwc2 & rt=28 {}
+lwc2_x_29: is is_lwc2 & rt=29 {}
+lwc2_x_30: is is_lwc2 & rt=30 {}
+lwc2_x_31: is is_lwc2 & rt=31 {}
+
+swc2_x_0: is is_swc2 & rt=0 {}
+swc2_x_1: is is_swc2 & rt=1 {}
+swc2_x_2: is is_swc2 & rt=2 {}
+swc2_x_3: is is_swc2 & rt=3 {}
+swc2_x_4: is is_swc2 & rt=4 {}
+swc2_x_5: is is_swc2 & rt=5 {}
+swc2_x_6: is is_swc2 & rt=6 {}
+swc2_x_7: is is_swc2 & rt=7 {}
+swc2_x_8: is is_swc2 & rt=8 {}
+swc2_x_9: is is_swc2 & rt=9 {}
+swc2_x_10: is is_swc2 & rt=10 {}
+swc2_x_11: is is_swc2 & rt=11 {}
+swc2_x_12: is is_swc2 & rt=12 {}
+swc2_x_13: is is_swc2 & rt=13 {}
+swc2_x_14: is is_swc2 & rt=14 {}
+swc2_x_15: is is_swc2 & rt=15 {}
+swc2_x_16: is is_swc2 & rt=16 {}
+swc2_x_17: is is_swc2 & rt=17 {}
+swc2_x_18: is is_swc2 & rt=18 {}
+swc2_x_19: is is_swc2 & rt=19 {}
+swc2_x_20: is is_swc2 & rt=20 {}
+swc2_x_21: is is_swc2 & rt=21 {}
+swc2_x_22: is is_swc2 & rt=22 {}
+swc2_x_24: is is_swc2 & rt=24 {}
+swc2_x_25: is is_swc2 & rt=25 {}
+swc2_x_26: is is_swc2 & rt=26 {}
+swc2_x_27: is is_swc2 & rt=27 {}
+swc2_x_28: is is_swc2 & rt=28 {}
+swc2_x_29: is is_swc2 & rt=29 {}
+swc2_x_30: is is_swc2 & rt=30 {}
+swc2_x_31: is is_swc2 & rt=31 {}
+
+ctc2_x_0: is is_ctc2 & immed=(0<<11) {}
+ctc2_x_1: is is_ctc2 & immed=(1<<11) {}
+ctc2_x_2: is is_ctc2 & immed=(2<<11) {}
+ctc2_x_3: is is_ctc2 & immed=(3<<11) {}
+ctc2_x_4: is is_ctc2 & immed=(4<<11) {}
+ctc2_x_5: is is_ctc2 & immed=(5<<11) {}
+ctc2_x_6: is is_ctc2 & immed=(6<<11) {}
+ctc2_x_7: is is_ctc2 & immed=(7<<11) {}
+ctc2_x_8: is is_ctc2 & immed=(8<<11) {}
+ctc2_x_9: is is_ctc2 & immed=(9<<11) {}
+ctc2_x_10: is is_ctc2 & immed=(10<<11) {}
+ctc2_x_11: is is_ctc2 & immed=(11<<11) {}
+ctc2_x_12: is is_ctc2 & immed=(12<<11) {}
+ctc2_x_13: is is_ctc2 & immed=(13<<11) {}
+ctc2_x_14: is is_ctc2 & immed=(14<<11) {}
+ctc2_x_15: is is_ctc2 & immed=(15<<11) {}
+ctc2_x_16: is is_ctc2 & immed=(16<<11) {}
+ctc2_x_17: is is_ctc2 & immed=(17<<11) {}
+ctc2_x_18: is is_ctc2 & immed=(18<<11) {}
+ctc2_x_19: is is_ctc2 & immed=(19<<11) {}
+ctc2_x_20: is is_ctc2 & immed=(20<<11) {}
+ctc2_x_21: is is_ctc2 & immed=(21<<11) {}
+ctc2_x_22: is is_ctc2 & immed=(22<<11) {}
+ctc2_x_23: is is_ctc2 & immed=(23<<11) {}
+ctc2_x_24: is is_ctc2 & immed=(24<<11) {}
+ctc2_x_25: is is_ctc2 & immed=(25<<11) {}
+ctc2_x_26: is is_ctc2 & immed=(26<<11) {}
+ctc2_x_27: is is_ctc2 & immed=(27<<11) {}
+ctc2_x_28: is is_ctc2 & immed=(28<<11) {}
+ctc2_x_29: is is_ctc2 & immed=(29<<11) {}
+ctc2_x_30: is is_ctc2 & immed=(30<<11) {}
+ctc2_x_31: is is_ctc2 & immed=(31<<11) {}
+
+cfc2_x_0: is is_cfc2 & immed=(0<<11) {}
+cfc2_x_1: is is_cfc2 & immed=(1<<11) {}
+cfc2_x_2: is is_cfc2 & immed=(2<<11) {}
+cfc2_x_3: is is_cfc2 & immed=(3<<11) {}
+cfc2_x_4: is is_cfc2 & immed=(4<<11) {}
+cfc2_x_5: is is_cfc2 & immed=(5<<11) {}
+cfc2_x_6: is is_cfc2 & immed=(6<<11) {}
+cfc2_x_7: is is_cfc2 & immed=(7<<11) {}
+cfc2_x_8: is is_cfc2 & immed=(8<<11) {}
+cfc2_x_9: is is_cfc2 & immed=(9<<11) {}
+cfc2_x_10: is is_cfc2 & immed=(10<<11) {}
+cfc2_x_11: is is_cfc2 & immed=(11<<11) {}
+cfc2_x_12: is is_cfc2 & immed=(12<<11) {}
+cfc2_x_13: is is_cfc2 & immed=(13<<11) {}
+cfc2_x_14: is is_cfc2 & immed=(14<<11) {}
+cfc2_x_15: is is_cfc2 & immed=(15<<11) {}
+cfc2_x_16: is is_cfc2 & immed=(16<<11) {}
+cfc2_x_17: is is_cfc2 & immed=(17<<11) {}
+cfc2_x_18: is is_cfc2 & immed=(18<<11) {}
+cfc2_x_19: is is_cfc2 & immed=(19<<11) {}
+cfc2_x_20: is is_cfc2 & immed=(20<<11) {}
+cfc2_x_21: is is_cfc2 & immed=(21<<11) {}
+cfc2_x_22: is is_cfc2 & immed=(22<<11) {}
+cfc2_x_23: is is_cfc2 & immed=(23<<11) {}
+cfc2_x_24: is is_cfc2 & immed=(24<<11) {}
+cfc2_x_25: is is_cfc2 & immed=(25<<11) {}
+cfc2_x_26: is is_cfc2 & immed=(26<<11) {}
+cfc2_x_27: is is_cfc2 & immed=(27<<11) {}
+cfc2_x_28: is is_cfc2 & immed=(28<<11) {}
+cfc2_x_29: is is_cfc2 & immed=(29<<11) {}
+cfc2_x_30: is is_cfc2 & immed=(30<<11) {}
+cfc2_x_31: is is_cfc2 & immed=(31<<11) {}
+
+# -- reg setters --------------------------
+
+:gte_set_vxy0 RTsrc is mtc2_x_0 & RTsrc {
+	gte_set_vxy0(RTsrc);
+}
+
+:gte_set_vz0 RTsrc is mtc2_x_1 & RTsrc {
+	gte_set_vz0(RTsrc);
+}
+
+:gte_set_vxy1 RTsrc is mtc2_x_2 & RTsrc {
+	gte_set_vxy1(RTsrc);
+}
+
+:gte_set_vz1 RTsrc is mtc2_x_3 & RTsrc {
+	gte_set_vz1(RTsrc);
+}
+
+:gte_set_vxy2 RTsrc is mtc2_x_4 & RTsrc {
+	gte_set_vxy2(RTsrc);
+}
+
+:gte_set_vz2 RTsrc is mtc2_x_5 & RTsrc {
+	gte_set_vz2(RTsrc);
+}
+
+:gte_set_rgbc RTsrc is mtc2_x_6 & RTsrc {
+	gte_set_rgbc(RTsrc);
+}
+
+:gte_set_otz RTsrc is mtc2_x_7 & RTsrc {
+	gte_set_otz(RTsrc);
+}
+
+lddp_: is mtc2_x_8 & RTsrc {}
+lddp_1: is mtc2_x_8 & RTsrc {}
+lddp_2: is mtc2_x_8 & RTsrc {}
+:gte_set_ir0 RTsrc is mtc2_x_8 & RTsrc {
+	gte_set_ir0(RTsrc);
+}
+
+:gte_set_ir1 RTsrc is mtc2_x_9 & RTsrc {
+	gte_set_ir1(RTsrc);
+}
+
+:gte_set_ir2 RTsrc is mtc2_x_10 & RTsrc {
+	gte_set_ir2(RTsrc);
+}
+
+:gte_set_ir3 RTsrc is mtc2_x_11 & RTsrc {
+	gte_set_ir3(RTsrc);
+}
+
+:gte_set_sxy0 RTsrc is mtc2_x_12 & RTsrc {
+	gte_set_sxy0(RTsrc);
+}
+
+:gte_set_sxy1 RTsrc is mtc2_x_13 & RTsrc {
+	gte_set_sxy1(RTsrc);
+}
+
+:gte_set_sxy2 RTsrc is mtc2_x_14 & RTsrc {
+	gte_set_sxy2(RTsrc);
+}
+
+:gte_set_sxyp RTsrc is mtc2_x_15 & RTsrc {
+	gte_set_sxyp(RTsrc);
+}
+
+:gte_set_sz0 RTsrc is mtc2_x_16 & RTsrc {
+	gte_set_sz0(RTsrc);
+}
+
+:gte_set_sz1 RTsrc is mtc2_x_17 & RTsrc {
+	gte_set_sz1(RTsrc);
+}
+
+:gte_set_sz2 RTsrc is mtc2_x_18 & RTsrc {
+	gte_set_sz2(RTsrc);
+}
+
+:gte_set_sz3 RTsrc is mtc2_x_19 & RTsrc {
+	gte_set_sz3(RTsrc);
+}
+
+:gte_set_rgb0 RTsrc is mtc2_x_20 & RTsrc {
+	gte_set_rgb0(RTsrc);
+}
+
+:gte_set_rgb1 RTsrc is mtc2_x_21 & RTsrc {
+	gte_set_rgb1(RTsrc);
+}
+
+:gte_set_rgb2 RTsrc is mtc2_x_22 & RTsrc {
+	gte_set_rgb2(RTsrc);
+}
+
+:gte_set_mac0 RTsrc is mtc2_x_24 & RTsrc {
+	gte_set_mac0(RTsrc);
+}
+
+:gte_set_mac1 RTsrc is mtc2_x_25 & RTsrc {
+	gte_set_mac1(RTsrc);
+}
+
+:gte_set_mac2 RTsrc is mtc2_x_26 & RTsrc {
+	gte_set_mac2(RTsrc);
+}
+
+:gte_set_mac3 RTsrc is mtc2_x_27 & RTsrc {
+	gte_set_mac3(RTsrc);
+}
+
+:gte_set_irgb RTsrc is mtc2_x_28 & RTsrc {
+	gte_set_irgb(RTsrc);
+}
+
+:gte_set_orgb RTsrc is mtc2_x_29 & RTsrc {
+	gte_set_orgb(RTsrc);
+}
+
+ldlzc_: is mtc2_x_30 & RTsrc {}
+:gte_set_lzcs RTsrc is mtc2_x_30 & RTsrc {
+	gte_set_lzcs(RTsrc);
+}
+
+:gte_set_lzcr RTsrc is mtc2_x_31 & RTsrc {
+	gte_set_lzcr(RTsrc);
+}
+
+# -- mem setters -------------------------
+
+:gte_write_vxy0 OFF_BASE is lwc2_x_0 & OFF_BASE {
+	gte_write_vxy0(*[ram]:2 OFF_BASE);
+}
+
+:gte_write_vz0 OFF_BASE is lwc2_x_1 & OFF_BASE {
+	gte_write_vz0(*[ram]:2 OFF_BASE);
+}
+
+:gte_write_vxy1 OFF_BASE is lwc2_x_2 & OFF_BASE {
+	gte_write_vxy1(*[ram]:2 OFF_BASE);
+}
+
+:gte_write_vz1 OFF_BASE is lwc2_x_3 & OFF_BASE {
+	gte_write_vz1(*[ram]:2 OFF_BASE);
+}
+
+:gte_write_vxy2 OFF_BASE is lwc2_x_4 & OFF_BASE {
+	gte_write_vxy2(*[ram]:2 OFF_BASE);
+}
+
+:gte_write_vz2 OFF_BASE is lwc2_x_5 & OFF_BASE {
+	gte_write_vz2(*[ram]:2 OFF_BASE);
+}
+
+:gte_write_rgbc OFF_BASE is lwc2_x_6 & OFF_BASE {
+	gte_write_rgbc(*[ram]:1 OFF_BASE);
+}
+
+:gte_write_otz OFF_BASE is lwc2_x_7 & OFF_BASE {
+	gte_write_otz(*[ram]:2 OFF_BASE);
+}
+
+:gte_write_ir0 OFF_BASE is lwc2_x_8 & OFF_BASE {
+	gte_write_ir0(*[ram]:2 OFF_BASE);
+}
+
+:gte_write_ir1 OFF_BASE is lwc2_x_9 & OFF_BASE {
+	gte_write_ir1(*[ram]:2 OFF_BASE);
+}
+
+:gte_write_ir2 OFF_BASE is lwc2_x_10 & OFF_BASE {
+	gte_write_ir2(*[ram]:2 OFF_BASE);
+}
+
+:gte_write_ir3 OFF_BASE is lwc2_x_11 & OFF_BASE {
+	gte_write_ir3(*[ram]:2 OFF_BASE);
+}
+
+:gte_write_sxy0 OFF_BASE is lwc2_x_12 & OFF_BASE {
+	gte_write_sxy0(*[ram]:2 OFF_BASE);
+}
+
+:gte_write_sxy1 OFF_BASE is lwc2_x_13 & OFF_BASE {
+	gte_write_sxy1(*[ram]:2 OFF_BASE);
+}
+
+:gte_write_sxy2 OFF_BASE is lwc2_x_14 & OFF_BASE {
+	gte_write_sxy2(*[ram]:2 OFF_BASE);
+}
+
+:gte_write_sxyp OFF_BASE is lwc2_x_15 & OFF_BASE {
+	gte_write_sxyp(*[ram]:2 OFF_BASE);
+}
+
+:gte_write_sz0 OFF_BASE is lwc2_x_16 & OFF_BASE {
+	gte_write_sz0(*[ram]:2 OFF_BASE);
+}
+
+:gte_write_sz1 OFF_BASE is lwc2_x_17 & OFF_BASE {
+	gte_write_sz1(*[ram]:2 OFF_BASE);
+}
+
+:gte_write_sz2 OFF_BASE is lwc2_x_18 & OFF_BASE {
+	gte_write_sz2(*[ram]:2 OFF_BASE);
+}
+
+:gte_write_sz3 OFF_BASE is lwc2_x_19 & OFF_BASE {
+	gte_write_sz3(*[ram]:2 OFF_BASE);
+}
+
+:gte_write_rgb0 OFF_BASE is lwc2_x_20 & OFF_BASE {
+	gte_write_rgb0(*[ram]:1 OFF_BASE);
+}
+
+:gte_write_rgb1 OFF_BASE is lwc2_x_21 & OFF_BASE {
+	gte_write_rgb1(*[ram]:1 OFF_BASE);
+}
+
+:gte_write_rgb2 OFF_BASE is lwc2_x_22 & OFF_BASE {
+	gte_write_rgb2(*[ram]:1 OFF_BASE);
+}
+
+:gte_write_mac0 OFF_BASE is lwc2_x_24 & OFF_BASE {
+	gte_write_mac0(*[ram]:4 OFF_BASE);
+}
+
+:gte_write_mac1 OFF_BASE is lwc2_x_25 & OFF_BASE {
+	gte_write_mac1(*[ram]:4 OFF_BASE);
+}
+
+:gte_write_mac2 OFF_BASE is lwc2_x_26 & OFF_BASE {
+	gte_write_mac2(*[ram]:4 OFF_BASE);
+}
+
+:gte_write_mac3 OFF_BASE is lwc2_x_27 & OFF_BASE {
+	gte_write_mac3(*[ram]:4 OFF_BASE);
+}
+
+:gte_write_irgb OFF_BASE is lwc2_x_28 & OFF_BASE {
+	gte_write_irgb(*[ram]:2 OFF_BASE);
+}
+
+:gte_write_orgb OFF_BASE is lwc2_x_29 & OFF_BASE {
+	gte_write_orgb(*[ram]:2 OFF_BASE);
+}
+
+:gte_write_lzcs OFF_BASE is lwc2_x_30 & OFF_BASE {
+	gte_write_lzcs(*[ram]:4 OFF_BASE);
+}
+
+:gte_write_lzcr OFF_BASE is lwc2_x_31 & OFF_BASE {
+	gte_write_lzcr(*[ram]:4 OFF_BASE);
+}
+
+# -- reg getters -------------------------
+
+:gte_get_vxy0 RT is mfc2_x_0 & RT {
+	RT = gte_get_vxy0();
+}
+
+:gte_get_vz0 RT is mfc2_x_1 & RT {
+	RT = gte_get_vz0();
+}
+
+:gte_get_vxy1 RT is mfc2_x_2 & RT {
+	RT = gte_get_vxy1();
+}
+
+:gte_get_vz1 RT is mfc2_x_3 & RT {
+	RT = gte_get_vz1();
+}
+
+:gte_get_vxy2 RT is mfc2_x_4 & RT {
+	RT = gte_get_vxy2();
+}
+
+:gte_get_vz2 RT is mfc2_x_5 & RT {
+	RT = gte_get_vz2();
+}
+
+:gte_get_rgbc RT is mfc2_x_6 & RT {
+	RT = gte_get_rgbc();
+}
+
+:gte_get_otz RT is mfc2_x_7 & RT {
+	RT = gte_get_otz();
+}
+
+:gte_get_ir0 RT is mfc2_x_8 & RT {
+	RT = gte_get_ir0();
+}
+
+:gte_get_ir1 RT is mfc2_x_9 & RT {
+	RT = gte_get_ir1();
+}
+
+:gte_get_ir2 RT is mfc2_x_10 & RT {
+	RT = gte_get_ir2();
+}
+
+:gte_get_ir3 RT is mfc2_x_11 & RT {
+	RT = gte_get_ir3();
+}
+
+:gte_get_sxy0 RT is mfc2_x_12 & RT {
+	RT = gte_get_sxy0();
+}
+
+:gte_get_sxy1 RT is mfc2_x_13 & RT {
+	RT = gte_get_sxy1();
+}
+
+:gte_get_sxy2 RT is mfc2_x_14 & RT {
+	RT = gte_get_sxy2();
+}
+
+:gte_get_sxyp RT is mfc2_x_15 & RT {
+	RT = gte_get_sxyp();
+}
+
+:gte_get_sz0 RT is mfc2_x_16 & RT {
+	RT = gte_get_sz0();
+}
+
+:gte_get_sz1 RT is mfc2_x_17 & RT {
+	RT = gte_get_sz1();
+}
+
+:gte_get_sz2 RT is mfc2_x_18 & RT {
+	RT = gte_get_sz2();
+}
+
+:gte_get_sz3 RT is mfc2_x_19 & RT {
+	RT = gte_get_sz3();
+}
+
+:gte_get_rgb0 RT is mfc2_x_20 & RT {
+	RT = gte_get_rgb0();
+}
+
+:gte_get_rgb1 RT is mfc2_x_21 & RT {
+	RT = gte_get_rgb1();
+}
+
+:gte_get_rgb2 RT is mfc2_x_22 & RT {
+	RT = gte_get_rgb2();
+}
+
+:gte_get_mac0 RT is mfc2_x_24 & RT {
+	RT = gte_get_mac0();
+}
+
+:gte_get_mac1 RT is mfc2_x_25 & RT {
+	RT = gte_get_mac1();
+}
+
+:gte_get_mac2 RT is mfc2_x_26 & RT {
+	RT = gte_get_mac2();
+}
+
+:gte_get_mac3 RT is mfc2_x_27 & RT {
+	RT = gte_get_mac3();
+}
+
+:gte_get_irgb RT is mfc2_x_28 & RT {
+	RT = gte_get_irgb();
+}
+
+:gte_get_orgb RT is mfc2_x_29 & RT {
+	RT = gte_get_orgb();
+}
+
+:gte_get_lzcs RT is mfc2_x_30 & RT {
+	RT = gte_get_lzcs();
+}
+
+:gte_get_lzcr RT is mfc2_x_31 & RT {
+	RT = gte_get_lzcr();
+}
+
+# -- mem getters -------------------------
+
+:gte_read_vxy0 OFF_BASE is swc2_x_0 & OFF_BASE {
+	*[ram]:2 OFF_BASE = gte_read_vxy0();
+}
+
+:gte_read_vz0 OFF_BASE is swc2_x_1 & OFF_BASE {
+	*[ram]:2 OFF_BASE = gte_read_vz0();
+}
+
+:gte_read_vxy1 OFF_BASE is swc2_x_2 & OFF_BASE {
+	*[ram]:2 OFF_BASE = gte_read_vxy1();
+}
+
+:gte_read_vz1 OFF_BASE is swc2_x_3 & OFF_BASE {
+	*[ram]:2 OFF_BASE = gte_read_vz1();
+}
+
+:gte_read_vxy2 OFF_BASE is swc2_x_4 & OFF_BASE {
+	*[ram]:2 OFF_BASE = gte_read_vxy2();
+}
+
+:gte_read_vz2 OFF_BASE is swc2_x_5 & OFF_BASE {
+	*[ram]:2 OFF_BASE = gte_read_vz2();
+}
+
+:gte_read_rgbc OFF_BASE is swc2_x_6 & OFF_BASE {
+	*[ram]:1 OFF_BASE = gte_read_rgbc();
+}
+
+:gte_read_otz OFF_BASE is swc2_x_7 & OFF_BASE {
+	*[ram]:2 OFF_BASE = gte_read_otz();
+}
+
+:gte_read_ir0 OFF_BASE is swc2_x_8 & OFF_BASE {
+	*[ram]:2 OFF_BASE = gte_read_ir0();
+}
+
+:gte_read_ir1 OFF_BASE is swc2_x_9 & OFF_BASE {
+	*[ram]:2 OFF_BASE = gte_read_ir1();
+}
+
+:gte_read_ir2 OFF_BASE is swc2_x_10 & OFF_BASE {
+	*[ram]:2 OFF_BASE = gte_read_ir2();
+}
+
+:gte_read_ir3 OFF_BASE is swc2_x_11 & OFF_BASE {
+	*[ram]:2 OFF_BASE = gte_read_ir3();
+}
+
+:gte_read_sxy0 OFF_BASE is swc2_x_12 & OFF_BASE {
+	*[ram]:2 OFF_BASE = gte_read_sxy0();
+}
+
+:gte_read_sxy1 OFF_BASE is swc2_x_13 & OFF_BASE {
+	*[ram]:2 OFF_BASE = gte_read_sxy1();
+}
+
+:gte_read_sxy2 OFF_BASE is swc2_x_14 & OFF_BASE {
+	*[ram]:2 OFF_BASE = gte_read_sxy2();
+}
+
+:gte_read_sxyp OFF_BASE is swc2_x_15 & OFF_BASE {
+	*[ram]:2 OFF_BASE = gte_read_sxyp();
+}
+
+:gte_read_sz0 OFF_BASE is swc2_x_16 & OFF_BASE {
+	*[ram]:2 OFF_BASE = gte_read_sz0();
+}
+
+:gte_read_sz1 OFF_BASE is swc2_x_17 & OFF_BASE {
+	*[ram]:2 OFF_BASE = gte_read_sz1();
+}
+
+:gte_read_sz2 OFF_BASE is swc2_x_18 & OFF_BASE {
+	*[ram]:2 OFF_BASE = gte_read_sz2();
+}
+
+:gte_read_sz3 OFF_BASE is swc2_x_19 & OFF_BASE {
+	*[ram]:2 OFF_BASE = gte_read_sz3();
+}
+
+:gte_read_rgb0 OFF_BASE is swc2_x_20 & OFF_BASE {
+	*[ram]:1 OFF_BASE = gte_read_rgb0();
+}
+
+:gte_read_rgb1 OFF_BASE is swc2_x_21 & OFF_BASE {
+	*[ram]:1 OFF_BASE = gte_read_rgb1();
+}
+
+:gte_read_rgb2 OFF_BASE is swc2_x_22 & OFF_BASE {
+	*[ram]:1 OFF_BASE = gte_read_rgb2();
+}
+
+:gte_read_mac0 OFF_BASE is swc2_x_24 & OFF_BASE {
+	*[ram]:4 OFF_BASE = gte_read_mac0();
+}
+
+:gte_read_mac1 OFF_BASE is swc2_x_25 & OFF_BASE {
+	*[ram]:4 OFF_BASE = gte_read_mac1();
+}
+
+:gte_read_mac2 OFF_BASE is swc2_x_26 & OFF_BASE {
+	*[ram]:4 OFF_BASE = gte_read_mac2();
+}
+
+:gte_read_mac3 OFF_BASE is swc2_x_27 & OFF_BASE {
+	*[ram]:4 OFF_BASE = gte_read_mac3();
+}
+
+:gte_read_irgb OFF_BASE is swc2_x_28 & OFF_BASE {
+	*[ram]:2 OFF_BASE = gte_read_irgb();
+}
+
+:gte_read_orgb OFF_BASE is swc2_x_29 & OFF_BASE {
+	*[ram]:2 OFF_BASE = gte_read_orgb();
+}
+
+:gte_read_lzcs OFF_BASE is swc2_x_30 & OFF_BASE {
+	*[ram]:4 OFF_BASE = gte_read_lzcs();
+}
+
+:gte_read_lzcr OFF_BASE is swc2_x_31 & OFF_BASE {
+	*[ram]:4 OFF_BASE = gte_read_lzcr();
+}
+
+# -- control setters ----------------------------
+
+:gte_set_rt11rt12 RTsrc is ctc2_x_0 & RTsrc {
+	gte_set_rt11rt12(RTsrc);
+}
+
+:gte_set_rt13rt21 RTsrc is ctc2_x_1 & RTsrc {
+	gte_set_rt13rt21(RTsrc);
+}
+
+:gte_set_rt22rt23 RTsrc is ctc2_x_2 & RTsrc {
+	gte_set_rt22rt23(RTsrc);
+}
+
+:gte_set_rt31rt32 RTsrc is ctc2_x_3 & RTsrc {
+	gte_set_rt31rt32(RTsrc);
+}
+
+:gte_set_rt33 RTsrc is ctc2_x_4 & RTsrc {
+	gte_set_rt33(RTsrc);
+}
+
+:gte_set_trx RTsrc is ctc2_x_5 & RTsrc {
+	gte_set_trx(RTsrc);
+}
+
+:gte_set_try RTsrc is ctc2_x_6 & RTsrc {
+	gte_set_try(RTsrc);
+}
+
+:gte_set_trz RTsrc is ctc2_x_7 & RTsrc {
+	gte_set_trz(RTsrc);
+}
+
+:gte_set_l11l12 RTsrc is ctc2_x_8 & RTsrc {
+	gte_set_l11l12(RTsrc);
+}
+
+:gte_set_l13l21 RTsrc is ctc2_x_9 & RTsrc {
+	gte_set_l13l21(RTsrc);
+}
+
+:gte_set_l22l23 RTsrc is ctc2_x_10 & RTsrc {
+	gte_set_l22l23(RTsrc);
+}
+
+:gte_set_l31l32 RTsrc is ctc2_x_11 & RTsrc {
+	gte_set_l31l32(RTsrc);
+}
+
+:gte_set_l33 RTsrc is ctc2_x_12 & RTsrc {
+	gte_set_l33(RTsrc);
+}
+
+:gte_set_rbk RTsrc is ctc2_x_13 & RTsrc {
+	gte_set_rbk(RTsrc);
+}
+
+:gte_set_gbk RTsrc is ctc2_x_14 & RTsrc {
+	gte_set_gbk(RTsrc);
+}
+
+:gte_set_bbk RTsrc is ctc2_x_15 & RTsrc {
+	gte_set_bbk(RTsrc);
+}
+
+:gte_set_lr1lr2 RTsrc is ctc2_x_16 & RTsrc {
+	gte_set_lr1lr2(RTsrc);
+}
+
+:gte_set_lr3lg1 RTsrc is ctc2_x_17 & RTsrc {
+	gte_set_lr3lg1(RTsrc);
+}
+
+:gte_set_lg2lg3 RTsrc is ctc2_x_18 & RTsrc {
+	gte_set_lg2lg3(RTsrc);
+}
+
+:gte_set_lb1lb2 RTsrc is ctc2_x_19 & RTsrc {
+	gte_set_lb1lb2(RTsrc);
+}
+
+:gte_set_lb3 RTsrc is ctc2_x_20 & RTsrc {
+	gte_set_lb3(RTsrc);
+}
+
+:gte_set_rfc RTsrc is ctc2_x_21 & RTsrc {
+	gte_set_rfc(RTsrc);
+}
+
+:gte_set_gfc RTsrc is ctc2_x_22 & RTsrc {
+	gte_set_gfc(RTsrc);
+}
+
+:gte_set_bfc RTsrc is ctc2_x_23 & RTsrc {
+	gte_set_bfc(RTsrc);
+}
+
+:gte_set_ofx RTsrc is ctc2_x_24 & RTsrc {
+	gte_set_ofx(RTsrc);
+}
+
+:gte_set_ofy RTsrc is ctc2_x_25 & RTsrc {
+	gte_set_ofy(RTsrc);
+}
+
+:gte_set_h RTsrc is ctc2_x_26 & RTsrc {
+	gte_set_h(RTsrc);
+}
+
+:gte_set_dqa RTsrc is ctc2_x_27 & RTsrc {
+	gte_set_dqa(RTsrc);
+}
+
+:gte_set_dqb RTsrc is ctc2_x_28 & RTsrc {
+	gte_set_dqb(RTsrc);
+}
+
+:gte_set_zsf3 RTsrc is ctc2_x_29 & RTsrc {
+	gte_set_zsf3(RTsrc);
+}
+
+:gte_set_zsf4 RTsrc is ctc2_x_30 & RTsrc {
+	gte_set_zsf4(RTsrc);
+}
+
+:gte_set_flag RTsrc is ctc2_x_31 & RTsrc {
+	gte_set_flag(RTsrc);
+}
+
+# -- control getters ----------------------------
+
+:gte_get_rt11rt12 RT is cfc2_x_0 & RT {
+	RT = gte_get_rt11rt12();
+}
+
+:gte_get_rt13rt21 RT is cfc2_x_1 & RT {
+	RT = gte_get_rt13rt21();
+}
+
+:gte_get_rt22rt23 RT is cfc2_x_2 & RT {
+	RT = gte_get_rt22rt23();
+}
+
+:gte_get_rt31rt32 RT is cfc2_x_3 & RT {
+	RT = gte_get_rt31rt32();
+}
+
+:gte_get_rt33 RT is cfc2_x_4 & RT {
+	RT = gte_get_rt33();
+}
+
+:gte_get_trx RT is cfc2_x_5 & RT {
+	RT = gte_get_trx();
+}
+
+:gte_get_try RT is cfc2_x_6 & RT {
+	RT = gte_get_try();
+}
+
+:gte_get_trz RT is cfc2_x_7 & RT {
+	RT = gte_get_trz();
+}
+
+:gte_get_l11l12 RT is cfc2_x_8 & RT {
+	RT = gte_get_l11l12();
+}
+
+:gte_get_l13l21 RT is cfc2_x_9 & RT {
+	RT = gte_get_l13l21();
+}
+
+:gte_get_l22l23 RT is cfc2_x_10 & RT {
+	RT = gte_get_l22l23();
+}
+
+:gte_get_l31l32 RT is cfc2_x_11 & RT {
+	RT = gte_get_l31l32();
+}
+
+:gte_get_l33 RT is cfc2_x_12 & RT {
+	RT = gte_get_l33();
+}
+
+:gte_get_rbk RT is cfc2_x_13 & RT {
+	RT = gte_get_rbk();
+}
+
+:gte_get_gbk RT is cfc2_x_14 & RT {
+	RT = gte_get_gbk();
+}
+
+:gte_get_bbk RT is cfc2_x_15 & RT {
+	RT = gte_get_bbk();
+}
+
+:gte_get_lr1lr2 RT is cfc2_x_16 & RT {
+	RT = gte_get_lr1lr2();
+}
+
+:gte_get_lr3lg1 RT is cfc2_x_17 & RT {
+	RT = gte_get_lr3lg1();
+}
+
+:gte_get_lg2lg3 RT is cfc2_x_18 & RT {
+	RT = gte_get_lg2lg3();
+}
+
+:gte_get_lb1lb2 RT is cfc2_x_19 & RT {
+	RT = gte_get_lb1lb2();
+}
+
+:gte_get_lb3 RT is cfc2_x_20 & RT {
+	RT = gte_get_lb3();
+}
+
+:gte_get_rfc RT is cfc2_x_21 & RT {
+	RT = gte_get_rfc();
+}
+
+:gte_get_gfc RT is cfc2_x_22 & RT {
+	RT = gte_get_gfc();
+}
+
+:gte_get_bfc RT is cfc2_x_23 & RT {
+	RT = gte_get_bfc();
+}
+
+:gte_get_ofx RT is cfc2_x_24 & RT {
+	RT = gte_get_ofx();
+}
+
+:gte_get_ofy RT is cfc2_x_25 & RT {
+	RT = gte_get_ofy();
+}
+
+:gte_get_h RT is cfc2_x_26 & RT {
+	RT = gte_get_h();
+}
+
+:gte_get_dqa RT is cfc2_x_27 & RT {
+	RT = gte_get_dqa();
+}
+
+:gte_get_dqb RT is cfc2_x_28 & RT {
+	RT = gte_get_dqb();
+}
+
+:gte_get_zsf3 RT is cfc2_x_29 & RT {
+	RT = gte_get_zsf3();
+}
+
+:gte_get_zsf4 RT is cfc2_x_30 & RT {
+	RT = gte_get_zsf4();
+}
+
+:gte_get_flag RT is cfc2_x_31 & RT {
+	RT = gte_get_flag();
+}

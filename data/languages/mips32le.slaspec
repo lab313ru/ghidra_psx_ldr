@@ -8,3 +8,4 @@
 @include "mips32Instructions.sinc"
 @include "inline_s.sinc"
 @include "inline_c.sinc"
+@include "gtemac.sinc"
