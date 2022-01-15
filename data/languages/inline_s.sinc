@@ -1,34 +1,10 @@
-define token gte_2nops(32)
-	sf      = (25,26)
-	mx      = (23,24)
-	v       = (21,22)
-	cv      = (19,20)
-	lm      = (18,18)
-	gte_opc = (0,31)
-	nop2    = (0,31)
-	nop1    = (0,31)
-	word    = (0,15)
-;
-
-define token gte_0nops(32)
-	sf2      = (25,26)
-	mx2      = (23,24)
-	v2       = (21,22)
-	cv2      = (19,20)
-	lm2      = (18,18)
-	gte_opc2 = (0,31)
-	word2    = (0,15)
-;
-
 define pcodeop gte_rtps;
 define pcodeop gte_rtpt;
-define pcodeop gte_rt;
 define pcodeop gte_rtv0;
 define pcodeop gte_rtv1;
 define pcodeop gte_rtv2;
 define pcodeop gte_rtir;
 define pcodeop gte_rtir_sf0;
-define pcodeop gte_rtv0tr;
 define pcodeop gte_rtv1tr;
 define pcodeop gte_rtv2tr;
 define pcodeop gte_rtirtr;
@@ -67,7 +43,6 @@ define pcodeop gte_dpcs;
 define pcodeop gte_dpct;
 define pcodeop gte_intpl;
 define pcodeop gte_sqr12;
-define pcodeop gte_sqr0;
 define pcodeop gte_ncs;
 define pcodeop gte_nct;
 define pcodeop gte_ncds;
@@ -80,11 +55,8 @@ define pcodeop gte_nclip;
 define pcodeop gte_avsz3;
 define pcodeop gte_avsz4;
 define pcodeop gte_op12;
-define pcodeop gte_op0;
 define pcodeop gte_gpf12;
-define pcodeop gte_gpf0;
 define pcodeop gte_gpl12;
-define pcodeop gte_gpl0;
 define pcodeop gte_mvmva;
 define pcodeop gte_op;
 define pcodeop gte_sqr;
@@ -93,13 +65,11 @@ define pcodeop gte_gpl;
 
 define pcodeop gte_rtps_b;
 define pcodeop gte_rtpt_b;
-define pcodeop gte_rt_b;
 define pcodeop gte_rtv0_b;
 define pcodeop gte_rtv1_b;
 define pcodeop gte_rtv2_b;
 define pcodeop gte_rtir_b;
 define pcodeop gte_rtir_sf0_b;
-define pcodeop gte_rtv0tr_b;
 define pcodeop gte_rtv1tr_b;
 define pcodeop gte_rtv2tr_b;
 define pcodeop gte_rtirtr_b;
@@ -138,7 +108,6 @@ define pcodeop gte_dpcs_b;
 define pcodeop gte_dpct_b;
 define pcodeop gte_intpl_b;
 define pcodeop gte_sqr12_b;
-define pcodeop gte_sqr0_b;
 define pcodeop gte_ncs_b;
 define pcodeop gte_nct_b;
 define pcodeop gte_ncds_b;
@@ -151,576 +120,533 @@ define pcodeop gte_nclip_b;
 define pcodeop gte_avsz3_b;
 define pcodeop gte_avsz4_b;
 define pcodeop gte_op12_b;
-define pcodeop gte_op0_b;
 define pcodeop gte_gpf12_b;
-define pcodeop gte_gpf0_b;
 define pcodeop gte_gpl12_b;
-define pcodeop gte_gpl0_b;
 define pcodeop gte_mvmva_b;
 define pcodeop gte_op_b;
 define pcodeop gte_sqr_b;
 define pcodeop gte_gpf_b;
 define pcodeop gte_gpl_b;
 
-:nRTPS is $(AMODE) & nop1=0; nop2=0; gte_opc=0x0000007F {
+
+is_nop: is $(AMODE) & prime=0 & rs=0 & rt=0 & rd=0 & sa=0 & fct=0 {}
+is_cop2: is $(AMODE) & prime=0x12 & bit25=1 {}
+is_cop2_mvmva: is is_cop2 & cop2_mvmva1=0x12 & cop2_mvmva2=0x4 {}
+
+nop1: is is_nop {}
+nop2: is is_nop {}
+
+:nRTPS is nop1; nop2; is_cop2 & cofun=0x00180001 {
     gte_rtps();
 }
 
-:nRTPT is $(AMODE) & nop1=0; nop2=0; gte_opc=0x000000BF {
+:nRTPT is nop1; nop2; is_cop2 & cofun=0x00280030 {
     gte_rtpt();
 }
 
-:nRT is $(AMODE) & nop1=0; nop2=0; gte_opc=0x000000FF {
-    gte_rt();
-}
-
-:nRTV0 is $(AMODE) & nop1=0; nop2=0; gte_opc=0x0000013F {
+:nRTV0 is nop1; nop2; is_cop2 & cofun=0x00486012 {
     gte_rtv0();
 }
 
-:nRTV1 is $(AMODE) & nop1=0; nop2=0; gte_opc=0x0000017F {
+:nRTV1 is nop1; nop2; is_cop2 & cofun=0x0048E012 {
     gte_rtv1();
 }
 
-:nRTV2 is $(AMODE) & nop1=0; nop2=0; gte_opc=0x000001BF {
+:nRTV2 is nop1; nop2; is_cop2 & cofun=0x00496012 {
     gte_rtv2();
 }
 
-:nRTIR is $(AMODE) & nop1=0; nop2=0; gte_opc=0x000001FF {
+:nRTIR is nop1; nop2; is_cop2 & cofun=0x0049E012 {
     gte_rtir();
 }
 
-:nRTIR_SF0 is $(AMODE) & nop1=0; nop2=0; gte_opc=0x0000023F {
+:nRTIR_SF0 is nop1; nop2; is_cop2 & cofun=0x0041E012 {
     gte_rtir_sf0();
 }
 
-:nRTV0TR is $(AMODE) & nop1=0; nop2=0; gte_opc=0x0000027F {
-    gte_rtv0tr();
-}
-
-:nRTV1TR is $(AMODE) & nop1=0; nop2=0; gte_opc=0x000002BF {
+:nRTV1TR is nop1; nop2; is_cop2 & cofun=0x00488012 {
     gte_rtv1tr();
 }
 
-:nRTV2TR is $(AMODE) & nop1=0; nop2=0; gte_opc=0x000002FF {
+:nRTV2TR is nop1; nop2; is_cop2 & cofun=0x00490012 {
     gte_rtv2tr();
 }
 
-:nRTIRTR is $(AMODE) & nop1=0; nop2=0; gte_opc=0x0000033F {
+:nRTIRTR is nop1; nop2; is_cop2 & cofun=0x00498012 {
     gte_rtirtr();
 }
 
-:nRTV0BK is $(AMODE) & nop1=0; nop2=0; gte_opc=0x0000037F {
+:nRTV0BK is nop1; nop2; is_cop2 & cofun=0x00482012 {
     gte_rtv0bk();
 }
 
-:nRTV1BK is $(AMODE) & nop1=0; nop2=0; gte_opc=0x000003BF {
+:nRTV1BK is nop1; nop2; is_cop2 & cofun=0x0048A012 {
     gte_rtv1bk();
 }
 
-:nRTV2BK is $(AMODE) & nop1=0; nop2=0; gte_opc=0x000003FF {
+:nRTV2BK is nop1; nop2; is_cop2 & cofun=0x00492012 {
     gte_rtv2bk();
 }
 
-:nRTIRBK is $(AMODE) & nop1=0; nop2=0; gte_opc=0x0000043F {
+:nRTIRBK is nop1; nop2; is_cop2 & cofun=0x0049A012 {
     gte_rtirbk();
 }
 
-:nLL is $(AMODE) & nop1=0; nop2=0; gte_opc=0x0000057F {
+:nLL is nop1; nop2; is_cop2 & cofun=0x004A6412 {
     gte_ll();
 }
 
-:nLLV0 is $(AMODE) & nop1=0; nop2=0; gte_opc=0x000005BF {
+:nLLV0 is nop1; nop2; is_cop2 & cofun=0x004A6012 {
     gte_llv0();
 }
 
-:nLLV1 is $(AMODE) & nop1=0; nop2=0; gte_opc=0x000005FF {
+:nLLV1 is nop1; nop2; is_cop2 & cofun=0x004AE012 {
     gte_llv1();
 }
 
-:nLLV2 is $(AMODE) & nop1=0; nop2=0; gte_opc=0x0000063F {
+:nLLV2 is nop1; nop2; is_cop2 & cofun=0x004B6012 {
     gte_llv2();
 }
 
-:nLLIR is $(AMODE) & nop1=0; nop2=0; gte_opc=0x0000067F {
+:nLLIR is nop1; nop2; is_cop2 & cofun=0x004BE012 {
     gte_llir();
 }
 
-:nLLV0TR is $(AMODE) & nop1=0; nop2=0; gte_opc=0x000006BF {
+:nLLV0TR is nop1; nop2; is_cop2 & cofun=0x004A0012 {
     gte_llv0tr();
 }
 
-:nLLV1TR is $(AMODE) & nop1=0; nop2=0; gte_opc=0x000006FF {
+:nLLV1TR is nop1; nop2; is_cop2 & cofun=0x004A8012 {
     gte_llv1tr();
 }
 
-:nLLV2TR is $(AMODE) & nop1=0; nop2=0; gte_opc=0x0000073F {
+:nLLV2TR is nop1; nop2; is_cop2 & cofun=0x004B0012 {
     gte_llv2tr();
 }
 
-:nLLIRTR is $(AMODE) & nop1=0; nop2=0; gte_opc=0x0000077F {
+:nLLIRTR is nop1; nop2; is_cop2 & cofun=0x004B8012 {
     gte_llirtr();
 }
 
-:nLLV0BK is $(AMODE) & nop1=0; nop2=0; gte_opc=0x000007BF {
+:nLLV0BK is nop1; nop2; is_cop2 & cofun=0x004A2012 {
     gte_llv0bk();
 }
 
-:nLLV1BK is $(AMODE) & nop1=0; nop2=0; gte_opc=0x000007FF {
+:nLLV1BK is nop1; nop2; is_cop2 & cofun=0x004AA012 {
     gte_llv1bk();
 }
 
-:nLLV2BK is $(AMODE) & nop1=0; nop2=0; gte_opc=0x0000083F {
+:nLLV2BK is nop1; nop2; is_cop2 & cofun=0x004B2012 {
     gte_llv2bk();
 }
 
-:nLLIRBK is $(AMODE) & nop1=0; nop2=0; gte_opc=0x0000087F {
+:nLLIRBK is nop1; nop2; is_cop2 & cofun=0x004BA012 {
     gte_llirbk();
 }
 
-:nLC is $(AMODE) & nop1=0; nop2=0; gte_opc=0x000009BF {
+:nLC is nop1; nop2; is_cop2 & cofun=0x004DA412 {
     gte_lc();
 }
 
-:nLCV0 is $(AMODE) & nop1=0; nop2=0; gte_opc=0x000009FF {
+:nLCV0 is nop1; nop2; is_cop2 & cofun=0x004C6012 {
     gte_lcv0();
 }
 
-:nLCV1 is $(AMODE) & nop1=0; nop2=0; gte_opc=0x00000A3F {
+:nLCV1 is nop1; nop2; is_cop2 & cofun=0x004CE012 {
     gte_lcv1();
 }
 
-:nLCV2 is $(AMODE) & nop1=0; nop2=0; gte_opc=0x00000A7F {
+:nLCV2 is nop1; nop2; is_cop2 & cofun=0x004D6012 {
     gte_lcv2();
 }
 
-:nLCIR is $(AMODE) & nop1=0; nop2=0; gte_opc=0x00000ABF {
+:nLCIR is nop1; nop2; is_cop2 & cofun=0x004DE012 {
     gte_lcir();
 }
 
-:nLCV0TR is $(AMODE) & nop1=0; nop2=0; gte_opc=0x00000AFF {
+:nLCV0TR is nop1; nop2; is_cop2 & cofun=0x004C0012 {
     gte_lcv0tr();
 }
 
-:nLCV1TR is $(AMODE) & nop1=0; nop2=0; gte_opc=0x00000B3F {
+:nLCV1TR is nop1; nop2; is_cop2 & cofun=0x004C8012 {
     gte_lcv1tr();
 }
 
-:nLCV2TR is $(AMODE) & nop1=0; nop2=0; gte_opc=0x00000B7F {
+:nLCV2TR is nop1; nop2; is_cop2 & cofun=0x004D0012 {
     gte_lcv2tr();
 }
 
-:nLCIRTR is $(AMODE) & nop1=0; nop2=0; gte_opc=0x00000BBF {
+:nLCIRTR is nop1; nop2; is_cop2 & cofun=0x004D8012 {
     gte_lcirtr();
 }
 
-:nLCV0BK is $(AMODE) & nop1=0; nop2=0; gte_opc=0x00000BFF {
+:nLCV0BK is nop1; nop2; is_cop2 & cofun=0x004C2012 {
     gte_lcv0bk();
 }
 
-:nLCV1BK is $(AMODE) & nop1=0; nop2=0; gte_opc=0x00000C3F {
+:nLCV1BK is nop1; nop2; is_cop2 & cofun=0x004CA012 {
     gte_lcv1bk();
 }
 
-:nLCV2BK is $(AMODE) & nop1=0; nop2=0; gte_opc=0x00000C7F {
+:nLCV2BK is nop1; nop2; is_cop2 & cofun=0x004D2012 {
     gte_lcv2bk();
 }
 
-:nLCIRBK is $(AMODE) & nop1=0; nop2=0; gte_opc=0x00000CBF {
+:nLCIRBK is nop1; nop2; is_cop2 & cofun=0x004DA012 {
     gte_lcirbk();
 }
 
-:nDPCL is $(AMODE) & nop1=0; nop2=0; gte_opc=0x00000DFF {
+:nDPCL is nop1; nop2; is_cop2 & cofun=0x00680029 {
     gte_dpcl();
 }
 
-:nDPCS is $(AMODE) & nop1=0; nop2=0; gte_opc=0x00000E3F {
+:nDPCS is nop1; nop2; is_cop2 & cofun=0x00780010 {
     gte_dpcs();
 }
 
-:nDPCT is $(AMODE) & nop1=0; nop2=0; gte_opc=0x00000E7F {
+:nDPCT is nop1; nop2; is_cop2 & cofun=0x00F8002A {
     gte_dpct();
 }
 
-:nINTPL is $(AMODE) & nop1=0; nop2=0; gte_opc=0x00000EBF {
+:nINTPL is nop1; nop2; is_cop2 & cofun=0x00980011 {
     gte_intpl();
 }
 
-:nSQR12 is $(AMODE) & nop1=0; nop2=0; gte_opc=0x00000EFF {
+:nSQR12 is nop1; nop2; is_cop2 & cofun=0x00A80428 {
     gte_sqr12();
 }
 
-:nSQR0 is $(AMODE) & nop1=0; nop2=0; gte_opc=0x00000F3F {
-    gte_sqr0();
-}
-
-:nNCS is $(AMODE) & nop1=0; nop2=0; gte_opc=0x00000F7F {
+:nNCS is nop1; nop2; is_cop2 & cofun=0x00C8041E {
     gte_ncs();
 }
 
-:nNCT is $(AMODE) & nop1=0; nop2=0; gte_opc=0x00000FBF {
+:nNCT is nop1; nop2; is_cop2 & cofun=0x00D80420 {
     gte_nct();
 }
 
-:nNCDS is $(AMODE) & nop1=0; nop2=0; gte_opc=0x00000FFF {
+:nNCDS is nop1; nop2; is_cop2 & cofun=0x00E80413 {
     gte_ncds();
 }
 
-:nNCDT is $(AMODE) & nop1=0; nop2=0; gte_opc=0x0000103F {
+:nNCDT is nop1; nop2; is_cop2 & cofun=0x00F80416 {
     gte_ncdt();
 }
 
-:nNCCS is $(AMODE) & nop1=0; nop2=0; gte_opc=0x0000107F {
+:nNCCS is nop1; nop2; is_cop2 & cofun=0x0108041B {
     gte_nccs();
 }
 
-:nNCCT is $(AMODE) & nop1=0; nop2=0; gte_opc=0x000010BF {
+:nNCCT is nop1; nop2; is_cop2 & cofun=0x0118043F {
     gte_ncct();
 }
 
-:nCDP is $(AMODE) & nop1=0; nop2=0; gte_opc=0x000010FF {
+:nCDP is nop1; nop2; is_cop2 & cofun=0x01280414 {
     gte_cdp();
 }
 
-:nCC is $(AMODE) & nop1=0; nop2=0; gte_opc=0x0000113F {
+:nCC is nop1; nop2; is_cop2 & cofun=0x0138041C {
     gte_cc();
 }
 
-:nNCLIP is $(AMODE) & nop1=0; nop2=0; gte_opc=0x0000117F {
+:nNCLIP is nop1; nop2; is_cop2 & cofun=0x01400006 {
     gte_nclip();
 }
 
-:nAVSZ3 is $(AMODE) & nop1=0; nop2=0; gte_opc=0x000011BF {
+:nAVSZ3 is nop1; nop2; is_cop2 & cofun=0x0158002D {
     gte_avsz3();
 }
 
-:nAVSZ4 is $(AMODE) & nop1=0; nop2=0; gte_opc=0x000011FF {
+:nAVSZ4 is nop1; nop2; is_cop2 & cofun=0x0168002E {
     gte_avsz4();
 }
 
-:nOP12 is $(AMODE) & nop1=0; nop2=0; gte_opc=0x0000123F {
+:nOP12 is nop1; nop2; is_cop2 & cofun=0x0178000C {
     gte_op12();
 }
 
-:nOP0 is $(AMODE) & nop1=0; nop2=0; gte_opc=0x0000127F {
-    gte_op0();
-}
-
-:nGPF12 is $(AMODE) & nop1=0; nop2=0; gte_opc=0x000012BF {
+:nGPF12 is nop1; nop2; is_cop2 & cofun=0x0198003D {
     gte_gpf12();
 }
 
-:nGPF0 is $(AMODE) & nop1=0; nop2=0; gte_opc=0x000012FF {
-    gte_gpf0();
-}
-
-:nGPL12 is $(AMODE) & nop1=0; nop2=0; gte_opc=0x0000133F {
+:nGPL12 is nop1; nop2; is_cop2 & cofun=0x01A8003E {
     gte_gpl12();
 }
 
-:nGPL0 is $(AMODE) & nop1=0; nop2=0; gte_opc=0x0000137F {
-    gte_gpl0();
+:nMVMVA cop2_sf,cop2_mx,cop2_v,cop2_cv,cop2_lm is nop1; nop2; is_cop2_mvmva & cop2_sf & cop2_mx & cop2_v & cop2_cv & cop2_lm {
+    gte_mvmva(cop2_sf:1,cop2_mx:2,cop2_v:2,cop2_cv:2,cop2_lm:1);
 }
 
-:nMVMVA sf,mx,v,cv,lm is $(AMODE) & nop1=0; nop2=0; word=0x13BF & sf & mx & v & cv & lm {
-	gte_mvmva(sf:2,mx:2,v:2,cv:2,lm:1);
+:nSQR cop2_sf is nop1; nop2; is_cop2 & cofun=0x00A00428 & cop2_sf {
+    gte_sqr(cop2_sf:1);
 }
 
-:nSQR sf is $(AMODE) & nop1=0; nop2=0; word=0x13FF & sf {
-	gte_sqr(sf:2);
+:nOP cop2_sf is nop1; nop2; is_cop2 & cofun=0x0170000C & cop2_sf {
+    gte_op(cop2_sf:1);
 }
 
-:nOP sf is $(AMODE) & nop1=0; nop2=0; word=0x143F & sf {
-	gte_op(sf:2);
+:nGPF cop2_sf is nop1; nop2; is_cop2 & cofun=0x0190003D & cop2_sf {
+    gte_gpf(cop2_sf:1);
 }
 
-:nGPF sf is $(AMODE) & nop1=0; nop2=0; word=0x147F & sf {
-	gte_gpf(sf:2);
-}
-
-:nGPL sf is $(AMODE) & nop1=0; nop2=0; word=0x14BF & sf {
-	gte_gpl(sf:2);
+:nGPL cop2_sf is nop1; nop2; is_cop2 & cofun=0x01A0003E & cop2_sf {
+    gte_gpl(cop2_sf:1);
 }
 
 
 # -------------------------------------------------------------------
 
-:RTPS is $(AMODE) & gte_opc2=0x0000007F {
+:RTPS is is_cop2 & cofun=0x00180001 {
     gte_rtps_b();
 }
 
-:RTPT is $(AMODE) & gte_opc2=0x000000BF {
+:RTPT is is_cop2 & cofun=0x00280030 {
     gte_rtpt_b();
 }
 
-:RT is $(AMODE) & gte_opc2=0x000000FF {
-    gte_rt_b();
-}
-
-:RTV0 is $(AMODE) & gte_opc2=0x0000013F {
+:RTV0 is is_cop2 & cofun=0x00486012 {
     gte_rtv0_b();
 }
 
-:RTV1 is $(AMODE) & gte_opc2=0x0000017F {
+:RTV1 is is_cop2 & cofun=0x0048E012 {
     gte_rtv1_b();
 }
 
-:RTV2 is $(AMODE) & gte_opc2=0x000001BF {
+:RTV2 is is_cop2 & cofun=0x00496012 {
     gte_rtv2_b();
 }
 
-:RTIR is $(AMODE) & gte_opc2=0x000001FF {
+:RTIR is is_cop2 & cofun=0x0049E012 {
     gte_rtir_b();
 }
 
-:RTIR_SF0 is $(AMODE) & gte_opc2=0x0000023F {
+:RTIR_SF0 is is_cop2 & cofun=0x0041E012 {
     gte_rtir_sf0_b();
 }
 
-:RTV0TR is $(AMODE) & gte_opc2=0x0000027F {
-    gte_rtv0tr_b();
-}
-
-:RTV1TR is $(AMODE) & gte_opc2=0x000002BF {
+:RTV1TR is is_cop2 & cofun=0x00488012 {
     gte_rtv1tr_b();
 }
 
-:RTV2TR is $(AMODE) & gte_opc2=0x000002FF {
+:RTV2TR is is_cop2 & cofun=0x00490012 {
     gte_rtv2tr_b();
 }
 
-:RTIRTR is $(AMODE) & gte_opc2=0x0000033F {
+:RTIRTR is is_cop2 & cofun=0x00498012 {
     gte_rtirtr_b();
 }
 
-:RTV0BK is $(AMODE) & gte_opc2=0x0000037F {
+:RTV0BK is is_cop2 & cofun=0x00482012 {
     gte_rtv0bk_b();
 }
 
-:RTV1BK is $(AMODE) & gte_opc2=0x000003BF {
+:RTV1BK is is_cop2 & cofun=0x0048A012 {
     gte_rtv1bk_b();
 }
 
-:RTV2BK is $(AMODE) & gte_opc2=0x000003FF {
+:RTV2BK is is_cop2 & cofun=0x00492012 {
     gte_rtv2bk_b();
 }
 
-:RTIRBK is $(AMODE) & gte_opc2=0x0000043F {
+:RTIRBK is is_cop2 & cofun=0x0049A012 {
     gte_rtirbk_b();
 }
 
-:LL is $(AMODE) & gte_opc2=0x0000057F {
+:LL is is_cop2 & cofun=0x004A6412 {
     gte_ll_b();
 }
 
-:LLV0 is $(AMODE) & gte_opc2=0x000005BF {
+:LLV0 is is_cop2 & cofun=0x004A6012 {
     gte_llv0_b();
 }
 
-:LLV1 is $(AMODE) & gte_opc2=0x000005FF {
+:LLV1 is is_cop2 & cofun=0x004AE012 {
     gte_llv1_b();
 }
 
-:LLV2 is $(AMODE) & gte_opc2=0x0000063F {
+:LLV2 is is_cop2 & cofun=0x004B6012 {
     gte_llv2_b();
 }
 
-:LLIR is $(AMODE) & gte_opc2=0x0000067F {
+:LLIR is is_cop2 & cofun=0x004BE012 {
     gte_llir_b();
 }
 
-:LLV0TR is $(AMODE) & gte_opc2=0x000006BF {
+:LLV0TR is is_cop2 & cofun=0x004A0012 {
     gte_llv0tr_b();
 }
 
-:LLV1TR is $(AMODE) & gte_opc2=0x000006FF {
+:LLV1TR is is_cop2 & cofun=0x004A8012 {
     gte_llv1tr_b();
 }
 
-:LLV2TR is $(AMODE) & gte_opc2=0x0000073F {
+:LLV2TR is is_cop2 & cofun=0x004B0012 {
     gte_llv2tr_b();
 }
 
-:LLIRTR is $(AMODE) & gte_opc2=0x0000077F {
+:LLIRTR is is_cop2 & cofun=0x004B8012 {
     gte_llirtr_b();
 }
 
-:LLV0BK is $(AMODE) & gte_opc2=0x000007BF {
+:LLV0BK is is_cop2 & cofun=0x004A2012 {
     gte_llv0bk_b();
 }
 
-:LLV1BK is $(AMODE) & gte_opc2=0x000007FF {
+:LLV1BK is is_cop2 & cofun=0x004AA012 {
     gte_llv1bk_b();
 }
 
-:LLV2BK is $(AMODE) & gte_opc2=0x0000083F {
+:LLV2BK is is_cop2 & cofun=0x004B2012 {
     gte_llv2bk_b();
 }
 
-:LLIRBK is $(AMODE) & gte_opc2=0x0000087F {
+:LLIRBK is is_cop2 & cofun=0x004BA012 {
     gte_llirbk_b();
 }
 
-:LC is $(AMODE) & gte_opc2=0x000009BF {
+:LC is is_cop2 & cofun=0x004DA412 {
     gte_lc_b();
 }
 
-:LCV0 is $(AMODE) & gte_opc2=0x000009FF {
+:LCV0 is is_cop2 & cofun=0x004C6012 {
     gte_lcv0_b();
 }
 
-:LCV1 is $(AMODE) & gte_opc2=0x00000A3F {
+:LCV1 is is_cop2 & cofun=0x004CE012 {
     gte_lcv1_b();
 }
 
-:LCV2 is $(AMODE) & gte_opc2=0x00000A7F {
+:LCV2 is is_cop2 & cofun=0x004D6012 {
     gte_lcv2_b();
 }
 
-:LCIR is $(AMODE) & gte_opc2=0x00000ABF {
+:LCIR is is_cop2 & cofun=0x004DE012 {
     gte_lcir_b();
 }
 
-:LCV0TR is $(AMODE) & gte_opc2=0x00000AFF {
+:LCV0TR is is_cop2 & cofun=0x004C0012 {
     gte_lcv0tr_b();
 }
 
-:LCV1TR is $(AMODE) & gte_opc2=0x00000B3F {
+:LCV1TR is is_cop2 & cofun=0x004C8012 {
     gte_lcv1tr_b();
 }
 
-:LCV2TR is $(AMODE) & gte_opc2=0x00000B7F {
+:LCV2TR is is_cop2 & cofun=0x004D0012 {
     gte_lcv2tr_b();
 }
 
-:LCIRTR is $(AMODE) & gte_opc2=0x00000BBF {
+:LCIRTR is is_cop2 & cofun=0x004D8012 {
     gte_lcirtr_b();
 }
 
-:LCV0BK is $(AMODE) & gte_opc2=0x00000BFF {
+:LCV0BK is is_cop2 & cofun=0x004C2012 {
     gte_lcv0bk_b();
 }
 
-:LCV1BK is $(AMODE) & gte_opc2=0x00000C3F {
+:LCV1BK is is_cop2 & cofun=0x004CA012 {
     gte_lcv1bk_b();
 }
 
-:LCV2BK is $(AMODE) & gte_opc2=0x00000C7F {
+:LCV2BK is is_cop2 & cofun=0x004D2012 {
     gte_lcv2bk_b();
 }
 
-:LCIRBK is $(AMODE) & gte_opc2=0x00000CBF {
+:LCIRBK is is_cop2 & cofun=0x004DA012 {
     gte_lcirbk_b();
 }
 
-:DPCL is $(AMODE) & gte_opc2=0x00000DFF {
+:DPCL is is_cop2 & cofun=0x00680029 {
     gte_dpcl_b();
 }
 
-:DPCS is $(AMODE) & gte_opc2=0x00000E3F {
+:DPCS is is_cop2 & cofun=0x00780010 {
     gte_dpcs_b();
 }
 
-:DPCT is $(AMODE) & gte_opc2=0x00000E7F {
+:DPCT is is_cop2 & cofun=0x00F8002A {
     gte_dpct_b();
 }
 
-:INTPL is $(AMODE) & gte_opc2=0x00000EBF {
+:INTPL is is_cop2 & cofun=0x00980011 {
     gte_intpl_b();
 }
 
-:SQR12 is $(AMODE) & gte_opc2=0x00000EFF {
+:SQR12 is is_cop2 & cofun=0x00A80428 {
     gte_sqr12_b();
 }
 
-:SQR0 is $(AMODE) & gte_opc2=0x00000F3F {
-    gte_sqr0_b();
-}
-
-:NCS is $(AMODE) & gte_opc2=0x00000F7F {
+:NCS is is_cop2 & cofun=0x00C8041E {
     gte_ncs_b();
 }
 
-:NCT is $(AMODE) & gte_opc2=0x00000FBF {
+:NCT is is_cop2 & cofun=0x00D80420 {
     gte_nct_b();
 }
 
-:NCDS is $(AMODE) & gte_opc2=0x00000FFF {
+:NCDS is is_cop2 & cofun=0x00E80413 {
     gte_ncds_b();
 }
 
-:NCDT is $(AMODE) & gte_opc2=0x0000103F {
+:NCDT is is_cop2 & cofun=0x00F80416 {
     gte_ncdt_b();
 }
 
-:NCCS is $(AMODE) & gte_opc2=0x0000107F {
+:NCCS is is_cop2 & cofun=0x0108041B {
     gte_nccs_b();
 }
 
-:NCCT is $(AMODE) & gte_opc2=0x000010BF {
+:NCCT is is_cop2 & cofun=0x0118043F {
     gte_ncct_b();
 }
 
-:CDP is $(AMODE) & gte_opc2=0x000010FF {
+:CDP is is_cop2 & cofun=0x01280414 {
     gte_cdp_b();
 }
 
-:CC is $(AMODE) & gte_opc2=0x0000113F {
+:CC is is_cop2 & cofun=0x0138041C {
     gte_cc_b();
 }
 
-:NCLIP is $(AMODE) & gte_opc2=0x0000117F {
+:NCLIP is is_cop2 & cofun=0x01400006 {
     gte_nclip_b();
 }
 
-:AVSZ3 is $(AMODE) & gte_opc2=0x000011BF {
+:AVSZ3 is is_cop2 & cofun=0x0158002D {
     gte_avsz3_b();
 }
 
-:AVSZ4 is $(AMODE) & gte_opc2=0x000011FF {
+:AVSZ4 is is_cop2 & cofun=0x0168002E {
     gte_avsz4_b();
 }
 
-:OP12 is $(AMODE) & gte_opc2=0x0000123F {
+:OP12 is is_cop2 & cofun=0x0178000C {
     gte_op12_b();
 }
 
-:OP0 is $(AMODE) & gte_opc2=0x0000127F {
-    gte_op0_b();
-}
-
-:GPF12 is $(AMODE) & gte_opc2=0x000012BF {
+:GPF12 is is_cop2 & cofun=0x0198003D {
     gte_gpf12_b();
 }
 
-:GPF0 is $(AMODE) & gte_opc2=0x000012FF {
-    gte_gpf0_b();
-}
-
-:GPL12 is $(AMODE) & gte_opc2=0x0000133F {
+:GPL12 is is_cop2 & cofun=0x01A8003E {
     gte_gpl12_b();
 }
 
-:GPL0 is $(AMODE) & gte_opc2=0x0000137F {
-    gte_gpl0_b();
+:MVMVA cop2_sf,cop2_mx,cop2_v,cop2_cv,cop2_lm is is_cop2_mvmva & cop2_sf & cop2_mx & cop2_v & cop2_cv & cop2_lm {
+    gte_mvmva_b(cop2_sf:1,cop2_mx:2,cop2_v:2,cop2_cv:2,cop2_lm:1);
 }
 
-:MVMVA sf2,mx2,v2,cv2,lm2 is $(AMODE) & word2=0x13BF & sf2 & mx2 & v2 & cv2 & lm2 {
-	gte_mvmva_b(sf2:2,mx2:2,v2:2,cv2:2,lm2:1);
+:SQR cop2_sf is is_cop2 & cofun=0x00A00428 & cop2_sf {
+    gte_sqr_b(cop2_sf:1);
 }
 
-:SQR sf2 is $(AMODE) & word2=0x13FF & sf2 {
-	gte_sqr_b(sf2:2);
+:OP cop2_sf is is_cop2 & cofun=0x0170000C & cop2_sf {
+    gte_op_b(cop2_sf:1);
 }
 
-:OP sf2 is $(AMODE) & word2=0x143F & sf2 {
-	gte_op_b(sf2:2);
+:GPF cop2_sf is is_cop2 & cofun=0x0190003D & cop2_sf {
+    gte_gpf_b(cop2_sf:1);
 }
 
-:GPF sf2 is $(AMODE) & word2=0x147F & sf2 {
-	gte_gpf_b(sf2:2);
-}
-
-:GPL sf2 is $(AMODE) & word2=0x14BF & sf2 {
-	gte_gpl_b(sf2:2);
+:GPL cop2_sf is is_cop2 & cofun=0x01A0003E & cop2_sf {
+    gte_gpl_b(cop2_sf:1);
 }

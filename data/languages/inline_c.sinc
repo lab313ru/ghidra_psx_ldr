@@ -134,49 +134,49 @@ is_addu: is $(AMODE) & prime=0 & fct=0x21 & sa=0 & RD {}
 is_addi: is $(AMODE) & REL6=0 & prime=8 & RT {}
 is_mfc2: is $(AMODE) & prime=0x12 & copop=0 {}
 
-lwc2_0_0: is is_lwc2 & OFF_BASE & simmed=0 & rt=0 {}
+lwc2_0_0: is is_lwc2 & OFF_BASE & rt=0 & simmed=0 {}
 
-lwc2_1_4: is is_lwc2 & OFF_BASE & simmed=4 & rt=1 {}
-lwc2_1_8: is is_lwc2 & OFF_BASE & simmed=8 & rt=1 {}
+lwc2_1_4: is is_lwc2 & OFF_BASE & rt=1 & simmed=4 {}
+lwc2_1_8: is is_lwc2 & OFF_BASE & rt=1 & simmed=8 {}
 
-lwc2_2_0: is is_lwc2 & OFF_BASE & simmed=0 & rt=2 {}
-lwc2_2_8: is is_lwc2 & OFF_BASE & simmed=8 & rt=2 {}
-lwc2_2_12: is is_lwc2 & OFF_BASE & simmed=12 & rt=2 {}
+lwc2_2_0: is is_lwc2 & OFF_BASE & rt=2 & simmed=0 {}
+lwc2_2_8: is is_lwc2 & OFF_BASE & rt=2 & simmed=8 {}
+lwc2_2_12: is is_lwc2 & OFF_BASE & rt=2 & simmed=12 {}
 
-lwc2_3_4: is is_lwc2 & OFF_BASE & simmed=4 & rt=3 {}
-lwc2_3_12: is is_lwc2 & OFF_BASE & simmed=12 & rt=3 {}
-lwc2_3_16: is is_lwc2 & OFF_BASE & simmed=16 & rt=3 {}
+lwc2_3_4: is is_lwc2 & OFF_BASE & rt=3 & simmed=4 {}
+lwc2_3_12: is is_lwc2 & OFF_BASE & rt=3 & simmed=12 {}
+lwc2_3_16: is is_lwc2 & OFF_BASE & rt=3 & simmed=16 {}
 
-lwc2_4_0: is is_lwc2 & OFF_BASE & simmed=0 & rt=4 {}
-lwc2_4_16: is is_lwc2 & OFF_BASE & simmed=16 & rt=4 {}
-lwc2_4_24: is is_lwc2 & OFF_BASE & simmed=24 & rt=4 {}
+lwc2_4_0: is is_lwc2 & OFF_BASE & rt=4 & simmed=0 {}
+lwc2_4_16: is is_lwc2 & OFF_BASE & rt=4 & simmed=16 {}
+lwc2_4_24: is is_lwc2 & OFF_BASE & rt=4 & simmed=24 {}
 
-lwc2_5_4: is is_lwc2 & OFF_BASE & simmed=4 & rt=5 {}
-lwc2_5_20: is is_lwc2 & OFF_BASE & simmed=20 & rt=5 {}
-lwc2_5_28: is is_lwc2 & OFF_BASE & simmed=28 & rt=5 {}
+lwc2_5_4: is is_lwc2 & OFF_BASE & rt=5 & simmed=4 {}
+lwc2_5_20: is is_lwc2 & OFF_BASE & rt=5 & simmed=20 {}
+lwc2_5_28: is is_lwc2 & OFF_BASE & rt=5 & simmed=28 {}
 
-lwc2_6_0: is is_lwc2 & OFF_BASE & simmed=0 & rt=6 {}
-lwc2_6_8: is is_lwc2 & OFF_BASE & simmed=8 & rt=6 {}
+lwc2_6_0: is is_lwc2 & OFF_BASE & rt=6 & simmed=0 {}
+lwc2_6_8: is is_lwc2 & OFF_BASE & rt=6 & simmed=8 {}
 
-lwc2_9_0: is is_lwc2 & OFF_BASE & simmed=0 & rt=9 {}
+lwc2_9_0: is is_lwc2 & OFF_BASE & rt=9 & simmed=0 {}
 
-lwc2_10_4: is is_lwc2 & OFF_BASE & simmed=4 & rt=10 {}
+lwc2_10_4: is is_lwc2 & OFF_BASE & rt=10 & simmed=4 {}
 
-lwc2_11_8: is is_lwc2 & OFF_BASE & simmed=8 & rt=11 {}
+lwc2_11_8: is is_lwc2 & OFF_BASE & rt=11 & simmed=8 {}
 
-lwc2_12_0: is is_lwc2 & OFF_BASE & simmed=0 & rt=12 {}
+lwc2_12_0: is is_lwc2 & OFF_BASE & rt=12 & simmed=0 {}
 
-lwc2_13_4: is is_lwc2 & OFF_BASE & simmed=4 & rt=13 {}
+lwc2_13_4: is is_lwc2 & OFF_BASE & rt=13 & simmed=4 {}
 
-lwc2_14_8: is is_lwc2 & OFF_BASE & simmed=8 & rt=14 {}
+lwc2_14_8: is is_lwc2 & OFF_BASE & rt=14 & simmed=8 {}
 
-lwc2_20_0: is is_lwc2 & OFF_BASE & simmed=0 & rt=20 {}
+lwc2_20_0: is is_lwc2 & OFF_BASE & rt=20 & simmed=0 {}
 
-lwc2_21_0: is is_lwc2 & OFF_BASE & simmed=0 & rt=21 {}
-lwc2_21_4: is is_lwc2 & OFF_BASE & simmed=4 & rt=21 {}
+lwc2_21_0: is is_lwc2 & OFF_BASE & rt=21 & simmed=0 {}
+lwc2_21_4: is is_lwc2 & OFF_BASE & rt=21 & simmed=4 {}
 
-lwc2_22_0: is is_lwc2 & OFF_BASE & simmed=0 & rt=22 {}
-lwc2_22_8: is is_lwc2 & OFF_BASE & simmed=8 & rt=22 {}
+lwc2_22_0: is is_lwc2 & OFF_BASE & rt=22 & simmed=0 {}
+lwc2_22_8: is is_lwc2 & OFF_BASE & rt=22 & simmed=8 {}
 
 lhu_12_0: is is_lhu & OFF_BASE & simmed=0 & rt=12 {}
 
@@ -345,6 +345,7 @@ cfc2_14_12: is is_cfc2 & rt=14 & immed=(12<<11) {}
 cfc2_14_15: is is_cfc2 & rt=14 & immed=(15<<11) {}
 cfc2_14_20: is is_cfc2 & rt=14 & immed=(20<<11) {}
 cfc2_14_23: is is_cfc2 & rt=14 & immed=(23<<11) {}
+cfc2_x_31: is is_cfc2 & immed=(31<<11) {}
 
 swc2_7_0: is is_swc2 & OFF_BASE & simmed=0 & rt=7 {}
 
@@ -414,6 +415,23 @@ mfc2_13_10: is is_mfc2 & rt=13 & immed=(10<<11) {}
 mfc2_13_26: is is_mfc2 & rt=13 & immed=(26<<11) {}
 mfc2_14_11: is is_mfc2 & rt=14 & immed=(11<<11) {}
 mfc2_14_27: is is_mfc2 & rt=14 & immed=(27<<11) {}
+
+mfc2_x_7: is is_mfc2 & immed=(7<<11) {}
+mfc2_x_8: is is_mfc2 & immed=(8<<11) {}
+mfc2_x_12: is is_mfc2 & immed=(12<<11) {}
+mfc2_x_13: is is_mfc2 & immed=(13<<11) {}
+mfc2_x_14: is is_mfc2 & immed=(14<<11) {}
+mfc2_x_16: is is_mfc2 & immed=(16<<11) {}
+mfc2_x_17: is is_mfc2 & immed=(17<<11) {}
+mfc2_x_18: is is_mfc2 & immed=(18<<11) {}
+mfc2_x_19: is is_mfc2 & immed=(19<<11) {}
+mfc2_x_20: is is_mfc2 & immed=(20<<11) {}
+mfc2_x_21: is is_mfc2 & immed=(21<<11) {}
+mfc2_x_22: is is_mfc2 & immed=(22<<11) {}
+mfc2_x_24: is is_mfc2 & immed=(24<<11) {}
+mfc2_x_25: is is_mfc2 & immed=(25<<11) {}
+mfc2_x_26: is is_mfc2 & immed=(26<<11) {}
+mfc2_x_27: is is_mfc2 & immed=(27<<11) {}
 
 and_12_12_13: is is_and & rd=12 & rs=12 & rt=13 {}
 subu_12_0_12: is is_subu & rd=12 & rs=0 & rt=12 {}
@@ -663,7 +681,7 @@ addi_13_0_4: is is_addi & rt=13 & rs=0 & simmed=4 {}
     gte_stdp(base);
 }
 
-:stflg base is cfc2_12_31; nop1=0; sw_12_0 & base {
+:stflg base is cfc2_12_31; nop1; sw_12_0 & base {
     gte_stflg(base);
 }
 
@@ -691,7 +709,7 @@ addi_13_0_4: is is_addi & rt=13 & rs=0 & simmed=4 {}
     gte_stsz4c(base);
 }
 
-:stszotz base is mfc2_12_19; nop1=0; sra_12_12_2; sw_12_0 & base {
+:stszotz base is mfc2_12_19; nop1; sra_12_12_2; sw_12_0 & base {
     gte_stszotz(base);
 }
 
@@ -759,7 +777,7 @@ addi_13_0_4: is is_addi & rt=13 & rs=0 & simmed=4 {}
     gte_ReadGeomOffset(base1,base2);
 }
 
-:ReadGeomScreen base is cfc2_12_26; nop1=0; sw_12_0 & base {
+:ReadGeomScreen base is cfc2_12_26; nop1; sw_12_0 & base {
     gte_ReadGeomScreen(base);
 }
 
@@ -811,45 +829,122 @@ addi_13_0_4: is is_addi & rt=13 & rs=0 & simmed=4 {}
     gte_FlipRotMatrixX();
 }
 
-:FlipTRX is cfc2_12_5; nop1=0; subu_12_0_12; ctc2_12_5 {
+:FlipTRX is cfc2_12_5; nop1; subu_12_0_12; ctc2_12_5 {
     gte_FlipTRX();
 }
 
 
+# -------------------------------------- GTENOM_H
 
+define pcodeop read_sz_fifo3;
+define pcodeop read_sz_fifo4;
+define pcodeop read_szx;
+define pcodeop read_sz0;
+define pcodeop read_sz1;
+define pcodeop read_sz2;
+define pcodeop read_sxsy_fifo3;
+define pcodeop read_sxsy0;
+define pcodeop read_sxsy1;
+define pcodeop read_sxsy2;
+define pcodeop read_rgb_fifo;
+define pcodeop read_rgb0;
+define pcodeop read_rgb1;
+define pcodeop read_rgb2;
+define pcodeop read_flag;
+define pcodeop read_p;
+define pcodeop read_otz;
+define pcodeop read_opz;
+define pcodeop read_mt;
+define pcodeop store_sxsy_fifo3;
+define pcodeop store_sxsy0;
+define pcodeop store_sxsy1;
+define pcodeop store_sxsy2;
+define pcodeop store_rgb_fifo;
+define pcodeop store_rgb0;
+define pcodeop store_rgb1;
+define pcodeop store_rgb2;
+define pcodeop set_trans_matrix;
 
+:read_sz_fifo3 RT1,RT2,RT3 is mfc2_x_17 & RT1; mfc2_x_18 & RT2; mfc2_x_19 & RT3 {
+	read_sz_fifo3(RT1,RT2,RT3);
+}
 
+:read_sz_fifo4 RT1,RT2,RT3,RT4 is mfc2_x_16 & RT1; mfc2_x_17 & RT2; mfc2_x_18 & RT3; mfc2_x_19 & RT4 {
+	read_sz_fifo4(RT1,RT2,RT3,RT4);
+}
 
+:read_szx RT is mfc2_x_16 & RT {
+	read_szx(RT);
+}
 
+:read_sz0 RT is mfc2_x_17 & RT {
+	read_sz0(RT);
+}
 
+:read_sz1 RT is mfc2_x_18 & RT {
+	read_sz1(RT);
+}
 
+:read_sz2 RT is mfc2_x_19 & RT {
+	read_sz2(RT);
+}
 
+:read_sxsy_fifo3 RT1,RT2,RT3 is mfc2_x_12 & RT1; mfc2_x_13 & RT2; mfc2_x_14 & RT3 {
+	read_sxsy_fifo3(RT1,RT2,RT3);
+}
 
+:read_sxsy0 RT is mfc2_x_12 & RT {
+	read_sxsy0(RT);
+}
 
+:read_sxsy1 RT is mfc2_x_13 & RT {
+	read_sxsy1(RT);
+}
 
+:read_sxsy2 RT is mfc2_x_14 & RT {
+	read_sxsy2(RT);
+}
 
+:read_rgb_fifo RT1,RT2,RT3 is mfc2_x_20 & RT1; mfc2_x_21 & RT2; mfc2_x_22 & RT3 {
+	read_rgb_fifo(RT1,RT2,RT3);
+}
 
+:read_rgb0 RT is mfc2_x_20 & RT {
+	read_rgb0(RT);
+}
 
+:read_rgb1 RT is mfc2_x_21 & RT {
+	read_rgb1(RT);
+}
 
+:read_rgb2 RT is mfc2_x_22 & RT {
+	read_rgb2(RT);
+}
 
+:read_flag RT is cfc2_x_31 & RT {
+	read_flag(RT);
+}
 
+:read_p RT is mfc2_x_8 & RT {
+	read_p(RT);
+}
 
+:read_otz RT is mfc2_x_7 & RT {
+	read_otz(RT);
+}
 
+:read_opz RT is mfc2_x_24 & RT {
+	read_opz(RT);
+}
 
+:read_mt RT1,RT2,RT3 is mfc2_x_25 & RT1; mfc2_x_26 & RT2; mfc2_x_27 & RT3 {
+	read_mt(RT1,RT2,RT3);
+}
 
+:store_rgb0 base is swc2_20_0 & base {
+	store_rgb0(base);
+}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+:store_rgb1 base is swc2_21_0 & base {
+	store_rgb1(base);
+}

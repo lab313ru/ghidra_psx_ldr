@@ -465,6 +465,13 @@ define token instr(32)
     ind26       = (0,25)				# 26 bit unsigned index, e.g. jal
     copfill     = (6,24)
     cofun       = (0,24)
+    cop2_mvmva1 = (0,9)
+    cop2_mvmva2 = (20,24)
+    cop2_sf     = (19,19)
+    cop2_mx     = (17,18)
+    cop2_v      = (15,16)
+    cop2_cv     = (13,14)
+    cop2_lm     = (10,10)
     off21	= (0,20) signed		# 21 bit signed offset in conditional branch/link
     off16	= (0,15) signed		# 16 bit signed offset in conditional branch/link
     bit21       = (21,21)
