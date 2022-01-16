@@ -216,8 +216,12 @@ define pcodeop gte_ApplyRotMatrix;
     gte_LoadAverageCol();
 }
 
-MulMatrix0_: is SetRotMatrix_; ldclmv_1; rtir_1; stclmv_1; ldclmv_2; rtir_2; stclmv_2; ldclmv_3; rtir_3; stclmv_3 {}
-:MulMatrix0  is SetRotMatrix_; ldclmv_1; rtir_1; stclmv_1; ldclmv_2; rtir_2; stclmv_2; ldclmv_3; rtir_3; stclmv_3 {
+is_addiu: is $(AMODE) & prime=9 {}
+addiu_x1_x2_2: is is_addiu & simmed=2 {}
+addiu_x1_x2_4: is is_addiu & simmed=4 {}
+
+MulMatrix0_: is SetRotMatrix_; ldclmv_1; rtir_1; stclmv_1; addiu_x1_x2_2; ldclmv_2; rtir_2; stclmv_2; addiu_x1_x2_4; ldclmv_3; rtir_3; stclmv_3 {}
+:MulMatrix0  is SetRotMatrix_; ldclmv_1; rtir_1; stclmv_1; addiu_x1_x2_2; ldclmv_2; rtir_2; stclmv_2; addiu_x1_x2_4; ldclmv_3; rtir_3; stclmv_3 {
     gte_MulMatrix0();
 }
 

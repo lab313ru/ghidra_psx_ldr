@@ -449,10 +449,6 @@ define token instr(32)
     rs2         = (21,25)
     fr          = (21,25)
     base        = (21,25)
-    base1       = (21,25)
-    base2       = (21,25)
-    base3       = (21,25)
-    base4       = (21,25)
     format      = (21,25)
     copop       = (21,25)
     mfmc0       = (21,25)
@@ -565,7 +561,7 @@ define token instr(32)
     simmed11	= (0,10)
 ;
 
-attach variables [ rs rt rt1 rt2 rt3 rt4 rd base base1 base2 base3 base4 index baser6 ] [ 
+attach variables [ rs rt rt1 rt2 rt3 rt4 rd base index baser6 ] [ 
     zero  at  v0  v1  a0  a1  a2  a3
     t0    t1  t2  t3  t4  t5  t6  t7
     s0    s1  s2  s3  s4  s5  s6  s7

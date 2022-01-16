@@ -136,14 +136,14 @@ is_mfc2: is $(AMODE) & prime=0x12 & copop=0 {}
 
 @include "cop2_regs.sinc"
 
-lhu_12_0: is is_lhu & OFF_BASE & simmed=0 & rt=12 {}
+lhu_12_0: is is_lhu & simmed=0 & rt=12 {}
 
-lhu_13_2: is is_lhu & OFF_BASE & simmed=2 & rt=13 {}
-lhu_13_4: is is_lhu & OFF_BASE & simmed=4 & rt=13 {}
-lhu_13_6: is is_lhu & OFF_BASE & simmed=6 & rt=13 {}
+lhu_13_2: is is_lhu & simmed=2 & rt=13 {}
+lhu_13_4: is is_lhu & simmed=4 & rt=13 {}
+lhu_13_6: is is_lhu & simmed=6 & rt=13 {}
 
-lhu_14_4: is is_lhu & OFF_BASE & simmed=4 & rt=14 {}
-lhu_14_12: is is_lhu & OFF_BASE & simmed=12 & rt=14 {}
+lhu_14_4: is is_lhu & simmed=4 & rt=14 {}
+lhu_14_12: is is_lhu & simmed=12 & rt=14 {}
 
 sra_12_12_2: is is_sra & rd=12 & rt=12 & sa=2 {}
 sra_12_12_16: is is_sra & rd=12 & rt=12 & sa=16 {}
@@ -171,52 +171,52 @@ or_12_12_13: is is_or & rd=12 & rs=12 & rt=13 {}
 or_14_14_15_1: is is_or & rd1=14 & rs1=14 & rt1=15 {}
 or_14_14_15_2: is is_or & rd2=14 & rs2=14 & rt2=15 {}
 
-lbu_12_0: is is_lbu & rt=12 & OFF_BASE & simmed=0 {}
-lbu_13_1: is is_lbu & rt=13 & OFF_BASE & simmed=1 {}
-lbu_14_2: is is_lbu & rt=14 & OFF_BASE & simmed=2 {}
+lbu_12_0: is is_lbu & rt=12 & simmed=0 {}
+lbu_13_1: is is_lbu & rt=13 & simmed=1 {}
+lbu_14_2: is is_lbu & rt=14 & simmed=2 {}
 
-lh_12_0: is is_lh & rt=12 & OFF_BASE & simmed=0 {}
-lh_13_2: is is_lh & rt=13 & OFF_BASE & simmed=2 {}
-lh_14_4: is is_lh & rt=14 & OFF_BASE & simmed=4 {}
+lh_12_0: is is_lh & rt=12 & simmed=0 {}
+lh_13_2: is is_lh & rt=13 & simmed=2 {}
+lh_14_4: is is_lh & rt=14 & simmed=4 {}
 
-sb_12_0: is is_sb & rt=12 & OFF_BASE & simmed=0 {}
-sb_13_1: is is_sb & rt=13 & OFF_BASE & simmed=1 {}
-sb_14_2: is is_sb & rt=14 & OFF_BASE & simmed=2 {}
+sb_12_0: is is_sb & rt=12 & simmed=0 {}
+sb_13_1: is is_sb & rt=13 & simmed=1 {}
+sb_14_2: is is_sb & rt=14 & simmed=2 {}
 
-sh_12_0: is is_sh & rt=12 & OFF_BASE & simmed=0 {}
-sh_13_2: is is_sh & rt=13 & OFF_BASE & simmed=2 {}
-sh_13_6: is is_sh & rt=13 & OFF_BASE & simmed=6 {}
-sh_14_4: is is_sh & rt=14 & OFF_BASE & simmed=4 {}
-sh_14_12: is is_sh & rt=14 & OFF_BASE & simmed=12 {}
-sh_15_2: is is_sh & rt=15 & OFF_BASE & simmed=2 {}
+sh_12_0: is is_sh & rt=12 & simmed=0 {}
+sh_13_2: is is_sh & rt=13 & simmed=2 {}
+sh_13_6: is is_sh & rt=13 & simmed=6 {}
+sh_14_4: is is_sh & rt=14 & simmed=4 {}
+sh_14_12: is is_sh & rt=14 & simmed=12 {}
+sh_15_2: is is_sh & rt=15 & simmed=2 {}
 
-lw_12_0: is is_lw & rt=12 & OFF_BASE & simmed=0 {}
-lw_12_8: is is_lw & rt=12 & OFF_BASE & simmed=8 {}
-lw_12_20: is is_lw & rt=12 & OFF_BASE & simmed=20 {}
+lw_12_0: is is_lw & rt=12 & simmed=0 {}
+lw_12_8: is is_lw & rt=12 & simmed=8 {}
+lw_12_20: is is_lw & rt=12 & simmed=20 {}
 
-lw_13_0: is is_lw & rt=13 & OFF_BASE & simmed=0 {}
-lw_13_4: is is_lw & rt=13 & OFF_BASE & simmed=4 {}
-lw_13_12: is is_lw & rt=13 & OFF_BASE & simmed=12 {}
-lw_13_24: is is_lw & rt=13 & OFF_BASE & simmed=24 {}
+lw_13_0: is is_lw & rt=13 & simmed=0 {}
+lw_13_4: is is_lw & rt=13 & simmed=4 {}
+lw_13_12: is is_lw & rt=13 & simmed=12 {}
+lw_13_24: is is_lw & rt=13 & simmed=24 {}
 
-lw_14_8: is is_lw & rt=14 & OFF_BASE & simmed=8 {}
-lw_14_16: is is_lw & rt=14 & OFF_BASE & simmed=16 {}
-lw_14_28: is is_lw & rt=14 & OFF_BASE & simmed=28 {}
+lw_14_8: is is_lw & rt=14 & simmed=8 {}
+lw_14_16: is is_lw & rt=14 & simmed=16 {}
+lw_14_28: is is_lw & rt=14 & simmed=28 {}
 
-sw_12_0: is is_sw & rt=12 & OFF_BASE & simmed=0 {}
-sw_12_8: is is_sw & rt=12 & OFF_BASE & simmed=8 {}
-sw_12_20: is is_sw & rt=12 & OFF_BASE & simmed=20 {}
+sw_12_0: is is_sw & rt=12 & simmed=0 {}
+sw_12_8: is is_sw & rt=12 & simmed=8 {}
+sw_12_20: is is_sw & rt=12 & simmed=20 {}
 
-sw_13_0: is is_sw & rt=13 & OFF_BASE & simmed=0 {}
-sw_13_4: is is_sw & rt=13 & OFF_BASE & simmed=4 {}
-sw_13_12: is is_sw & rt=13 & OFF_BASE & simmed=12 {}
-sw_13_24: is is_sw & rt=13 & OFF_BASE & simmed=24 {}
+sw_13_0: is is_sw & rt=13 & simmed=0 {}
+sw_13_4: is is_sw & rt=13 & simmed=4 {}
+sw_13_12: is is_sw & rt=13 & simmed=12 {}
+sw_13_24: is is_sw & rt=13 & simmed=24 {}
 
-sw_14_8: is is_sw & rt=14 & OFF_BASE & simmed=8 {}
-sw_14_16: is is_sw & rt=14 & OFF_BASE & simmed=16 {}
-sw_14_28: is is_sw & rt=14 & OFF_BASE & simmed=28 {}
+sw_14_8: is is_sw & rt=14 & simmed=8 {}
+sw_14_16: is is_sw & rt=14 & simmed=16 {}
+sw_14_28: is is_sw & rt=14 & simmed=28 {}
 
-sw_15_4: is is_sw & rt=15 & OFF_BASE & simmed=4 {}
+sw_15_4: is is_sw & rt=15 & simmed=4 {}
 
 
 and_12_12_13: is is_and & rd=12 & rs=12 & rt=13 {}
@@ -230,105 +230,111 @@ addu_12_12_13: is is_addu & rd=12 & rs=12 & rt=13 {}
 addu_15_12_13: is is_addu & rd=15 & rs=12 & rt=13 {}
 addi_13_0_4: is is_addi & rt=13 & rs=0 & simmed=4 {}
 
+mem_loc: base is base { export *[ram]:4 base; }
+mem_loc1: base is base { export *[ram]:4 base; }
+mem_loc2: base is base { export *[ram]:4 base; }
+mem_loc3: base is base { export *[ram]:4 base; }
+mem_loc4: base is base { export *[ram]:4 base; }
 
-ldv0_: is lwc2_0_0 & base; lwc2_1_4 {}
-ldv0_1: is lwc2_0_0 & base; lwc2_1_4 {}
-ldv0_2: is lwc2_0_0 & base; lwc2_1_4 {}
-:ldv0 base  is lwc2_0_0 & base; lwc2_1_4 {
-    gte_ldv0(base);
+
+ldv0_: is lwc2_0_0; lwc2_1_4 {}
+ldv0_1: is lwc2_0_0; lwc2_1_4 {}
+ldv0_2: is lwc2_0_0; lwc2_1_4 {}
+:ldv0 mem_loc  is lwc2_0_0 & mem_loc; lwc2_1_4 {
+    gte_ldv0(mem_loc);
 }
 
-ldv1_: is lwc2_2_0 & base; lwc2_3_4 {}
-:ldv1 base  is lwc2_2_0 & base; lwc2_3_4 {
-    gte_ldv1(base);
+ldv1_: is lwc2_2_0; lwc2_3_4 {}
+:ldv1 mem_loc  is lwc2_2_0 & mem_loc; lwc2_3_4 {
+    gte_ldv1(mem_loc);
 }
 
-ldv2_: is lwc2_4_0 & base; lwc2_5_4 {}
-:ldv2 base  is lwc2_4_0 & base; lwc2_5_4 {
-    gte_ldv2(base);
+ldv2_: is lwc2_4_0; lwc2_5_4 {}
+:ldv2 mem_loc  is lwc2_4_0 & mem_loc; lwc2_5_4 {
+    gte_ldv2(mem_loc);
 }
 
-ldv3_: is lwc2_0_0 & base1; lwc2_1_4; lwc2_2_0 & base2; lwc2_3_4; lwc2_4_0 & base3; lwc2_5_4 {}
-ldv3_1: is lwc2_0_0 & base1; lwc2_1_4; lwc2_2_0 & base2; lwc2_3_4; lwc2_4_0 & base3; lwc2_5_4 {}
-ldv3_2: is lwc2_0_0 & base1; lwc2_1_4; lwc2_2_0 & base2; lwc2_3_4; lwc2_4_0 & base3; lwc2_5_4 {}
-:ldv3 base1,base2,base3  is lwc2_0_0 & base1; lwc2_1_4; lwc2_2_0 & base2; lwc2_3_4; lwc2_4_0 & base3; lwc2_5_4 {
-    gte_ldv3(base1,base2,base3);
+ldv3_: is lwc2_0_0; lwc2_1_4; lwc2_2_0; lwc2_3_4; lwc2_4_0; lwc2_5_4 {}
+ldv3_1: is lwc2_0_0; lwc2_1_4; lwc2_2_0; lwc2_3_4; lwc2_4_0; lwc2_5_4 {}
+ldv3_2: is lwc2_0_0; lwc2_1_4; lwc2_2_0; lwc2_3_4; lwc2_4_0; lwc2_5_4 {}
+:ldv3 mem_loc1,mem_loc2,mem_loc3  is lwc2_0_0 & mem_loc1; lwc2_1_4; lwc2_2_0 & mem_loc2; lwc2_3_4; lwc2_4_0 & mem_loc3; lwc2_5_4 {
+    gte_ldv3(mem_loc1,mem_loc2,mem_loc3);
 }
 
-ldv3c_: is lwc2_0_0 & base; lwc2_1_4; lwc2_2_8; lwc2_3_12; lwc2_4_16; lwc2_5_20 {}
-:ldv3c base  is lwc2_0_0 & base; lwc2_1_4; lwc2_2_8; lwc2_3_12; lwc2_4_16; lwc2_5_20 {
-    gte_ldv3c(base);
+ldv3c_: is lwc2_0_0; lwc2_1_4; lwc2_2_8; lwc2_3_12; lwc2_4_16; lwc2_5_20 {}
+:ldv3c mem_loc  is lwc2_0_0 & mem_loc; lwc2_1_4; lwc2_2_8; lwc2_3_12; lwc2_4_16; lwc2_5_20 {
+    gte_ldv3c(mem_loc);
 }
 
-ldv3c_vertc_: is lwc2_0_0 & base; lwc2_1_4; lwc2_2_12; lwc2_3_16; lwc2_4_24; lwc2_5_28 {}
-:ldv3c_vertc base  is lwc2_0_0 & base; lwc2_1_4; lwc2_2_12; lwc2_3_16; lwc2_4_24; lwc2_5_28 {
-    gte_ldv3c_vertc(base);
+ldv3c_vertc_: is lwc2_0_0; lwc2_1_4; lwc2_2_12; lwc2_3_16; lwc2_4_24; lwc2_5_28 {}
+:ldv3c_vertc mem_loc  is lwc2_0_0 & mem_loc; lwc2_1_4; lwc2_2_12; lwc2_3_16; lwc2_4_24; lwc2_5_28 {
+    gte_ldv3c_vertc(mem_loc);
 }
 
-ldv01_: is lwc2_0_0 & base1; lwc2_1_4; lwc2_2_0 & base2; lwc2_3_4 {}
-:ldv01 base1,base2  is lwc2_0_0 & base1; lwc2_1_4; lwc2_2_0 & base2; lwc2_3_4 {
-    gte_ldv01(base1,base2);
+ldv01_: is lwc2_0_0; lwc2_1_4; lwc2_2_0; lwc2_3_4 {}
+:ldv01 mem_loc1,mem_loc2  is lwc2_0_0 & mem_loc1; lwc2_1_4; lwc2_2_0 & mem_loc2; lwc2_3_4 {
+    gte_ldv01(mem_loc1,mem_loc2);
 }
 
-ldv01c_: is lwc2_0_0 & base; lwc2_1_4; lwc2_2_8; lwc2_3_12 {}
-:ldv01c base  is lwc2_0_0 & base; lwc2_1_4; lwc2_2_8; lwc2_3_12 {
-    gte_ldv01c(base);
+ldv01c_: is lwc2_0_0; lwc2_1_4; lwc2_2_8; lwc2_3_12 {}
+:ldv01c mem_loc  is lwc2_0_0 & mem_loc; lwc2_1_4; lwc2_2_8; lwc2_3_12 {
+    gte_ldv01c(mem_loc);
 }
 
-ldrgb_: is lwc2_6_0 & base {}
-:ldrgb base  is lwc2_6_0 & base {
-    gte_ldrgb(base);
+ldrgb_: is lwc2_6_0 {}
+:ldrgb mem_loc  is lwc2_6_0 & mem_loc {
+    gte_ldrgb(mem_loc);
 }
 
-ldrgb3_: is lwc2_20_0 & base1; lwc2_21_0 & base2; lwc2_22_0 & base3; lwc2_6_0 {}
-:ldrgb3 base1,base2,base3  is lwc2_20_0 & base1; lwc2_21_0 & base2; lwc2_22_0 & base3; lwc2_6_0 {
-    gte_ldrgb3(base1,base2,base3);
+ldrgb3_: is lwc2_20_0; lwc2_21_0; lwc2_22_0; lwc2_6_0 {}
+:ldrgb3 mem_loc1,mem_loc2,mem_loc3  is lwc2_20_0 & mem_loc1; lwc2_21_0 & mem_loc2; lwc2_22_0 & mem_loc3; lwc2_6_0 {
+    gte_ldrgb3(mem_loc1,mem_loc2,mem_loc3);
 }
 
-ldrgb3c_: is lwc2_20_0 & base; lwc2_21_4; lwc2_22_8; lwc2_6_8 {}
-:ldrgb3c base  is lwc2_20_0 & base; lwc2_21_4; lwc2_22_8; lwc2_6_8 {
-    gte_ldrgb3c(base);
+ldrgb3c_: is lwc2_20_0; lwc2_21_4; lwc2_22_8; lwc2_6_8 {}
+:ldrgb3c mem_loc  is lwc2_20_0 & mem_loc; lwc2_21_4; lwc2_22_8; lwc2_6_8 {
+    gte_ldrgb3c(mem_loc);
 }
 
-ldlv0_: is lhu_13_4 & base; lhu_12_0; sll_13_13_16; or_12_12_13; mtc2_12_0; lwc2_1_8 {}
-:ldlv0 base  is lhu_13_4 & base; lhu_12_0; sll_13_13_16; or_12_12_13; mtc2_12_0; lwc2_1_8 {
-    gte_ldlv0(base);
+ldlv0_: is lhu_13_4; lhu_12_0; sll_13_13_16; or_12_12_13; mtc2_12_0; lwc2_1_8 {}
+:ldlv0 mem_loc  is lhu_13_4 & mem_loc; lhu_12_0; sll_13_13_16; or_12_12_13; mtc2_12_0; lwc2_1_8 {
+    gte_ldlv0(mem_loc);
 }
 
-ldlvl_: is lwc2_9_0 & base; lwc2_10_4; lwc2_11_8 {}
-ldlvl_1: is lwc2_9_0 & base; lwc2_10_4; lwc2_11_8 {}
-ldlvl_2: is lwc2_9_0 & base; lwc2_10_4; lwc2_11_8 {}
-:ldlvl base  is lwc2_9_0 & base; lwc2_10_4; lwc2_11_8 {
-    gte_ldlvl(base);
+ldlvl_: is lwc2_9_0; lwc2_10_4; lwc2_11_8 {}
+ldlvl_1: is lwc2_9_0; lwc2_10_4; lwc2_11_8 {}
+ldlvl_2: is lwc2_9_0; lwc2_10_4; lwc2_11_8 {}
+:ldlvl mem_loc  is lwc2_9_0 & mem_loc; lwc2_10_4; lwc2_11_8 {
+    gte_ldlvl(mem_loc);
 }
 
-ldsv_: is lhu_12_0 & base; lhu_13_2; lhu_14_4; mtc2_12_9; mtc2_13_10; mtc2_14_11 {}
-ldsv_1: is lhu_12_0 & base; lhu_13_2; lhu_14_4; mtc2_12_9; mtc2_13_10; mtc2_14_11 {}
-ldsv_2: is lhu_12_0 & base; lhu_13_2; lhu_14_4; mtc2_12_9; mtc2_13_10; mtc2_14_11 {}
-:ldsv base  is lhu_12_0 & base; lhu_13_2; lhu_14_4; mtc2_12_9; mtc2_13_10; mtc2_14_11 {
-    gte_ldsv(base);
+ldsv_: is lhu_12_0; lhu_13_2; lhu_14_4; mtc2_12_9; mtc2_13_10; mtc2_14_11 {}
+ldsv_1: is lhu_12_0; lhu_13_2; lhu_14_4; mtc2_12_9; mtc2_13_10; mtc2_14_11 {}
+ldsv_2: is lhu_12_0; lhu_13_2; lhu_14_4; mtc2_12_9; mtc2_13_10; mtc2_14_11 {}
+:ldsv mem_loc  is lhu_12_0 & mem_loc; lhu_13_2; lhu_14_4; mtc2_12_9; mtc2_13_10; mtc2_14_11 {
+    gte_ldsv(mem_loc);
 }
 
-ldbv_: is lbu_12_0 & base; lbu_13_1; mtc2_12_9; mtc2_13_10 {}
-ldbv_1: is lbu_12_0 & base; lbu_13_1; mtc2_12_9; mtc2_13_10 {}
-ldbv_2: is lbu_12_0 & base; lbu_13_1; mtc2_12_9; mtc2_13_10 {}
-:ldbv base  is lbu_12_0 & base; lbu_13_1; mtc2_12_9; mtc2_13_10 {
-    gte_ldbv(base);
+ldbv_: is lbu_12_0; lbu_13_1; mtc2_12_9; mtc2_13_10 {}
+ldbv_1: is lbu_12_0; lbu_13_1; mtc2_12_9; mtc2_13_10 {}
+ldbv_2: is lbu_12_0; lbu_13_1; mtc2_12_9; mtc2_13_10 {}
+:ldbv mem_loc  is lbu_12_0 & mem_loc; lbu_13_1; mtc2_12_9; mtc2_13_10 {
+    gte_ldbv(mem_loc);
 }
 
-ldcv_: is lbu_12_0 & base; lbu_13_1; lbu_14_2; mtc2_12_9; mtc2_13_10; mtc2_14_11 {}
-ldcv_1: is lbu_12_0 & base; lbu_13_1; lbu_14_2; mtc2_12_9; mtc2_13_10; mtc2_14_11 {}
-ldcv_2: is lbu_12_0 & base; lbu_13_1; lbu_14_2; mtc2_12_9; mtc2_13_10; mtc2_14_11 {}
-:ldcv base  is lbu_12_0 & base; lbu_13_1; lbu_14_2; mtc2_12_9; mtc2_13_10; mtc2_14_11 {
-    gte_ldcv(base);
+ldcv_: is lbu_12_0; lbu_13_1; lbu_14_2; mtc2_12_9; mtc2_13_10; mtc2_14_11 {}
+ldcv_1: is lbu_12_0; lbu_13_1; lbu_14_2; mtc2_12_9; mtc2_13_10; mtc2_14_11 {}
+ldcv_2: is lbu_12_0; lbu_13_1; lbu_14_2; mtc2_12_9; mtc2_13_10; mtc2_14_11 {}
+:ldcv mem_loc  is lbu_12_0 & mem_loc; lbu_13_1; lbu_14_2; mtc2_12_9; mtc2_13_10; mtc2_14_11 {
+    gte_ldcv(mem_loc);
 }
 
-ldclmv_: is lhu_12_0 & base; lhu_13_6; lhu_14_12; mtc2_12_9; mtc2_13_10; mtc2_14_11 {}
-ldclmv_1: is lhu_12_0 & base; lhu_13_6; lhu_14_12; mtc2_12_9; mtc2_13_10; mtc2_14_11 {}
-ldclmv_2: is lhu_12_0 & base; lhu_13_6; lhu_14_12; mtc2_12_9; mtc2_13_10; mtc2_14_11 {}
-ldclmv_3: is lhu_12_0 & base; lhu_13_6; lhu_14_12; mtc2_12_9; mtc2_13_10; mtc2_14_11 {}
-:ldclmv base  is lhu_12_0 & base; lhu_13_6; lhu_14_12; mtc2_12_9; mtc2_13_10; mtc2_14_11 {
-    gte_ldclmv(base);
+ldclmv_: is lhu_12_0; lhu_13_6; lhu_14_12; mtc2_12_9; mtc2_13_10; mtc2_14_11 {}
+ldclmv_1: is lhu_12_0; lhu_13_6; lhu_14_12; mtc2_12_9; mtc2_13_10; mtc2_14_11 {}
+ldclmv_2: is lhu_12_0; lhu_13_6; lhu_14_12; mtc2_12_9; mtc2_13_10; mtc2_14_11 {}
+ldclmv_3: is lhu_12_0; lhu_13_6; lhu_14_12; mtc2_12_9; mtc2_13_10; mtc2_14_11 {}
+:ldclmv mem_loc  is lhu_12_0 & mem_loc; lhu_13_6; lhu_14_12; mtc2_12_9; mtc2_13_10; mtc2_14_11 {
+    gte_ldclmv(mem_loc);
 }
 
 ldsxy3_: is mtc2_x_12 & RTsrc1; mtc2_x_14 & RTsrc2; mtc2_x_13 & RTsrc3 {}
@@ -336,9 +342,9 @@ ldsxy3_: is mtc2_x_12 & RTsrc1; mtc2_x_14 & RTsrc2; mtc2_x_13 & RTsrc3 {}
     gte_ldsxy3(RTsrc1,RTsrc2,RTsrc3);
 }
 
-ldsxy3c_: is lwc2_12_0 & base; lwc2_13_4; lwc2_14_8 {}
-:ldsxy3c base  is lwc2_12_0 & base; lwc2_13_4; lwc2_14_8 {
-    gte_ldsxy3c(base);
+ldsxy3c_: is lwc2_12_0; lwc2_13_4; lwc2_14_8 {}
+:ldsxy3c mem_loc  is lwc2_12_0 & mem_loc; lwc2_13_4; lwc2_14_8 {
+    gte_ldsxy3c(mem_loc);
 }
 
 ldsz3_: is mtc2_x_17 & RTsrc1; mtc2_x_18 & RTsrc2; mtc2_x_19 & RTsrc3 {}
@@ -351,14 +357,14 @@ ldsz4_: is mtc2_x_16 & RTsrc1; mtc2_x_17 & RTsrc2; mtc2_x_18 & RTsrc3; mtc2_x_19
     gte_ldsz4(RTsrc1,RTsrc2,RTsrc3,RTsrc4);
 }
 
-ldopv1_: is lw_12_0 & base; lw_13_4; ctc2_12_0; lw_14_8; ctc2_13_2; ctc2_14_4 {}
-:ldopv1 base  is lw_12_0 & base; lw_13_4; ctc2_12_0; lw_14_8; ctc2_13_2; ctc2_14_4 {
-    gte_ldopv1(base);
+ldopv1_: is lw_12_0; lw_13_4; ctc2_12_0; lw_14_8; ctc2_13_2; ctc2_14_4 {}
+:ldopv1 mem_loc  is lw_12_0 & mem_loc; lw_13_4; ctc2_12_0; lw_14_8; ctc2_13_2; ctc2_14_4 {
+    gte_ldopv1(mem_loc);
 }
 
-ldopv2_: is lwc2_11_8 & base; lwc2_9_0; lwc2_10_4 {}
-:ldopv2 base  is lwc2_11_8 & base; lwc2_9_0; lwc2_10_4 {
-    gte_ldopv2(base);
+ldopv2_: is lwc2_11_8; lwc2_9_0; lwc2_10_4 {}
+:ldopv2 mem_loc  is lwc2_11_8 & mem_loc; lwc2_9_0; lwc2_10_4 {
+    gte_ldopv2(mem_loc);
 }
 
 ldbkdir_: is ctc2_x_13 & RTsrc1; ctc2_x_14 & RTsrc2; ctc2_x_15 & RTsrc3 {}
@@ -386,38 +392,38 @@ SetGeomOffset_: is sll_12_x_16 & RTsrc1; sll_13_x_16 & RTsrc2; ctc2_12_24; ctc2_
     gte_SetGeomOffset(RTsrc1,RTsrc2);
 }
 
-ldsvrtrow0_: is lw_12_0 & base; lw_13_4; ctc2_12_0; ctc2_13_1 {}
-:ldsvrtrow0 base  is lw_12_0 & base; lw_13_4; ctc2_12_0; ctc2_13_1 {
-    gte_ldsvrtrow0(base);
+ldsvrtrow0_: is lw_12_0; lw_13_4; ctc2_12_0; ctc2_13_1 {}
+:ldsvrtrow0 mem_loc  is lw_12_0 & mem_loc; lw_13_4; ctc2_12_0; ctc2_13_1 {
+    gte_ldsvrtrow0(mem_loc);
 }
 
-SetRotMatrix_: is lw_12_0 & base; lw_13_4; ctc2_12_0; ctc2_13_1; lw_12_8; lw_13_12; lw_14_16; ctc2_12_2; ctc2_13_3; ctc2_14_4 {}
-:SetRotMatrix base  is lw_12_0 & base; lw_13_4; ctc2_12_0; ctc2_13_1; lw_12_8; lw_13_12; lw_14_16; ctc2_12_2; ctc2_13_3; ctc2_14_4 {
-    gte_SetRotMatrix(base);
+SetRotMatrix_: is lw_12_0; lw_13_4; ctc2_12_0; ctc2_13_1; lw_12_8; lw_13_12; lw_14_16; ctc2_12_2; ctc2_13_3; ctc2_14_4 {}
+:SetRotMatrix mem_loc  is lw_12_0 & mem_loc; lw_13_4; ctc2_12_0; ctc2_13_1; lw_12_8; lw_13_12; lw_14_16; ctc2_12_2; ctc2_13_3; ctc2_14_4 {
+    gte_SetRotMatrix(mem_loc);
 }
 
-:ldsvllrow0 base is lw_12_0 & base; lw_13_4; ctc2_12_8; ctc2_13_9 {
-	gte_ldsvllrow0(base);
+:ldsvllrow0 mem_loc is lw_12_0 & mem_loc; lw_13_4; ctc2_12_8; ctc2_13_9 {
+	gte_ldsvllrow0(mem_loc);
 } 
 
-SetLightMatrix_: is lw_12_0 & base; lw_13_4; ctc2_12_8; ctc2_13_9; lw_12_8; lw_13_12; lw_14_16; ctc2_12_10; ctc2_13_11; ctc2_14_12 {}
-:SetLightMatrix base  is lw_12_0 & base; lw_13_4; ctc2_12_8; ctc2_13_9; lw_12_8; lw_13_12; lw_14_16; ctc2_12_10; ctc2_13_11; ctc2_14_12 {
-    gte_SetLightMatrix(base);
+SetLightMatrix_: is lw_12_0; lw_13_4; ctc2_12_8; ctc2_13_9; lw_12_8; lw_13_12; lw_14_16; ctc2_12_10; ctc2_13_11; ctc2_14_12 {}
+:SetLightMatrix mem_loc  is lw_12_0 & mem_loc; lw_13_4; ctc2_12_8; ctc2_13_9; lw_12_8; lw_13_12; lw_14_16; ctc2_12_10; ctc2_13_11; ctc2_14_12 {
+    gte_SetLightMatrix(mem_loc);
 }
 
-ldsvlcrow0_: is lw_12_0 & base; lw_13_4; ctc2_12_16; ctc2_13_17 {}
-:ldsvlcrow0 base  is lw_12_0 & base; lw_13_4; ctc2_12_16; ctc2_13_17 {
-    gte_ldsvlcrow0(base);
+ldsvlcrow0_: is lw_12_0; lw_13_4; ctc2_12_16; ctc2_13_17 {}
+:ldsvlcrow0 mem_loc  is lw_12_0 & mem_loc; lw_13_4; ctc2_12_16; ctc2_13_17 {
+    gte_ldsvlcrow0(mem_loc);
 }
 
-SetColorMatrix_: is lw_12_0 & base; lw_13_4; ctc2_12_16; ctc2_13_17; lw_12_8; lw_13_12; lw_14_16; ctc2_12_18; ctc2_13_19; ctc2_14_20 {}
-:SetColorMatrix base  is lw_12_0 & base; lw_13_4; ctc2_12_16; ctc2_13_17; lw_12_8; lw_13_12; lw_14_16; ctc2_12_18; ctc2_13_19; ctc2_14_20 {
-    gte_SetColorMatrix(base);
+SetColorMatrix_: is lw_12_0; lw_13_4; ctc2_12_16; ctc2_13_17; lw_12_8; lw_13_12; lw_14_16; ctc2_12_18; ctc2_13_19; ctc2_14_20 {}
+:SetColorMatrix mem_loc  is lw_12_0 & mem_loc; lw_13_4; ctc2_12_16; ctc2_13_17; lw_12_8; lw_13_12; lw_14_16; ctc2_12_18; ctc2_13_19; ctc2_14_20 {
+    gte_SetColorMatrix(mem_loc);
 }
 
-SetTransMatrix_: is lw_12_20 & base; lw_13_24; ctc2_12_5; lw_14_28; ctc2_13_6; ctc2_14_7 {}
-:SetTransMatrix base  is lw_12_20 & base; lw_13_24; ctc2_12_5; lw_14_28; ctc2_13_6; ctc2_14_7 {
-    gte_SetTransMatrix(base);
+SetTransMatrix_: is lw_12_20; lw_13_24; ctc2_12_5; lw_14_28; ctc2_13_6; ctc2_14_7 {}
+:SetTransMatrix mem_loc  is lw_12_20 & mem_loc; lw_13_24; ctc2_12_5; lw_14_28; ctc2_13_6; ctc2_14_7 {
+    gte_SetTransMatrix(mem_loc);
 }
 
 ldtr_: is ctc2_x_5 & RTsrc1; ctc2_x_6 & RTsrc2; ctc2_x_7 & RTsrc3 {}
@@ -425,247 +431,247 @@ ldtr_: is ctc2_x_5 & RTsrc1; ctc2_x_6 & RTsrc2; ctc2_x_7 & RTsrc3 {}
     gte_ldtr(RTsrc1,RTsrc2,RTsrc3);
 }
 
-SetTransVector_: is lw_12_0 & base; lw_13_4; lw_14_8; ctc2_12_5; ctc2_13_6; ctc2_14_7 {}
-:SetTransVector base  is lw_12_0 & base; lw_13_4; lw_14_8; ctc2_12_5; ctc2_13_6; ctc2_14_7 {
-    gte_SetTransVector(base);
+SetTransVector_: is lw_12_0; lw_13_4; lw_14_8; ctc2_12_5; ctc2_13_6; ctc2_14_7 {}
+:SetTransVector mem_loc  is lw_12_0 & mem_loc; lw_13_4; lw_14_8; ctc2_12_5; ctc2_13_6; ctc2_14_7 {
+    gte_SetTransVector(mem_loc);
 }
 
-ld_intpol_uv0_: is lbu_12_0 & base; lbu_13_1; ctc2_12_21; ctc2_13_22 {}
-:ld_intpol_uv0 base  is lbu_12_0 & base; lbu_13_1; ctc2_12_21; ctc2_13_22 {
-    gte_ld_intpol_uv0(base);
+ld_intpol_uv0_: is lbu_12_0; lbu_13_1; ctc2_12_21; ctc2_13_22 {}
+:ld_intpol_uv0 mem_loc  is lbu_12_0 & mem_loc; lbu_13_1; ctc2_12_21; ctc2_13_22 {
+    gte_ld_intpol_uv0(mem_loc);
 }
 
-:ld_intpol_sv0 base is lh_12_0 & base; lh_13_2; lh_14_4; ctc2_12_21; ctc2_13_22; ctc2_14_23 {
-	gte_ld_intpol_sv0(base);	
+:ld_intpol_sv0 mem_loc is lh_12_0 & mem_loc; lh_13_2; lh_14_4; ctc2_12_21; ctc2_13_22; ctc2_14_23 {
+	gte_ld_intpol_sv0(mem_loc);	
 }
 
-ld_intpol_sv1_: is lh_12_0 & base; lh_13_2; lh_14_4; mtc2_12_9; mtc2_13_10; mtc2_14_11 {}
-ldopv2sv_: is lh_12_0 & base; lh_13_2; lh_14_4; mtc2_12_9; mtc2_13_10; mtc2_14_11 {}
-:ld_intpol_sv1 base  is lh_12_0 & base; lh_13_2; lh_14_4; mtc2_12_9; mtc2_13_10; mtc2_14_11 {
-    gte_ld_intpol_sv1(base);
+ld_intpol_sv1_: is lh_12_0; lh_13_2; lh_14_4; mtc2_12_9; mtc2_13_10; mtc2_14_11 {}
+ldopv2sv_: is lh_12_0; lh_13_2; lh_14_4; mtc2_12_9; mtc2_13_10; mtc2_14_11 {}
+:ld_intpol_sv1 mem_loc  is lh_12_0 & mem_loc; lh_13_2; lh_14_4; mtc2_12_9; mtc2_13_10; mtc2_14_11 {
+    gte_ld_intpol_sv1(mem_loc);
 }
 
-ldfc_: is lw_12_0 & base; lw_13_4; lw_14_8; ctc2_12_21; ctc2_13_22; ctc2_14_23 {}
-:ldfc base  is lw_12_0 & base; lw_13_4; lw_14_8; ctc2_12_21; ctc2_13_22; ctc2_14_23 {
-    gte_ldfc(base);
+ldfc_: is lw_12_0; lw_13_4; lw_14_8; ctc2_12_21; ctc2_13_22; ctc2_14_23 {}
+:ldfc mem_loc  is lw_12_0 & mem_loc; lw_13_4; lw_14_8; ctc2_12_21; ctc2_13_22; ctc2_14_23 {
+    gte_ldfc(mem_loc);
 }
 
-ldopv1SV_: is lh_12_0 & base; lh_13_2; ctc2_12_0; lh_14_4; ctc2_13_2; ctc2_14_4 {}
-:ldopv1SV base  is lh_12_0 & base; lh_13_2; ctc2_12_0; lh_14_4; ctc2_13_2; ctc2_14_4 {
-    gte_ldopv1SV(base);
+ldopv1SV_: is lh_12_0; lh_13_2; ctc2_12_0; lh_14_4; ctc2_13_2; ctc2_14_4 {}
+:ldopv1SV mem_loc  is lh_12_0 & mem_loc; lh_13_2; ctc2_12_0; lh_14_4; ctc2_13_2; ctc2_14_4 {
+    gte_ldopv1SV(mem_loc);
 }
 
-stsxy_: is swc2_14_0 & base {}
-:stsxy base  is swc2_14_0 & base {
-    gte_stsxy(base);
+stsxy_: is swc2_14_0 {}
+:stsxy mem_loc  is swc2_14_0 & mem_loc {
+    gte_stsxy(mem_loc);
 }
 
-stsxy3_: is swc2_12_0 & base1; swc2_13_0 & base2; swc2_14_0 & base3 {}
-:stsxy3 base1,base2,base3  is swc2_12_0 & base1; swc2_13_0 & base2; swc2_14_0 & base3 {
-    gte_stsxy3(base1,base2,base3);
+stsxy3_: is swc2_12_0; swc2_13_0; swc2_14_0 {}
+:stsxy3 mem_loc1,mem_loc2,mem_loc3  is swc2_12_0 & mem_loc1; swc2_13_0 & mem_loc2; swc2_14_0 & mem_loc3 {
+    gte_stsxy3(mem_loc1,mem_loc2,mem_loc3);
 }
 
-stsxy3c_: is swc2_12_0 & base; swc2_13_4; swc2_14_8 {}
-:stsxy3c base  is swc2_12_0 & base; swc2_13_4; swc2_14_8 {
-    gte_stsxy3c(base);
+stsxy3c_: is swc2_12_0; swc2_13_4; swc2_14_8 {}
+:stsxy3c mem_loc  is swc2_12_0 & mem_loc; swc2_13_4; swc2_14_8 {
+    gte_stsxy3c(mem_loc);
 }
 
-stsxy1_: is swc2_13_0 & base {}
-:stsxy1 base  is swc2_13_0 & base {
-    gte_stsxy1(base);
+stsxy1_: is swc2_13_0 {}
+:stsxy1 mem_loc  is swc2_13_0 & mem_loc {
+    gte_stsxy1(mem_loc);
 }
 
-stsxy0_: is swc2_12_0 & base {}
-:stsxy0 base  is swc2_12_0 & base {
-    gte_stsxy0(base);
+stsxy0_: is swc2_12_0 {}
+:stsxy0 mem_loc  is swc2_12_0 & mem_loc {
+    gte_stsxy0(mem_loc);
 }
 
-stsxy01_: is swc2_12_0 & base1; swc2_13_0 & base2 {}
-:stsxy01 base1,base2  is swc2_12_0 & base1; swc2_13_0 & base2 {
-    gte_stsxy01(base1,base2);
+stsxy01_: is swc2_12_0; swc2_13_0 {}
+:stsxy01 mem_loc1,mem_loc2  is swc2_12_0 & mem_loc1; swc2_13_0 & mem_loc2 {
+    gte_stsxy01(mem_loc1,mem_loc2);
 }
 
-stsxy01c_: is swc2_12_0 & base; swc2_13_4 {}
-:stsxy01c base  is swc2_12_0 & base; swc2_13_4 {
-    gte_stsxy01c(base);
+stsxy01c_: is swc2_12_0; swc2_13_4 {}
+:stsxy01c mem_loc  is swc2_12_0 & mem_loc; swc2_13_4 {
+    gte_stsxy01c(mem_loc);
 }
 
-stsxy3_f3_: is swc2_12_8 & base; swc2_13_12; swc2_14_16 {}
-:stsxy3_f3 base  is swc2_12_8 & base; swc2_13_12; swc2_14_16 {
-    gte_stsxy3_f3(base);
+stsxy3_f3_: is swc2_12_8; swc2_13_12; swc2_14_16 {}
+:stsxy3_f3 mem_loc  is swc2_12_8 & mem_loc; swc2_13_12; swc2_14_16 {
+    gte_stsxy3_f3(mem_loc);
 }
 
-stsxy3_g3_: is swc2_12_8 & base; swc2_13_16; swc2_14_24 {}
-:stsxy3_g3 base  is swc2_12_8 & base; swc2_13_16; swc2_14_24 {
-    gte_stsxy3_g3(base);
+stsxy3_g3_: is swc2_12_8; swc2_13_16; swc2_14_24 {}
+:stsxy3_g3 mem_loc  is swc2_12_8 & mem_loc; swc2_13_16; swc2_14_24 {
+    gte_stsxy3_g3(mem_loc);
 }
 
-stsxy3_gt3_: is swc2_12_8 & base; swc2_13_20; swc2_14_32 {}
-:stsxy3_gt3 base  is swc2_12_8 & base; swc2_13_20; swc2_14_32 {
-    gte_stsxy3_gt3(base);
+stsxy3_gt3_: is swc2_12_8; swc2_13_20; swc2_14_32 {}
+:stsxy3_gt3 mem_loc  is swc2_12_8 & mem_loc; swc2_13_20; swc2_14_32 {
+    gte_stsxy3_gt3(mem_loc);
 }
 
-stdp_: is swc2_8_0 & base {}
-:stdp base  is swc2_8_0 & base {
-    gte_stdp(base);
+stdp_: is swc2_8_0 {}
+:stdp mem_loc  is swc2_8_0 & mem_loc {
+    gte_stdp(mem_loc);
 }
 
-stflg_: is cfc2_12_31; nop1; sw_12_0 & base {}
-:stflg base  is cfc2_12_31; nop1; sw_12_0 & base {
-    gte_stflg(base);
+stflg_: is cfc2_12_31; nop1; sw_12_0 {}
+:stflg mem_loc  is cfc2_12_31; nop1; sw_12_0 & mem_loc {
+    gte_stflg(mem_loc);
 }
 
-stflg_4_: is cfc2_12_31; addi_13_0_4; sll_13_13_16; and_12_12_13; sw_12_0 & base {}
-:stflg_4 base  is cfc2_12_31; addi_13_0_4; sll_13_13_16; and_12_12_13; sw_12_0 & base {
-    gte_stflg_4(base);
+stflg_4_: is cfc2_12_31; addi_13_0_4; sll_13_13_16; and_12_12_13; sw_12_0 {}
+:stflg_4 mem_loc  is cfc2_12_31; addi_13_0_4; sll_13_13_16; and_12_12_13; sw_12_0 & mem_loc {
+    gte_stflg_4(mem_loc);
 }
 
-stsz_: is swc2_19_0 & base {}
-:stsz base  is swc2_19_0 & base {
-    gte_stsz(base);
+stsz_: is swc2_19_0 {}
+:stsz mem_loc  is swc2_19_0 & mem_loc {
+    gte_stsz(mem_loc);
 }
 
-stsz3_: is swc2_17_0 & base1; swc2_18_0 & base2; swc2_19_0 & base3 {}
-:stsz3 base1,base2,base3  is swc2_17_0 & base1; swc2_18_0 & base2; swc2_19_0 & base3 {
-    gte_stsz3(base1,base2,base3);
+stsz3_: is swc2_17_0; swc2_18_0; swc2_19_0 {}
+:stsz3 mem_loc1,mem_loc2,mem_loc3  is swc2_17_0 & mem_loc1; swc2_18_0 & mem_loc2; swc2_19_0 & mem_loc3 {
+    gte_stsz3(mem_loc1,mem_loc2,mem_loc3);
 }
 
-stsz4_: is swc2_16_0 & base1; swc2_17_0 & base2; swc2_18_0 & base3; swc2_19_0 & base4 {}
-:stsz4 base1,base2,base3,base4  is swc2_16_0 & base1; swc2_17_0 & base2; swc2_18_0 & base3; swc2_19_0 & base4 {
-    gte_stsz4(base1,base2,base3,base4);
+stsz4_: is swc2_16_0; swc2_17_0; swc2_18_0; swc2_19_0 {}
+:stsz4 mem_loc1,mem_loc2,mem_loc3,mem_loc4  is swc2_16_0 & mem_loc1; swc2_17_0 & mem_loc2; swc2_18_0 & mem_loc3; swc2_19_0 & mem_loc4 {
+    gte_stsz4(mem_loc1,mem_loc2,mem_loc3,mem_loc4);
 }
 
-stsz3c_: is swc2_17_0 & base; swc2_18_4; swc2_19_8 {}
-:stsz3c base  is swc2_17_0 & base; swc2_18_4; swc2_19_8 {
-    gte_stsz3c(base);
+stsz3c_: is swc2_17_0; swc2_18_4; swc2_19_8 {}
+:stsz3c mem_loc  is swc2_17_0 & mem_loc; swc2_18_4; swc2_19_8 {
+    gte_stsz3c(mem_loc);
 }
 
-stsz4c_: is swc2_16_0 & base; swc2_17_4; swc2_18_8; swc2_19_12 {}
-:stsz4c base  is swc2_16_0 & base; swc2_17_4; swc2_18_8; swc2_19_12 {
-    gte_stsz4c(base);
+stsz4c_: is swc2_16_0; swc2_17_4; swc2_18_8; swc2_19_12 {}
+:stsz4c mem_loc  is swc2_16_0 & mem_loc; swc2_17_4; swc2_18_8; swc2_19_12 {
+    gte_stsz4c(mem_loc);
 }
 
-stszotz_: is mfc2_12_19; nop1; sra_12_12_2; sw_12_0 & base {}
-:stszotz base  is mfc2_12_19; nop1; sra_12_12_2; sw_12_0 & base {
-    gte_stszotz(base);
+stszotz_: is mfc2_12_19; nop1; sra_12_12_2; sw_12_0 {}
+:stszotz mem_loc  is mfc2_12_19; nop1; sra_12_12_2; sw_12_0 & mem_loc {
+    gte_stszotz(mem_loc);
 }
 
-stotz_: is swc2_7_0 & base {}
-:stotz base  is swc2_7_0 & base {
-    gte_stotz(base);
+stotz_: is swc2_7_0 {}
+:stotz mem_loc  is swc2_7_0 & mem_loc {
+    gte_stotz(mem_loc);
 }
 
-stopz_: is swc2_24_0 & base {}
-:stopz base  is swc2_24_0 & base {
-    gte_stopz(base);
+stopz_: is swc2_24_0 {}
+:stopz mem_loc  is swc2_24_0 & mem_loc {
+    gte_stopz(mem_loc);
 }
 
-stlvl_: is swc2_9_0 & base; swc2_10_4; swc2_11_8 {}
-:stlvl base  is swc2_9_0 & base; swc2_10_4; swc2_11_8 {
-    gte_stlvl(base);
+stlvl_: is swc2_9_0; swc2_10_4; swc2_11_8 {}
+:stlvl mem_loc  is swc2_9_0 & mem_loc; swc2_10_4; swc2_11_8 {
+    gte_stlvl(mem_loc);
 }
 
-stlvnl_: is swc2_25_0 & base; swc2_26_4; swc2_27_8 {}
-:stlvnl base  is swc2_25_0 & base; swc2_26_4; swc2_27_8 {
-    gte_stlvnl(base);
+stlvnl_: is swc2_25_0; swc2_26_4; swc2_27_8 {}
+:stlvnl mem_loc  is swc2_25_0 & mem_loc; swc2_26_4; swc2_27_8 {
+    gte_stlvnl(mem_loc);
 }
 
-stlvnl0_: is swc2_25_0 & base {}
-:stlvnl0 base  is swc2_25_0 & base {
-    gte_stlvnl0(base);
+stlvnl0_: is swc2_25_0 {}
+:stlvnl0 mem_loc  is swc2_25_0 & mem_loc {
+    gte_stlvnl0(mem_loc);
 }
 
-stlvnl1_: is swc2_26_0 & base {}
-:stlvnl1 base  is swc2_26_0 & base {
-    gte_stlvnl1(base);
+stlvnl1_: is swc2_26_0 {}
+:stlvnl1 mem_loc  is swc2_26_0 & mem_loc {
+    gte_stlvnl1(mem_loc);
 }
 
-stlvnl2_: is swc2_27_0 & base {}
-:stlvnl2 base  is swc2_27_0 & base {
-    gte_stlvnl2(base);
+stlvnl2_: is swc2_27_0 {}
+:stlvnl2 mem_loc  is swc2_27_0 & mem_loc {
+    gte_stlvnl2(mem_loc);
 }
 
-stsv_: is mfc2_12_9; mfc2_13_10; mfc2_14_11; sh_12_0 & base; sh_13_2; sh_14_4 {}
-:stsv base  is mfc2_12_9; mfc2_13_10; mfc2_14_11; sh_12_0 & base; sh_13_2; sh_14_4 {
-    gte_stsv(base);
+stsv_: is mfc2_12_9; mfc2_13_10; mfc2_14_11; sh_12_0; sh_13_2; sh_14_4 {}
+:stsv mem_loc  is mfc2_12_9; mfc2_13_10; mfc2_14_11; sh_12_0 & mem_loc; sh_13_2; sh_14_4 {
+    gte_stsv(mem_loc);
 }
 
-stclmv_: is mfc2_12_9; mfc2_13_10; mfc2_14_11; sh_12_0 & base; sh_13_6; sh_14_12 {}
-stclmv_1: is mfc2_12_9; mfc2_13_10; mfc2_14_11; sh_12_0 & base; sh_13_6; sh_14_12 {}
-stclmv_2: is mfc2_12_9; mfc2_13_10; mfc2_14_11; sh_12_0 & base; sh_13_6; sh_14_12 {}
-stclmv_3: is mfc2_12_9; mfc2_13_10; mfc2_14_11; sh_12_0 & base; sh_13_6; sh_14_12 {}
-:stclmv base  is mfc2_12_9; mfc2_13_10; mfc2_14_11; sh_12_0 & base; sh_13_6; sh_14_12 {
-    gte_stclmv(base);
+stclmv_: is mfc2_12_9; mfc2_13_10; mfc2_14_11; sh_12_0; sh_13_6; sh_14_12 {}
+stclmv_1: is mfc2_12_9; mfc2_13_10; mfc2_14_11; sh_12_0; sh_13_6; sh_14_12 {}
+stclmv_2: is mfc2_12_9; mfc2_13_10; mfc2_14_11; sh_12_0; sh_13_6; sh_14_12 {}
+stclmv_3: is mfc2_12_9; mfc2_13_10; mfc2_14_11; sh_12_0; sh_13_6; sh_14_12 {}
+:stclmv mem_loc  is mfc2_12_9; mfc2_13_10; mfc2_14_11; sh_12_0 & mem_loc; sh_13_6; sh_14_12 {
+    gte_stclmv(mem_loc);
 }
 
-stbv_: is mfc2_12_9; mfc2_13_10; sb_12_0 & base; sb_13_1 {}
-:stbv base  is mfc2_12_9; mfc2_13_10; sb_12_0 & base; sb_13_1 {
-    gte_stbv(base);
+stbv_: is mfc2_12_9; mfc2_13_10; sb_12_0; sb_13_1 {}
+:stbv mem_loc  is mfc2_12_9; mfc2_13_10; sb_12_0 & mem_loc; sb_13_1 {
+    gte_stbv(mem_loc);
 }
 
-stcv_: is mfc2_12_9; mfc2_13_10; mfc2_14_11; sb_12_0 & base; sb_13_1; sb_14_2 {}
-:stcv base  is mfc2_12_9; mfc2_13_10; mfc2_14_11; sb_12_0 & base; sb_13_1; sb_14_2 {
-    gte_stcv(base);
+stcv_: is mfc2_12_9; mfc2_13_10; mfc2_14_11; sb_12_0; sb_13_1; sb_14_2 {}
+:stcv mem_loc  is mfc2_12_9; mfc2_13_10; mfc2_14_11; sb_12_0 & mem_loc; sb_13_1; sb_14_2 {
+    gte_stcv(mem_loc);
 }
 
-strgb_: is swc2_22_0 & base {}
-:strgb base  is swc2_22_0 & base {
-    gte_strgb(base);
+strgb_: is swc2_22_0 {}
+:strgb mem_loc  is swc2_22_0 & mem_loc {
+    gte_strgb(mem_loc);
 }
 
-strgb3_: is swc2_20_0 & base1; swc2_21_0 & base2; swc2_22_0 & base3 {}
-:strgb3 base1,base2,base3  is swc2_20_0 & base1; swc2_21_0 & base2; swc2_22_0 & base3 {
-    gte_strgb3(base1,base2,base3);
+strgb3_: is swc2_20_0; swc2_21_0; swc2_22_0 {}
+:strgb3 mem_loc1,mem_loc2,mem_loc3  is swc2_20_0 & mem_loc1; swc2_21_0 & mem_loc2; swc2_22_0 & mem_loc3 {
+    gte_strgb3(mem_loc1,mem_loc2,mem_loc3);
 }
 
-strgb3_g3_: is swc2_20_4 & base; swc2_21_12; swc2_22_20 {}
-:strgb3_g3 base  is swc2_20_4 & base; swc2_21_12; swc2_22_20 {
-    gte_strgb3_g3(base);
+strgb3_g3_: is swc2_20_4; swc2_21_12; swc2_22_20 {}
+:strgb3_g3 mem_loc  is swc2_20_4 & mem_loc; swc2_21_12; swc2_22_20 {
+    gte_strgb3_g3(mem_loc);
 }
 
-strgb3_gt3_: is swc2_20_4 & base; swc2_21_16; swc2_22_28 {}
-:strgb3_gt3 base  is swc2_20_4 & base; swc2_21_16; swc2_22_28 {
-    gte_strgb3_gt3(base);
+strgb3_gt3_: is swc2_20_4; swc2_21_16; swc2_22_28 {}
+:strgb3_gt3 mem_loc  is swc2_20_4 & mem_loc; swc2_21_16; swc2_22_28 {
+    gte_strgb3_gt3(mem_loc);
 }
 
-ReadGeomOffset_: is cfc2_12_24; cfc2_13_25; sra_12_12_16; sra_13_13_16; sw_12_0 & base1; sw_13_0 & base2 {}
-:ReadGeomOffset base1,base2  is cfc2_12_24; cfc2_13_25; sra_12_12_16; sra_13_13_16; sw_12_0 & base1; sw_13_0 & base2 {
-    gte_ReadGeomOffset(base1,base2);
+ReadGeomOffset_: is cfc2_12_24; cfc2_13_25; sra_12_12_16; sra_13_13_16; sw_12_0; sw_13_0 {}
+:ReadGeomOffset mem_loc1,mem_loc2  is cfc2_12_24; cfc2_13_25; sra_12_12_16; sra_13_13_16; sw_12_0 & mem_loc1; sw_13_0 & mem_loc2 {
+    gte_ReadGeomOffset(mem_loc1,mem_loc2);
 }
 
-ReadGeomScreen_: is cfc2_12_26; nop1; sw_12_0 & base {}
-:ReadGeomScreen base  is cfc2_12_26; nop1; sw_12_0 & base {
-    gte_ReadGeomScreen(base);
+ReadGeomScreen_: is cfc2_12_26; nop1; sw_12_0 {}
+:ReadGeomScreen mem_loc  is cfc2_12_26; nop1; sw_12_0 & mem_loc {
+    gte_ReadGeomScreen(mem_loc);
 }
 
-ReadRotMatrix_: is cfc2_12_0; cfc2_13_1; sw_12_0 & base; sw_13_4; cfc2_12_2; cfc2_13_3; cfc2_14_4; sw_12_8; sw_13_12; sw_14_16; cfc2_12_5; cfc2_13_6; cfc2_14_7; sw_12_20; sw_13_24; sw_14_28 {}
-:ReadRotMatrix base  is cfc2_12_0; cfc2_13_1; sw_12_0 & base; sw_13_4; cfc2_12_2; cfc2_13_3; cfc2_14_4; sw_12_8; sw_13_12; sw_14_16; cfc2_12_5; cfc2_13_6; cfc2_14_7; sw_12_20; sw_13_24; sw_14_28 {
-    gte_ReadRotMatrix(base);
+ReadRotMatrix_: is cfc2_12_0; cfc2_13_1; sw_12_0; sw_13_4; cfc2_12_2; cfc2_13_3; cfc2_14_4; sw_12_8; sw_13_12; sw_14_16; cfc2_12_5; cfc2_13_6; cfc2_14_7; sw_12_20; sw_13_24; sw_14_28 {}
+:ReadRotMatrix mem_loc  is cfc2_12_0; cfc2_13_1; sw_12_0 & mem_loc; sw_13_4; cfc2_12_2; cfc2_13_3; cfc2_14_4; sw_12_8; sw_13_12; sw_14_16; cfc2_12_5; cfc2_13_6; cfc2_14_7; sw_12_20; sw_13_24; sw_14_28 {
+    gte_ReadRotMatrix(mem_loc);
 }
 
-sttr_: is cfc2_12_5; cfc2_13_6; cfc2_14_7; sw_12_0 & base; sw_13_4; sw_14_8 {}
-:sttr base  is cfc2_12_5; cfc2_13_6; cfc2_14_7; sw_12_0 & base; sw_13_4; sw_14_8 {
-    gte_sttr(base);
+sttr_: is cfc2_12_5; cfc2_13_6; cfc2_14_7; sw_12_0; sw_13_4; sw_14_8 {}
+:sttr mem_loc  is cfc2_12_5; cfc2_13_6; cfc2_14_7; sw_12_0 & mem_loc; sw_13_4; sw_14_8 {
+    gte_sttr(mem_loc);
 }
 
-ReadLightMatrix_: is cfc2_12_8; cfc2_13_9; sw_12_0 & base; sw_13_4; cfc2_12_10; cfc2_13_11; cfc2_14_12; sw_12_8; sw_13_12; sw_14_16; cfc2_12_13; cfc2_13_14; cfc2_14_15; sw_12_20; sw_13_24; sw_14_28 {}
-:ReadLightMatrix base  is cfc2_12_8; cfc2_13_9; sw_12_0 & base; sw_13_4; cfc2_12_10; cfc2_13_11; cfc2_14_12; sw_12_8; sw_13_12; sw_14_16; cfc2_12_13; cfc2_13_14; cfc2_14_15; sw_12_20; sw_13_24; sw_14_28 {
-    gte_ReadLightMatrix(base);
+ReadLightMatrix_: is cfc2_12_8; cfc2_13_9; sw_12_0; sw_13_4; cfc2_12_10; cfc2_13_11; cfc2_14_12; sw_12_8; sw_13_12; sw_14_16; cfc2_12_13; cfc2_13_14; cfc2_14_15; sw_12_20; sw_13_24; sw_14_28 {}
+:ReadLightMatrix mem_loc  is cfc2_12_8; cfc2_13_9; sw_12_0 & mem_loc; sw_13_4; cfc2_12_10; cfc2_13_11; cfc2_14_12; sw_12_8; sw_13_12; sw_14_16; cfc2_12_13; cfc2_13_14; cfc2_14_15; sw_12_20; sw_13_24; sw_14_28 {
+    gte_ReadLightMatrix(mem_loc);
 }
 
-ReadColorMatrix_: is cfc2_12_16; cfc2_13_17; sw_12_0 & base; sw_13_4; cfc2_12_18; cfc2_13_19; cfc2_14_20; sw_12_8; sw_13_12; sw_14_16; cfc2_12_21; cfc2_13_22; cfc2_14_23; sw_12_20; sw_13_24; sw_14_28 {}
-:ReadColorMatrix base  is cfc2_12_16; cfc2_13_17; sw_12_0 & base; sw_13_4; cfc2_12_18; cfc2_13_19; cfc2_14_20; sw_12_8; sw_13_12; sw_14_16; cfc2_12_21; cfc2_13_22; cfc2_14_23; sw_12_20; sw_13_24; sw_14_28 {
-    gte_ReadColorMatrix(base);
+ReadColorMatrix_: is cfc2_12_16; cfc2_13_17; sw_12_0; sw_13_4; cfc2_12_18; cfc2_13_19; cfc2_14_20; sw_12_8; sw_13_12; sw_14_16; cfc2_12_21; cfc2_13_22; cfc2_14_23; sw_12_20; sw_13_24; sw_14_28 {}
+:ReadColorMatrix mem_loc  is cfc2_12_16; cfc2_13_17; sw_12_0 & mem_loc; sw_13_4; cfc2_12_18; cfc2_13_19; cfc2_14_20; sw_12_8; sw_13_12; sw_14_16; cfc2_12_21; cfc2_13_22; cfc2_14_23; sw_12_20; sw_13_24; sw_14_28 {
+    gte_ReadColorMatrix(mem_loc);
 }
 
-stlzc_: is swc2_31_0 & base {}
-:stlzc base  is swc2_31_0 & base {
-    gte_stlzc(base);
+stlzc_: is swc2_31_0 {}
+:stlzc mem_loc  is swc2_31_0 & mem_loc {
+    gte_stlzc(mem_loc);
 }
 
-stfc_: is cfc2_12_21; cfc2_13_22; cfc2_14_23; sw_12_0 & base; sw_13_4; sw_14_8 {}
-:stfc base  is cfc2_12_21; cfc2_13_22; cfc2_14_23; sw_12_0 & base; sw_13_4; sw_14_8 {
-    gte_stfc(base);
+stfc_: is cfc2_12_21; cfc2_13_22; cfc2_14_23; sw_12_0; sw_13_4; sw_14_8 {}
+:stfc mem_loc  is cfc2_12_21; cfc2_13_22; cfc2_14_23; sw_12_0 & mem_loc; sw_13_4; sw_14_8 {
+    gte_stfc(mem_loc);
 }
 
 mvlvtr_: is mfc2_12_25; mfc2_13_26; mfc2_14_27; ctc2_12_5; ctc2_13_6; ctc2_14_7 {}
@@ -673,24 +679,24 @@ mvlvtr_: is mfc2_12_25; mfc2_13_26; mfc2_14_27; ctc2_12_5; ctc2_13_6; ctc2_14_7 
     gte_mvlvtr();
 }
 
-subdvl_: is lw_12_0 & base1; lw_13_0 & base2; mtc2_12_9; mtc2_13_10; sra_12_12_16; sra_13_13_16; subu_15_12_13; mfc2_12_9; mfc2_13_10; sw_15_4 & base3; subu_12_12_13; sw_12_0 {}
-:subdvl base1,base2,base3  is lw_12_0 & base1; lw_13_0 & base2; mtc2_12_9; mtc2_13_10; sra_12_12_16; sra_13_13_16; subu_15_12_13; mfc2_12_9; mfc2_13_10; sw_15_4 & base3; subu_12_12_13; sw_12_0 {
-    gte_subdvl(base1,base2,base3);
+subdvl_: is lw_12_0; lw_13_0; mtc2_12_9; mtc2_13_10; sra_12_12_16; sra_13_13_16; subu_15_12_13; mfc2_12_9; mfc2_13_10; sw_15_4; subu_12_12_13; sw_12_0 {}
+:subdvl mem_loc1,mem_loc2,mem_loc3  is lw_12_0 & mem_loc1; lw_13_0 & mem_loc2; mtc2_12_9; mtc2_13_10; sra_12_12_16; sra_13_13_16; subu_15_12_13; mfc2_12_9; mfc2_13_10; sw_15_4 & mem_loc3; subu_12_12_13; sw_12_0 {
+    gte_subdvl(mem_loc1,mem_loc2,mem_loc3);
 }
 
-subdvd_: is lw_12_0 & base1; lw_13_0 & base2; mtc2_12_9; mtc2_13_10; sra_12_12_16; sra_13_13_16; subu_15_12_13; mfc2_12_9; mfc2_13_10; sh_15_2 & base3; subu_12_12_13; sh_12_0 {}
-:subdvd base1,base2,base3  is lw_12_0 & base1; lw_13_0 & base2; mtc2_12_9; mtc2_13_10; sra_12_12_16; sra_13_13_16; subu_15_12_13; mfc2_12_9; mfc2_13_10; sh_15_2 & base3; subu_12_12_13; sh_12_0 {
-    gte_subdvd(base1,base2,base3);
+subdvd_: is lw_12_0; lw_13_0; mtc2_12_9; mtc2_13_10; sra_12_12_16; sra_13_13_16; subu_15_12_13; mfc2_12_9; mfc2_13_10; sh_15_2; subu_12_12_13; sh_12_0 {}
+:subdvd mem_loc1,mem_loc2,mem_loc3  is lw_12_0 & mem_loc1; lw_13_0 & mem_loc2; mtc2_12_9; mtc2_13_10; sra_12_12_16; sra_13_13_16; subu_15_12_13; mfc2_12_9; mfc2_13_10; sh_15_2 & mem_loc3; subu_12_12_13; sh_12_0 {
+    gte_subdvd(mem_loc1,mem_loc2,mem_loc3);
 }
 
-adddvl_: is lw_12_0 & base1; lw_13_0 & base2; mtc2_12_9; mtc2_13_10; sra_12_12_16; sra_13_13_16; addu_15_12_13; mfc2_12_9; mfc2_13_10; sw_15_4 & base3; addu_12_12_13; sw_12_0 {}
-:adddvl base1,base2,base3  is lw_12_0 & base1; lw_13_0 & base2; mtc2_12_9; mtc2_13_10; sra_12_12_16; sra_13_13_16; addu_15_12_13; mfc2_12_9; mfc2_13_10; sw_15_4 & base3; addu_12_12_13; sw_12_0 {
-    gte_adddvl(base1,base2,base3);
+adddvl_: is lw_12_0; lw_13_0; mtc2_12_9; mtc2_13_10; sra_12_12_16; sra_13_13_16; addu_15_12_13; mfc2_12_9; mfc2_13_10; sw_15_4; addu_12_12_13; sw_12_0 {}
+:adddvl mem_loc1,mem_loc2,mem_loc3  is lw_12_0 & mem_loc1; lw_13_0 & mem_loc2; mtc2_12_9; mtc2_13_10; sra_12_12_16; sra_13_13_16; addu_15_12_13; mfc2_12_9; mfc2_13_10; sw_15_4 & mem_loc3; addu_12_12_13; sw_12_0 {
+    gte_adddvl(mem_loc1,mem_loc2,mem_loc3);
 }
 
-adddvd_: is lw_12_0 & base1; lw_13_0 & base2; mtc2_12_9; mtc2_13_10; sra_12_12_16; sra_13_13_16; addu_15_12_13; mfc2_12_9; mfc2_13_10; sh_15_2 & base3; addu_12_12_13; sh_12_0 {}
-:adddvd base1,base2,base3  is lw_12_0 & base1; lw_13_0 & base2; mtc2_12_9; mtc2_13_10; sra_12_12_16; sra_13_13_16; addu_15_12_13; mfc2_12_9; mfc2_13_10; sh_15_2 & base3; addu_12_12_13; sh_12_0 {
-    gte_adddvd(base1,base2,base3);
+adddvd_: is lw_12_0; lw_13_0; mtc2_12_9; mtc2_13_10; sra_12_12_16; sra_13_13_16; addu_15_12_13; mfc2_12_9; mfc2_13_10; sh_15_2; addu_12_12_13; sh_12_0 {}
+:adddvd mem_loc1,mem_loc2,mem_loc3  is lw_12_0 & mem_loc1; lw_13_0 & mem_loc2; mtc2_12_9; mtc2_13_10; sra_12_12_16; sra_13_13_16; addu_15_12_13; mfc2_12_9; mfc2_13_10; sh_15_2 & mem_loc3; addu_12_12_13; sh_12_0 {
+    gte_adddvd(mem_loc1,mem_loc2,mem_loc3);
 }
 
 FlipRotMatrixX_: is cfc2_12_0; cfc2_13_1; sll_14_12_16; sra_14_14_16_1; subu_14_0_14_1; sra_15_12_16; subu_15_0_15; sll_15_15_16_1; sll_14_14_16_1; srl_14_14_16_1; or_14_14_15_1; ctc2_14_0; sll_14_13_16; sra_14_14_16_2; subu_14_0_14_2; sra_15_13_16; sll_15_15_16_2; sll_14_14_16_2; srl_14_14_16_2; or_14_14_15_2; ctc2_14_1 {}

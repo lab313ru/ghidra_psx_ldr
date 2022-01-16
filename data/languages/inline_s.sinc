@@ -219,42 +219,34 @@ ll_: is nop1; nop2; is_cop2 & cofun=0x004A6412 {}
     gte_llir();
 }
 
-nLLV0TR_: is nop1; nop2; is_cop2 & cofun=0x004A0012 {}
 :nLLV0TR  is nop1; nop2; is_cop2 & cofun=0x004A0012 {
     gte_llv0tr();
 }
 
-nLLV1TR_: is nop1; nop2; is_cop2 & cofun=0x004A8012 {}
 :nLLV1TR  is nop1; nop2; is_cop2 & cofun=0x004A8012 {
     gte_llv1tr();
 }
 
-nLLV2TR_: is nop1; nop2; is_cop2 & cofun=0x004B0012 {}
 :nLLV2TR  is nop1; nop2; is_cop2 & cofun=0x004B0012 {
     gte_llv2tr();
 }
 
-nLLIRTR_: is nop1; nop2; is_cop2 & cofun=0x004B8012 {}
 :nLLIRTR  is nop1; nop2; is_cop2 & cofun=0x004B8012 {
     gte_llirtr();
 }
 
-nLLV0BK_: is nop1; nop2; is_cop2 & cofun=0x004A2012 {}
 :nLLV0BK  is nop1; nop2; is_cop2 & cofun=0x004A2012 {
     gte_llv0bk();
 }
 
-nLLV1BK_: is nop1; nop2; is_cop2 & cofun=0x004AA012 {}
 :nLLV1BK  is nop1; nop2; is_cop2 & cofun=0x004AA012 {
     gte_llv1bk();
 }
 
-nLLV2BK_: is nop1; nop2; is_cop2 & cofun=0x004B2012 {}
 :nLLV2BK  is nop1; nop2; is_cop2 & cofun=0x004B2012 {
     gte_llv2bk();
 }
 
-nLLIRBK_: is nop1; nop2; is_cop2 & cofun=0x004BA012 {}
 :nLLIRBK  is nop1; nop2; is_cop2 & cofun=0x004BA012 {
     gte_llirbk();
 }
@@ -264,62 +256,50 @@ lc_: is nop1; nop2; is_cop2 & cofun=0x004DA412 {}
     gte_lc();
 }
 
-nLCV0_: is nop1; nop2; is_cop2 & cofun=0x004C6012 {}
 :nLCV0  is nop1; nop2; is_cop2 & cofun=0x004C6012 {
     gte_lcv0();
 }
 
-nLCV1_: is nop1; nop2; is_cop2 & cofun=0x004CE012 {}
 :nLCV1  is nop1; nop2; is_cop2 & cofun=0x004CE012 {
     gte_lcv1();
 }
 
-nLCV2_: is nop1; nop2; is_cop2 & cofun=0x004D6012 {}
 :nLCV2  is nop1; nop2; is_cop2 & cofun=0x004D6012 {
     gte_lcv2();
 }
 
-nLCIR_: is nop1; nop2; is_cop2 & cofun=0x004DE012 {}
 :nLCIR  is nop1; nop2; is_cop2 & cofun=0x004DE012 {
     gte_lcir();
 }
 
-nLCV0TR_: is nop1; nop2; is_cop2 & cofun=0x004C0012 {}
 :nLCV0TR  is nop1; nop2; is_cop2 & cofun=0x004C0012 {
     gte_lcv0tr();
 }
 
-nLCV1TR_: is nop1; nop2; is_cop2 & cofun=0x004C8012 {}
 :nLCV1TR  is nop1; nop2; is_cop2 & cofun=0x004C8012 {
     gte_lcv1tr();
 }
 
-nLCV2TR_: is nop1; nop2; is_cop2 & cofun=0x004D0012 {}
 :nLCV2TR  is nop1; nop2; is_cop2 & cofun=0x004D0012 {
     gte_lcv2tr();
 }
 
-nLCIRTR_: is nop1; nop2; is_cop2 & cofun=0x004D8012 {}
 :nLCIRTR  is nop1; nop2; is_cop2 & cofun=0x004D8012 {
     gte_lcirtr();
 }
 
-nLCV0BK_: is nop1; nop2; is_cop2 & cofun=0x004C2012 {}
 :nLCV0BK  is nop1; nop2; is_cop2 & cofun=0x004C2012 {
     gte_lcv0bk();
 }
 
-nLCV1BK_: is nop1; nop2; is_cop2 & cofun=0x004CA012 {}
 :nLCV1BK  is nop1; nop2; is_cop2 & cofun=0x004CA012 {
     gte_lcv1bk();
 }
 
-nLCV2BK_: is nop1; nop2; is_cop2 & cofun=0x004D2012 {}
 :nLCV2BK  is nop1; nop2; is_cop2 & cofun=0x004D2012 {
     gte_lcv2bk();
 }
 
-nLCIRBK_: is nop1; nop2; is_cop2 & cofun=0x004DA012 {}
 :nLCIRBK  is nop1; nop2; is_cop2 & cofun=0x004DA012 {
     gte_lcirbk();
 }
