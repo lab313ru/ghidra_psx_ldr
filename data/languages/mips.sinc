@@ -449,6 +449,9 @@ define token instr(32)
     rs2         = (21,25)
     fr          = (21,25)
     base        = (21,25)
+    base1       = (21,25)
+    base2       = (21,25)
+    base3       = (21,25)
     format      = (21,25)
     copop       = (21,25)
     mfmc0       = (21,25)
@@ -557,11 +560,14 @@ define token instr(32)
     simmed18	= (0,17) signed
     immed       = (0,15)
     simmed      = (0,15) signed
+    simmed1     = (0,15) signed
+    simmed2     = (0,15) signed
+    simmed3     = (0,15) signed
     simmseq	= (6,15) signed
     simmed11	= (0,10)
 ;
 
-attach variables [ rs rt rt1 rt2 rt3 rt4 rd base index baser6 ] [ 
+attach variables [ rs rt rt1 rt2 rt3 rt4 rd base base1 base2 base3 index baser6 ] [ 
     zero  at  v0  v1  a0  a1  a2  a3
     t0    t1  t2  t3  t4  t5  t6  t7
     s0    s1  s2  s3  s4  s5  s6  s7
@@ -779,6 +785,11 @@ macro ValCast(dest,src) {
 @endif
 
 OFF_BASE: simmed(base)  is simmed & base    { tmp:$(REGSIZE) = base + simmed; tmpscaled:$(ADDRSIZE) = 0; ValCast(tmpscaled,tmp); export tmpscaled; }
+OFF_BASE1: simmed1(base1)  is simmed1 & base1    { tmp:$(REGSIZE) = base1 + simmed1; tmpscaled:$(ADDRSIZE) = 0; ValCast(tmpscaled,tmp); export tmpscaled; }
+OFF_BASE2: simmed2(base2)  is simmed2 & base2    { tmp:$(REGSIZE) = base2 + simmed2; tmpscaled:$(ADDRSIZE) = 0; ValCast(tmpscaled,tmp); export tmpscaled; }
+OFF_BASE3: simmed3(base3)  is simmed3 & base3    { tmp:$(REGSIZE) = base3 + simmed3; tmpscaled:$(ADDRSIZE) = 0; ValCast(tmpscaled,tmp); export tmpscaled; }
+OFF_BASE4: simmed(base)  is simmed & base    { tmp:$(REGSIZE) = base + simmed; tmpscaled:$(ADDRSIZE) = 0; ValCast(tmpscaled,tmp); export tmpscaled; }
+OFF_BASE5: simmed(base)  is simmed & base    { tmp:$(REGSIZE) = base + simmed; tmpscaled:$(ADDRSIZE) = 0; ValCast(tmpscaled,tmp); export tmpscaled; }
 INDEX_BASE: index(base) is index & base     { tmp:$(REGSIZE) = base + index; tmpscaled:$(ADDRSIZE) = 0; ValCast(tmpscaled,tmp); export tmpscaled; }
 
 OFF_BASER6: simmed(base)	is REL6=0 & simmed & base	{ tmp:$(REGSIZE) = base + simmed; tmpscaled:$(ADDRSIZE) = 0; ValCast(tmpscaled,tmp); export tmpscaled; }

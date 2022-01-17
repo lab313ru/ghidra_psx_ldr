@@ -48,195 +48,207 @@ define pcodeop gte_ApplyRotMatrix;
 
 
 
-:RotTransPers is ldv0_; rtps_; stsxy_; stdp_; stflg_; stszotz_ {
-    gte_RotTransPers();
-}
-
-:RotTransPers3  is ldv3_; rtpt_; stsxy3_; stdp_; stflg_; stszotz_ {
-    gte_RotTransPers3();
-}
-
-:RotTrans  is ldv0_; rt_; stlvnl_; stflg_ {
-    gte_RotTrans();
-}
-
-:LocalLight  is ldv0_; ll_; stlvl_ {
-    gte_LocalLight();
-}
-
-:LightColor  is ldlvl_; lc_; stlvl_ {
-    gte_LightColor();
-}
-
-:DpqColorLight  is ldlvl_; ldrgb_; lddp_; dpcl_; strgb_ {
-    gte_DpqColorLight();
-}
-
-:DpqColor  is ldrgb_; lddp_; dpcs_; strgb_ {
-    gte_DpqColor();
-}
-
-:DpqColor3  is ldrgb3_; lddp_; dpct_; strgb3_ {
-    gte_DpqColor3();
-}
-
-:Intpl  is ldlvl_; lddp_; intpl_; strgb_ {
-    gte_Intpl();
-}
-
-:Square12  is ldlvl_; sqr12_; stlvnl_ {
-    gte_Square12();
-}
-
-:Square0  is ldlvl_; sqr0_; stlvnl_ {
-    gte_Square0();
-}
-
-:NormalColor  is ldv0_; ncs_; strgb_ {
-    gte_NormalColor();
-}
-
-:NormalColor3  is ldv3_; nct_; strgb3_ {
-    gte_NormalColor3();
-}
-
-:NormalColorDpq  is ldv0_; ldrgb_; lddp_; ncds_; strgb_ {
-    gte_NormalColorDpq();
-}
-
-:NormalColorDpq3  is ldv3_; ldrgb_; lddp_; ncdt_; strgb3_ {
-    gte_NormalColorDpq3();
-}
-
-:NormalColorCol  is ldv0_; ldrgb_; nccs_; strgb_ {
-    gte_NormalColorCol();
-}
-
-:NormalColorCol3  is ldv3_; ldrgb_; ncct_; strgb3_ {
-    gte_NormalColorCol3();
-}
-
-:ColorDpq  is ldlvl_; ldrgb_; lddp_; cdp_; strgb_ {
-    gte_ColorDpq();
-}
-
-:ColorCol  is ldlvl_; ldrgb_; cc_; strgb_ {
-    gte_ColorCol();
-}
-
-:NormalClip  is ldsxy3_; nclip_; stopz_ {
-    gte_NormalClip();
-}
-
-:AverageZ3  is ldsz3_; avsz3_; stotz_ {
-    gte_AverageZ3();
-}
-
-:AverageZ4  is ldsz4_; avsz4_; stotz_ {
-    gte_AverageZ4();
-}
-
-:OuterProduct12  is ldopv1_; ldopv2_; op12_; stlvnl_ {
-    gte_OuterProduct12();
-}
-
-:OuterProduct0  is ldopv1_; ldopv2_; op0_; stlvnl_ {
-    gte_OuterProduct0();
-}
-
-:OuterProduct12SVL  is ldopv1SV_; ldopv2sv_; op12_; stlvnl_ {
-    gte_OuterProduct12SVL();
-}
-
-:OuterProduct0SVL  is ldopv1SV_; ldopv2sv_; op0_; stlvnl_ {
-    gte_OuterProduct0SVL();
-}
-
-:OuterProduct12SV  is ldopv1SV_; ldopv2sv_; op12_; stsv_ {
-    gte_OuterProduct12SV();
-}
-
-:OuterProduct0SV  is ldopv1SV_; ldopv2sv_; op0_; stsv_ {
-    gte_OuterProduct0SV();
-}
-
-:Lzc  is ldlzc_; nop1; nop2; stlzc_ {
-    gte_Lzc();
-}
-
-:RotAverage3  is ldv3_; rtpt_; stsxy3_; stdp_; stflg_; avsz3_; stotz_ {
-    gte_RotAverage3();
-}
-
-:RotNclip3  is ldv3_; rtpt_; stflg_; nclip_; stopz_; stsxy3_; stdp_; stszotz_ {
-    gte_RotNclip3();
-}
-
-:RotAverageNclip3  is ldv3_; rtpt_; stflg_; nclip_; stopz_; stsxy3_; stdp_; avsz3_; stotz_ {
-    gte_RotAverageNclip3();
-}
-
-:RotColorDpq  is ldv0_1; rtps_; stsxy_; stflg_; ldv0_2; ldrgb_; ncds_; strgb_; stszotz_ {
-    gte_RotColorDpq();
-}
-
-:RotColorDpq3  is ldv3_1; rtpt_; stsxy3_; stflg_; ldv3_2; ldrgb_; ncdt_; strgb3_; stszotz_ {
-    gte_RotColorDpq3();
-}
-
-:RotAverageNclipColorDpq3  is ldv3_1; rtpt_; stflg_; nclip_; stopz_; ldv3_2; ldrgb_; ncdt_; stsxy3_; strgb3_; avsz3_; stotz_ {
-    gte_RotAverageNclipColorDpq3();
-}
-
-:RotAverageNclipColorCol3  is ldv3_1; rtpt_; stflg_; nclip_; stopz_; ldv3_2; ldrgb_; ncct_; stsxy3_; strgb3_; avsz3_; stotz_ {
-    gte_RotAverageNclipColorCol3();
-}
-
-:LoadAverage12  is lddp_1; ldlvl_1; gpf12_; lddp_2; ldlvl_2; gpl12_; stlvl_ {
-    gte_LoadAverage12();
-}
-
-:LoadAverage0  is lddp_1; ldlvl_1; gpf0_; lddp_2; ldlvl_2; gpl0_; stlvl_ {
-    gte_LoadAverage0();
-}
-
-:LoadAverageShort12  is lddp_1; ldsv_1; gpf12_; lddp_2; ldsv_2; gpl12_; stsv_ {
-    gte_LoadAverageShort12();
-}
-
-:LoadAverageShort0  is lddp_1; ldsv_1; gpf0_; lddp_2; ldsv_2; gpl0_; stsv_ {
-    gte_LoadAverageShort0();
-}
-
-:LoadAverageByte  is lddp_1; ldbv_1; gpf12_; lddp_2; ldbv_2; gpl12_; stbv_ {
-    gte_LoadAverageByte();
-}
-
-:LoadAverageCol  is lddp_1; ldcv_1; gpf12_; lddp_2; ldcv_2; gpl12_; stcv_ {
-    gte_LoadAverageCol();
-}
-
+#:RotTransPers is ldv0_; rtps_; stsxy_; stdp_; stflg_; stszotz_ {
+#    gte_RotTransPers();
+#}
+#
+#:RotTransPers3  is ldv3_; rtpt_; stsxy3_; stdp_; stflg_; stszotz_ {
+#    gte_RotTransPers3();
+#}
+#
+#:RotTrans  is ldv0_; rt_; stlvnl_; stflg_ {
+#    gte_RotTrans();
+#}
+#
+#:LocalLight  is ldv0_; ll_; stlvl_ {
+#    gte_LocalLight();
+#}
+#
+#:LightColor  is ldlvl_; lc_; stlvl_ {
+#    gte_LightColor();
+#}
+#
+#:DpqColorLight  is ldlvl_; ldrgb_; lddp_; dpcl_; strgb_ {
+#    gte_DpqColorLight();
+#}
+#
+#:DpqColor  is ldrgb_; lddp_; dpcs_; strgb_ {
+#    gte_DpqColor();
+#}
+#
+#:DpqColor3  is ldrgb3_; lddp_; dpct_; strgb3_ {
+#    gte_DpqColor3();
+#}
+#
+#:Intpl  is ldlvl_; lddp_; intpl_; strgb_ {
+#    gte_Intpl();
+#}
+#
+#:Square12  is ldlvl_; sqr12_; stlvnl_ {
+#    gte_Square12();
+#}
+#
+#:Square0  is ldlvl_; sqr0_; stlvnl_ {
+#    gte_Square0();
+#}
+#
+#:NormalColor  is ldv0_; ncs_; strgb_ {
+#    gte_NormalColor();
+#}
+#
+#:NormalColor3  is ldv3_; nct_; strgb3_ {
+#    gte_NormalColor3();
+#}
+#
+#:NormalColorDpq  is ldv0_; ldrgb_; lddp_; ncds_; strgb_ {
+#    gte_NormalColorDpq();
+#}
+#
+#:NormalColorDpq3  is ldv3_; ldrgb_; lddp_; ncdt_; strgb3_ {
+#    gte_NormalColorDpq3();
+#}
+#
+#:NormalColorCol  is ldv0_; ldrgb_; nccs_; strgb_ {
+#    gte_NormalColorCol();
+#}
+#
+#:NormalColorCol3  is ldv3_; ldrgb_; ncct_; strgb3_ {
+#    gte_NormalColorCol3();
+#}
+#
+#:ColorDpq  is ldlvl_; ldrgb_; lddp_; cdp_; strgb_ {
+#    gte_ColorDpq();
+#}
+#
+#:ColorCol  is ldlvl_; ldrgb_; cc_; strgb_ {
+#    gte_ColorCol();
+#}
+#
+#:NormalClip  is ldsxy3_; nclip_; stopz_ {
+#    gte_NormalClip();
+#}
+#
+#:AverageZ3  is ldsz3_; avsz3_; stotz_ {
+#    gte_AverageZ3();
+#}
+#
+#:AverageZ4  is ldsz4_; avsz4_; stotz_ {
+#    gte_AverageZ4();
+#}
+#
+#:OuterProduct12  is ldopv1_; ldopv2_; op12_; stlvnl_ {
+#    gte_OuterProduct12();
+#}
+#
+#:OuterProduct0  is ldopv1_; ldopv2_; op0_; stlvnl_ {
+#    gte_OuterProduct0();
+#}
+#
+#:OuterProduct12SVL  is ldopv1SV_; ldopv2sv_; op12_; stlvnl_ {
+#    gte_OuterProduct12SVL();
+#}
+#
+#:OuterProduct0SVL  is ldopv1SV_; ldopv2sv_; op0_; stlvnl_ {
+#    gte_OuterProduct0SVL();
+#}
+#
+#:OuterProduct12SV  is ldopv1SV_; ldopv2sv_; op12_; stsv_ {
+#    gte_OuterProduct12SV();
+#}
+#
+#:OuterProduct0SV  is ldopv1SV_; ldopv2sv_; op0_; stsv_ {
+#    gte_OuterProduct0SV();
+#}
+#
+#:Lzc  is ldlzc_; nop1; nop2; stlzc_ {
+#    gte_Lzc();
+#}
+#
+#:RotAverage3  is ldv3_; rtpt_; stsxy3_; stdp_; stflg_; avsz3_; stotz_ {
+#    gte_RotAverage3();
+#}
+#
+#:RotNclip3  is ldv3_; rtpt_; stflg_; nclip_; stopz_; stsxy3_; stdp_; stszotz_ {
+#    gte_RotNclip3();
+#}
+#
+#:RotAverageNclip3  is ldv3_; rtpt_; stflg_; nclip_; stopz_; stsxy3_; stdp_; avsz3_; stotz_ {
+#    gte_RotAverageNclip3();
+#}
+#
+#:RotColorDpq  is ldv0_1; rtps_; stsxy_; stflg_; ldv0_2; ldrgb_; ncds_; strgb_; stszotz_ {
+#    gte_RotColorDpq();
+#}
+#
+#:RotColorDpq3  is ldv3_1; rtpt_; stsxy3_; stflg_; ldv3_2; ldrgb_; ncdt_; strgb3_; stszotz_ {
+#    gte_RotColorDpq3();
+#}
+#
+#:RotAverageNclipColorDpq3  is ldv3_1; rtpt_; stflg_; nclip_; stopz_; ldv3_2; ldrgb_; ncdt_; stsxy3_; strgb3_; avsz3_; stotz_ {
+#    gte_RotAverageNclipColorDpq3();
+#}
+#
+#:RotAverageNclipColorCol3  is ldv3_1; rtpt_; stflg_; nclip_; stopz_; ldv3_2; ldrgb_; ncct_; stsxy3_; strgb3_; avsz3_; stotz_ {
+#    gte_RotAverageNclipColorCol3();
+#}
+#
+#:LoadAverage12  is lddp_1; ldlvl_1; gpf12_; lddp_2; ldlvl_2; gpl12_; stlvl_ {
+#    gte_LoadAverage12();
+#}
+#
+#:LoadAverage0  is lddp_1; ldlvl_1; gpf0_; lddp_2; ldlvl_2; gpl0_; stlvl_ {
+#    gte_LoadAverage0();
+#}
+#
+#:LoadAverageShort12  is lddp_1; ldsv_1; gpf12_; lddp_2; ldsv_2; gpl12_; stsv_ {
+#    gte_LoadAverageShort12();
+#}
+#
+#:LoadAverageShort0  is lddp_1; ldsv_1; gpf0_; lddp_2; ldsv_2; gpl0_; stsv_ {
+#    gte_LoadAverageShort0();
+#}
+#
+#:LoadAverageByte  is lddp_1; ldbv_1; gpf12_; lddp_2; ldbv_2; gpl12_; stbv_ {
+#    gte_LoadAverageByte();
+#}
+#
+#:LoadAverageCol  is lddp_1; ldcv_1; gpf12_; lddp_2; ldcv_2; gpl12_; stcv_ {
+#    gte_LoadAverageCol();
+#}
+#
 is_addiu: is $(AMODE) & prime=9 {}
 addiu_x1_x2_2: is is_addiu & simmed=2 {}
 addiu_x1_x2_4: is is_addiu & simmed=4 {}
 
-MulMatrix0_: is SetRotMatrix_; ldclmv_1; rtir_1; stclmv_1; addiu_x1_x2_2; ldclmv_2; rtir_2; stclmv_2; addiu_x1_x2_4; ldclmv_3; rtir_3; stclmv_3 {}
-:MulMatrix0  is SetRotMatrix_; ldclmv_1; rtir_1; stclmv_1; addiu_x1_x2_2; ldclmv_2; rtir_2; stclmv_2; addiu_x1_x2_4; ldclmv_3; rtir_3; stclmv_3 {
-    gte_MulMatrix0();
+#MulMatrix0_: is SetRotMatrix_; ldclmv_1; rtir_1; stclmv_1; addiu_x1_x2_2; ldclmv_2; rtir_2; stclmv_2; addiu_x1_x2_4; ldclmv_3; rtir_3; stclmv_3 {}
+:MulMatrix0 base1,base2,base3 is 
+								 lw_12_0 & base1 & mem_loc1; lw_13_4; ctc2_12_0; ctc2_13_1; lw_12_8; lw_13_12; lw_14_16; ctc2_12_2; ctc2_13_3; ctc2_14_4;
+								 lhu_12_0 & base2 & mem_loc2; lhu_13_6; lhu_14_12; mtc2_12_9; mtc2_13_10; mtc2_14_11;
+								 rtir_1;
+								 mfc2_12_9; mfc2_13_10; mfc2_14_11; sh_12_0 & base3 & mem_loc3; sh_13_6; sh_14_12;
+								 addiu_x1_x2_2;
+								 ldclmv_2;
+								 rtir_2;
+								 stclmv_2;
+								 addiu_x1_x2_4;
+								 ldclmv_3;
+								 rtir_3;
+								 stclmv_3 {
+    gte_MulMatrix0(mem_loc1,mem_loc2,mem_loc3);
 }
 
-:ApplyMatrix  is SetRotMatrix_; ldv0_; rtv0_; stlvnl_ {
-    gte_ApplyMatrix();
-}
+#:ApplyMatrix  is SetRotMatrix_; ldv0_; rtv0_; stlvnl_ {
+#    gte_ApplyMatrix();
+#}
+#
+#:ApplyMatrixSV  is SetRotMatrix_; ldv0_; rtv0_; stsv_ {
+#    gte_ApplyMatrixSV();
+#}
 
-:ApplyMatrixSV  is SetRotMatrix_; ldv0_; rtv0_; stsv_ {
-    gte_ApplyMatrixSV();
-}
+#:CompMatrix  is MulMatrix0_; SetTransMatrix_; ldlv0_; rt_; stlvnl_ {
+#    gte_CompMatrix();
+#}
 
-:CompMatrix  is MulMatrix0_; SetTransMatrix_; ldlv0_; rt_; stlvnl_ {
-    gte_CompMatrix();
-}
-
-:ApplyRotMatrix  is ldv0_; rtv0_; stlvnl_ {
-    gte_ApplyRotMatrix();
-}
+#:ApplyRotMatrix  is ldv0_; rtv0_; stlvnl_ {
+#    gte_ApplyRotMatrix();
+#}

@@ -42,6 +42,8 @@ import ghidra.program.flatapi.FlatProgramAPI;
 import ghidra.program.model.address.Address;
 import ghidra.program.model.address.AddressOutOfBoundsException;
 import ghidra.program.model.address.AddressOverflowException;
+import ghidra.program.model.address.AddressRange;
+import ghidra.program.model.address.AddressRangeImpl;
 import ghidra.program.model.address.AddressSetView;
 import ghidra.program.model.data.DataTypeManager;
 import ghidra.program.model.lang.LanguageCompilerSpecPair;
@@ -220,7 +222,14 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 			return;
 		}
 		
-		createSegments(provider, fpa, log);
+		List<AddressRange> segments;
+		
+		try {
+			segments = createSegments(provider, fpa, log);
+		} catch (AddressOverflowException | IOException e1) {
+			log.appendException(e1);
+			return;
+		}
 		
 		final Address initPc = fpa.toAddr(psxExe.getInitPc());
 		
@@ -249,8 +258,11 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 		
 		addPsyqVerOption(program, ramBase, log);
 		psxGpReg = psxExe.getInitGp();
-		setRegisterValue(program, "gp", fpa.toAddr(psxExe.getInitPc()), psxGpReg, log);
-		setRegisterValue(program, "sp", fpa.toAddr(psxExe.getInitPc()), psxExe.getSpBase() + psxExe.getSpOff(), log);
+		//setRegisterValue(program, "sp", fpa.toAddr(psxExe.getInitPc()), psxExe.getSpBase() + psxExe.getSpOff(), log);
+		
+		for (final AddressRange range : segments) {
+			setRegisterValue(program, "gp", range.getMinAddress(), range.getMaxAddress(), psxGpReg, log);
+		}
 		
 		Address romStart = fpa.toAddr(psxExe.getRomStart());
 		Reference mainRef = findAndAppyMain(provider, fpa, romStart, log);
@@ -560,7 +572,8 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 			_sdata_block.setWrite(true);
 			_sdata_block.setExecute(false);
 			
-			setRegisterValue(program, "gp", mainRef.getToAddress(), _sdata_addr.getOffset(), log);
+			psxGpReg = _sdata_addr.getOffset();
+			//setRegisterValue(program, "gp", mainRef.getToAddress(), _sdata_addr.getOffset(), log);
 			
 			Address _sbss_addr = fpa.toAddr((sbss1.getUnsignedValue() << 16) + ((Scalar)(sbss2[0])).getSignedValue());
 			MemoryBlock _sbss_block = mem.getBlock(_sbss_addr);
@@ -614,29 +627,35 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 		}
 	}
 	
-	private void createSegments(ByteProvider provider, FlatProgramAPI fpa, MessageLog log) throws IOException {
+	private List<AddressRange> createSegments(ByteProvider provider, FlatProgramAPI fpa, MessageLog log) throws IOException, AddressOverflowException {
+		List<AddressRange> res = new ArrayList<>();
 		
 		InputStream codeStream = provider.getInputStream(PsxExe.HEADER_SIZE);
 		
 		long ram_size_1 = psxExe.getRomStart() - ramBase;
 		createSegment(fpa, null, "RAM", ramBase, ram_size_1, true, true, log);
+		res.add(new AddressRangeImpl(fpa.toAddr(ramBase), ram_size_1));
 		
 		long code_size = psxExe.getRomSize();
 		long code_addr = psxExe.getRomStart();
 		
 		createSegment(fpa, codeStream, "CODE", code_addr, code_size, false, true, log);
+		res.add(new AddressRangeImpl(fpa.toAddr(code_addr), code_size));
 		
 		if (psxExe.getDataAddr() != 0) {
 			createSegment(fpa, null, ".data", psxExe.getDataAddr(), psxExe.getDataSize(), true, false, log);
+			res.add(new AddressRangeImpl(fpa.toAddr(psxExe.getDataAddr()), psxExe.getDataSize()));
 		}
 		
 		if (psxExe.getBssAddr() != 0) {
 			createSegment(fpa, null, ".bss", psxExe.getBssAddr(), psxExe.getBssSize(), false, false, log);
+			res.add(new AddressRangeImpl(fpa.toAddr(psxExe.getBssAddr()), psxExe.getBssSize()));
 		}
 		
 		long code_end = psxExe.getRomEnd();
 		long ram_size_2 = ramBase + RAM_SIZE - code_end;
 		createSegment(fpa, null, "RAM", code_end, ram_size_2, false, true, log);
+		res.add(new AddressRangeImpl(fpa.toAddr(code_end), ram_size_2));
 		
 		createSegment(fpa, null, "CACHE", 0x1F800000L, 0x400, true, true, log);
 		createSegment(fpa, null, "UNK1", 0x1F800400L, 0xC00, true, true, log);
@@ -652,6 +671,8 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 		addMdecRegs(fpa, log);
 		addSpuVoices(fpa, log);
 		addSpuCtrlRegs(fpa, log);
+		
+		return res;
 	}
 	
 	private static void addMemCtrl1(FlatProgramAPI fpa, MessageLog log) {
