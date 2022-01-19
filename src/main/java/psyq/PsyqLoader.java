@@ -65,6 +65,7 @@ import ghidra.program.model.util.CodeUnitInsertionException;
 import ghidra.util.exception.CancelledException;
 import ghidra.util.exception.InvalidInputException;
 import ghidra.util.task.TaskMonitor;
+import psx.Utils;
 import psyq.structs.*;
 
 /**
@@ -180,7 +181,7 @@ public class PsyqLoader extends AbstractLibrarySupportLoader {
 		
 		List<JsonArray> possibleObjs = new ArrayList<>();
 		
-		final var json = SigApplier.jsonArrayFromFile(String.format("%s/%s.json", verDir.getAbsolutePath(), libObjName[0]));
+		final var json = Utils.jsonArrayFromFile(String.format("%s/%s.json", verDir.getAbsolutePath(), libObjName[0]));
 		
 		for (final var item : json) {
 			final var itemObj = item.getAsJsonObject();

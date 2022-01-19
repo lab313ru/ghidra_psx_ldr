@@ -15,11 +15,17 @@
  */
 package psx;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 
 import docking.widgets.OptionDialog;
 import ghidra.app.cmd.disassemble.DisassembleCommand;
@@ -35,6 +41,7 @@ import ghidra.app.util.importer.MessageLog;
 import ghidra.app.util.opinion.AbstractLibrarySupportLoader;
 import ghidra.app.util.opinion.LoadSpec;
 import ghidra.app.util.opinion.Loader;
+import ghidra.framework.Application;
 import ghidra.framework.model.DomainObject;
 import ghidra.framework.options.Options;
 import ghidra.framework.store.LockException;
@@ -45,21 +52,35 @@ import ghidra.program.model.address.AddressOverflowException;
 import ghidra.program.model.address.AddressRange;
 import ghidra.program.model.address.AddressRangeImpl;
 import ghidra.program.model.address.AddressSetView;
+import ghidra.program.model.address.AddressSpace;
+import ghidra.program.model.data.ArrayDataType;
+import ghidra.program.model.data.ByteDataType;
+import ghidra.program.model.data.DataType;
 import ghidra.program.model.data.DataTypeManager;
+import ghidra.program.model.data.DataUtilities;
+import ghidra.program.model.data.DataUtilities.ClearDataMode;
+import ghidra.program.model.data.PointerDataType;
+import ghidra.program.model.data.VoidDataType;
 import ghidra.program.model.lang.LanguageCompilerSpecPair;
 import ghidra.program.model.lang.RegisterValue;
 import ghidra.program.model.listing.ContextChangeException;
+import ghidra.program.model.listing.Function;
+import ghidra.program.model.listing.Function.FunctionUpdateType;
 import ghidra.program.model.listing.Instruction;
 import ghidra.program.model.listing.Listing;
+import ghidra.program.model.listing.ParameterImpl;
 import ghidra.program.model.listing.Program;
 import ghidra.program.model.mem.Memory;
 import ghidra.program.model.mem.MemoryAccessException;
 import ghidra.program.model.mem.MemoryBlock;
 import ghidra.program.model.mem.MemoryBlockException;
+import ghidra.program.model.mem.MemoryConflictException;
 import ghidra.program.model.scalar.Scalar;
 import ghidra.program.model.symbol.Reference;
 import ghidra.program.model.symbol.SourceType;
 import ghidra.program.model.symbol.SymbolTable;
+import ghidra.program.model.util.CodeUnitInsertionException;
+import ghidra.util.exception.DuplicateNameException;
 import ghidra.util.exception.InvalidInputException;
 import ghidra.util.exception.NotFoundException;
 import ghidra.util.task.TaskMonitor;
@@ -297,11 +318,13 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 		}
 	}
 	
-	public static DataTypeManager loadPsyqGdt(Program program, AddressSetView set) {
+	public static DataTypeManager loadPsyqGdt(Program program, AddressSetView set, MessageLog log, boolean closeOthers) {
 		String gdtName = String.format("psyq%s", PsxLoader.getProgramPsyqVersion(program));
 		
-		PsxLoader.closePsyqDataTypeArchives(program, gdtName);
-		return PsxLoader.loadPsyqArchive(program, gdtName, set, TaskMonitor.DUMMY, new MessageLog());
+		if (closeOthers) {
+			PsxLoader.closePsyqDataTypeArchives(program, gdtName);
+		}
+		return PsxLoader.loadPsyqArchive(program, gdtName, set, TaskMonitor.DUMMY, log);
 	}
 	
 	private static void closePsyqDataTypeArchives(Program program, String gdtName) {
@@ -675,6 +698,115 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 		return res;
 	}
 	
+	public static void addGteMacroSpace(Program program, DataTypeManager mgr, MessageLog log) throws IOException, InvalidInputException, DuplicateNameException, LockException, IllegalArgumentException, MemoryConflictException, AddressOverflowException, CodeUnitInsertionException {
+		File gteMacroFile = Application.getModuleDataFile("gte_macro.json").getFile(false);
+		JsonArray gteMacroses = Utils.jsonArrayFromFile(gteMacroFile.getAbsolutePath());
+		
+		List<PsxGteMacro> macroses = new ArrayList<>();
+		
+		for (final var gteMacro : gteMacroses) {
+			final JsonObject obj = gteMacro.getAsJsonObject();
+			
+			final String name = obj.get("name").getAsString();
+			final JsonArray argsJson = obj.getAsJsonArray("args");
+			
+			List<String> args = new ArrayList<>();
+			
+			for (final var arg : argsJson) {
+				args.add(arg.getAsString());
+			}
+			
+			macroses.add(new PsxGteMacro(name, args.toArray(String[]::new)));
+		}
+		
+		Listing listing = program.getListing();
+		AddressSpace defSpace = program.getAddressFactory().getDefaultAddressSpace();
+		Address start = defSpace.getAddress(0x20000000L);
+		
+		if (program.getMemory().getBlock("GTEMAC") != null) {
+			return;
+		}
+		createUnitializedSegment(program, "GTEMAC", start, macroses.size() * 4, false, true, log);
+		
+		Pattern pat = Pattern.compile("^.+?\\[(\\d+)\\]$");
+		
+		Map<String, DataType> dtReady = new HashMap<>();
+		
+		for (int i = 0; i < macroses.size(); ++i) {
+			final var macro = macroses.get(i);
+			final Address addr = start.add(i * 4);
+			CreateFunctionCmd cmd = new CreateFunctionCmd(macro.getName(), addr, null, SourceType.IMPORTED);
+			cmd.applyTo(program);
+			
+			Function func = listing.getFunctionAt(addr);
+			func.setReturnType(VoidDataType.dataType, SourceType.IMPORTED);
+			func.setCustomVariableStorage(true);
+			
+			List<ParameterImpl> params = new ArrayList<>();
+
+			final String[] args = macro.getArgs();
+			for (int j = 0; j < args.length; ++j) {
+				String arg = args[j];
+				
+				DataType dt = stringToDataType(mgr, arg, pat, dtReady);
+				
+				
+				
+				params.add(new ParameterImpl(String.format("r%d", j), dt, program.getRegister(String.format("gte%d", j)), program, SourceType.USER_DEFINED));
+			}
+			
+			func.updateFunction("__gtemacro", null,
+					FunctionUpdateType.CUSTOM_STORAGE,
+					true, SourceType.IMPORTED, params.toArray(ParameterImpl[]::new));
+			
+			DataUtilities.createData(program, addr, new ArrayDataType(ByteDataType.dataType, 4, -1), -1, false, ClearDataMode.CLEAR_ALL_UNDEFINED_CONFLICT_DATA);
+		}
+	}
+	
+	private static DataType stringToDataType(DataTypeManager mgr, String type, Pattern pat, Map<String, DataType> cache) {
+		DataType dt;
+		
+		if (cache.containsKey(type)) {
+			dt = cache.get(type);
+		} else {
+			List<DataType> allDts = new ArrayList<>();
+			mgr.findDataTypes(type, allDts);
+			
+			if (allDts.size() == 0) {
+				String baseType = type;
+				boolean isPtr = type.contains("*");
+				boolean isArray = !isPtr && (type.contains("["));
+				int arrCount = 0;
+				
+				if (isPtr) {
+					type = type.replaceAll("(?:[ \\t]+)?\\*", "");
+				} else if (isArray) {
+					Matcher mat = pat.matcher(type);
+					
+					if (mat.matches()) {
+						arrCount = Integer.parseInt(mat.group(1));
+						type = type.replaceAll("(?:[ \\t]+)?\\[\\d+\\]", "");
+					}
+				}
+				
+				dt = stringToDataType(mgr, type, pat, cache);
+				type = baseType;
+				
+				if (isPtr) {
+					dt = new PointerDataType(dt);
+				} else if (isArray) {
+					dt = new ArrayDataType(dt, arrCount, -1);
+				}
+			} else {
+				dt = allDts.get(0);
+			}
+			
+			cache.put(type, dt);
+		}
+		
+		return dt;
+	}
+	
 	private static void addMemCtrl1(FlatProgramAPI fpa, MessageLog log) {
 		createSegment(fpa, null, "MCTRL1", 0x1F801000L, 0x24, true, false, log);
 		
@@ -902,5 +1034,12 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 		} catch (Exception e) {
 			log.appendException(e);
 		}
+	}
+	
+	private static void createUnitializedSegment(Program program, String name, Address address, long size, boolean write, boolean execute, MessageLog log) throws LockException, IllegalArgumentException, MemoryConflictException, AddressOverflowException {
+		MemoryBlock block = program.getMemory().createUninitializedBlock(name, address, size, false);
+		block.setRead(true);
+		block.setWrite(write);
+		block.setExecute(execute);
 	}
 }

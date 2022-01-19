@@ -1,0 +1,526 @@
+[
+    {
+	    "name": "gte_ldv0",
+	    "args": [ "SVECTOR *" ]
+    },
+
+    {
+        "name": "gte_ldv1",
+        "args": [ "SVECTOR *" ]
+    },
+
+    {
+        "name": "gte_ldv2",
+        "args": [ "SVECTOR *" ]
+    },
+
+    {
+        "name": "gte_ldv3",
+        "args": [ "SVECTOR *", "SVECTOR *", "SVECTOR *" ]
+    },
+
+    {
+        "name": "gte_ldv3c",
+        "args": [ "SVECTOR *" ]
+    },
+
+    {
+        "name": "gte_ldv3c_vertc",
+        "args": [ "VERTC *" ]
+    },
+
+    {
+        "name": "gte_ldv01",
+        "args": [ "SVECTOR *", "SVECTOR *" ]
+    },
+
+    {
+        "name": "gte_ldv01c",
+        "args": [ "SVECTOR [2]" ]
+    },
+
+    {
+        "name": "gte_ldrgb",
+        "args": [ "CVECTOR *" ]
+    },
+
+    {
+        "name": "gte_ldrgb3",
+        "args": [ "CVECTOR *", "CVECTOR *", "CVECTOR *" ]
+    },
+
+    {
+        "name": "gte_ldrgb3c",
+        "args": [ "CVECTOR *" ]
+    },
+
+    {
+        "name": "gte_ldlv0",
+        "args": [ "VECTOR *" ]
+    },
+
+    {
+        "name": "gte_ldlvl",
+        "args": [ "VECTOR *" ]
+    },
+
+    {
+        "name": "gte_ldsv",
+        "args": [ "SVECTOR *" ]
+    },
+
+    {
+        "name": "gte_ldbv",
+        "args": [ "char [2]" ]
+    },
+
+    {
+        "name": "gte_ldcv",
+        "args": [ "CVECTOR *" ]
+    },
+
+    {
+        "name": "gte_ldclmv",
+        "args": [ "MATRIX *" ]
+    },
+
+    {
+        "name": "gte_lddp",
+        "args": [ "long" ]
+    },
+
+    {
+        "name": "gte_ldsxy0",
+        "args": [ "long *" ]
+    },
+
+    {
+        "name": "gte_ldsxy1",
+        "args": [ "long *" ]
+    },
+
+    {
+        "name": "gte_ldsxy2",
+        "args": [ "long *" ]
+    },
+
+    {
+        "name": "gte_ldsxy3",
+        "args": [ "long", "long", "long" ]
+    },
+
+    {
+        "name": "gte_ldsxy3c",
+        "args": [ "long *" ]
+    },
+
+    {
+        "name": "gte_ldsz3",
+        "args": [ "long", "long", "long" ]
+    },
+
+    {
+        "name": "gte_ldsz4",
+        "args": [ "long", "long", "long" ]
+    },
+
+    {
+        "name": "gte_ldopv1",
+        "args": [ "VECTOR *" ]
+    },
+
+    {
+        "name": "gte_ldopv2",
+        "args": [ "VECTOR *" ]
+    },
+
+    {
+        "name": "gte_ldlzc",
+        "args": [ "long" ]
+    },
+
+    {
+        "name": "gte_SetRGBcd",
+        "args": [ "CVECTOR *" ]
+    },
+
+    {
+        "name": "gte_ldbkdir",
+        "args": [ "long", "long", "long" ]
+    },
+
+    {
+        "name": "gte_SetBackColor",
+        "args": [ "long", "long", "long" ]
+    },
+
+    {
+        "name": "gte_ldfcdir",
+        "args": [ "long", "long", "long" ]
+    },
+
+    {
+        "name": "gte_SetFarColor",
+        "args": [ "long", "long", "long" ]
+    },
+
+    {
+        "name": "gte_SetGeomOffset",
+        "args": [ "long", "long" ]
+    },
+
+    {
+        "name": "gte_SetGeomScreen",
+        "args": [ "long" ]
+    },
+
+    {
+        "name": "gte_ldsvrtrow0",
+        "args": [ "SVECTOR *" ]
+    },
+
+    {
+        "name": "gte_SetRotMatrix",
+        "args": [ "MATRIX *" ]
+    },
+
+    {
+        "name": "gte_ldsvllrow0",
+        "args": [ "SVECTOR *" ]
+    },
+
+    {
+        "name": "gte_SetLightMatrix",
+        "args": [ "MATRIX *" ]
+    },
+
+    {
+        "name": "gte_ldsvlcrow0",
+        "args": [ "SVECTOR *" ]
+    },
+
+    {
+        "name": "gte_SetColorMatrix",
+        "args": [ "MATRIX *" ]
+    },
+
+    {
+        "name": "gte_SetTransMatrix",
+        "args": [ "MATRIX *" ]
+    },
+
+    {
+        "name": "gte_ldtr",
+        "args": [ "long", "long", "long" ]
+    },
+
+    {
+        "name": "gte_SetTransVector",
+        "args": [ "VECTOR *" ]
+    },
+
+    {
+        "name": "gte_ld_intpol_uv0",
+        "args": [ "char [2]" ]
+    },
+
+    {
+        "name": "gte_ld_intpol_uv1",
+        "args": [ "char [2]" ]
+    },
+
+    {
+        "name": "gte_ld_intpol_bv0",
+        "args": [ "char [2]" ]
+    },
+
+    {
+        "name": "gte_ld_intpol_bv1",
+        "args": [ "char [2]" ]
+    },
+
+    {
+        "name": "gte_ld_intpol_sv0",
+        "args": [ "SVECTOR *" ]
+    },
+
+    {
+        "name": "gte_ld_intpol_sv1",
+        "args": [ "SVECTOR *" ]
+    },
+
+    {
+        "name": "gte_ldfc",
+        "args": [ "long [3]" ]
+    },
+
+    {
+        "name": "gte_stsxy",
+        "args": [ "long *" ]
+    },
+
+    {
+        "name": "gte_stsxy3",
+        "args": [ "long *", "long *", "long *" ]
+    },
+
+    {
+        "name": "gte_stsxy3c",
+        "args": [ "long [3]" ]
+    },
+
+    {
+        "name": "gte_stsxy2",
+        "args": [ "long *" ]
+    },
+
+    {
+        "name": "gte_stsxy1",
+        "args": [ "long *" ]
+    },
+
+    {
+        "name": "gte_stsxy0",
+        "args": [ "long *" ]
+    },
+
+    {
+        "name": "gte_stsxy01",
+        "args": [ "long *", "long *" ]
+    },
+
+    {
+        "name": "gte_stsxy01c",
+        "args": [ "long [2]" ]
+    },
+
+    {
+        "name": "gte_stsxy3_f3",
+        "args": [ "u_long *" ]
+    },
+
+    {
+        "name": "gte_stsxy3_g3",
+        "args": [ "u_long *" ]
+    },
+
+    {
+        "name": "gte_stsxy3_ft3",
+        "args": [ "u_long *" ]
+    },
+
+    {
+        "name": "gte_stsxy3_gt3",
+        "args": [ "u_long *" ]
+    },
+
+    {
+        "name": "gte_stsxy3_f4",
+        "args": [ "u_long *" ]
+    },
+
+    {
+        "name": "gte_stsxy3_g4",
+        "args": [ "u_long *" ]
+    },
+
+    {
+        "name": "gte_stsxy3_ft4",
+        "args": [ "u_long *" ]
+    },
+
+    {
+        "name": "gte_stsxy3_gt4",
+        "args": [ "u_long *" ]
+    },
+
+    {
+        "name": "gte_stdp",
+        "args": [ "long *" ]
+    },
+
+    {
+        "name": "gte_stflg",
+        "args": [ "long *" ]
+    },
+
+    {
+        "name": "gte_stflg_4",
+        "args": [ "long *" ]
+    },
+
+    {
+        "name": "gte_stsz",
+        "args": [ "long *" ]
+    },
+
+    {
+        "name": "gte_stsz3",
+        "args": [ "long *", "long *", "long *" ]
+    },
+
+    {
+        "name": "gte_stsz4",
+        "args": [ "long *", "long *", "long *", "long *" ]
+    },
+
+    {
+        "name": "gte_stsz3c",
+        "args": [ "long *" ]
+    },
+
+    {
+        "name": "gte_stsz4c",
+        "args": [ "long *" ]
+    },
+
+    {
+        "name": "gte_stszotz",
+        "args": [ "long *" ]
+    },
+
+    {
+        "name": "gte_stotz",
+        "args": [ "long *" ]
+    },
+
+    {
+        "name": "gte_stopz",
+        "args": [ "long *" ]
+    },
+
+    {
+        "name": "gte_stlvl",
+        "args": [ "VECTOR *" ]
+    },
+
+    {
+        "name": "gte_stlvnl",
+        "args": [ "VECTOR *" ]
+    },
+
+    {
+        "name": "gte_stlvnl0",
+        "args": [ "long *" ]
+    },
+
+    {
+        "name": "gte_stlvnl1",
+        "args": [ "long *" ]
+    },
+
+    {
+        "name": "gte_stlvnl2",
+        "args": [ "long *" ]
+    },
+
+    {
+        "name": "gte_stsv",
+        "args": [ "SVECTOR *" ]
+    },
+
+    {
+        "name": "gte_stclmv",
+        "args": [ "MATRIX *" ]
+    },
+
+    {
+        "name": "gte_stbv",
+        "args": [ "char [2]" ]
+    },
+
+    {
+        "name": "gte_stcv",
+        "args": [ "CVECTOR *" ]
+    },
+
+    {
+        "name": "gte_strgb",
+        "args": [ "CVECTOR *" ]
+    },
+
+    {
+        "name": "gte_strgb3",
+        "args": [ "CVECTOR *", "CVECTOR *", "CVECTOR *" ]
+    },
+
+    {
+        "name": "gte_strgb3_g3",
+        "args": [ "u_long *" ]
+    },
+
+    {
+        "name": "gte_strgb3_gt3",
+        "args": [ "u_long *" ]
+    },
+
+    {
+        "name": "gte_strgb3_g4",
+        "args": [ "u_long *" ]
+    },
+
+    {
+        "name": "gte_strgb3_gt4",
+        "args": [ "u_long *" ]
+    },
+
+    {
+        "name": "gte_ReadGeomOffset",
+        "args": [ "long *", "long *" ]
+    },
+
+    {
+        "name": "gte_ReadGeomScreen",
+        "args": [ "long *" ]
+    },
+
+    {
+        "name": "gte_ReadRotMatrix",
+        "args": [ "MATRIX *" ]
+    },
+
+    {
+        "name": "gte_sttr",
+        "args": [ "VECTOR *" ]
+    },
+
+    {
+        "name": "gte_ReadLightMatrix",
+        "args": [ "MATRIX *" ]
+    },
+
+    {
+        "name": "gte_ReadColorMatrix",
+        "args": [ "MATRIX *" ]
+    },
+
+    {
+        "name": "gte_stlzc",
+        "args": [ "long *" ]
+    },
+
+    {
+        "name": "gte_stfc",
+        "args": [ "long [3]" ]
+    },
+
+    {
+        "name": "gte_subdvl",
+        "args": [ "DVECTOR *", "DVECTOR *", "VECTOR *" ]
+    },
+
+    {
+        "name": "gte_subdvd",
+        "args": [ "DVECTOR *", "DVECTOR *", "DVECTOR *" ]
+    },
+
+    {
+        "name": "gte_adddvl",
+        "args": [ "DVECTOR *", "DVECTOR *", "VECTOR *" ]
+    },
+
+    {
+        "name": "gte_adddvd",
+        "args": [ "DVECTOR *", "DVECTOR *", "DVECTOR *" ]
+    }
+]

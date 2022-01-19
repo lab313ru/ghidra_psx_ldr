@@ -4,8 +4,6 @@ package psyq;
 //import java.io.File;
 //import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -13,9 +11,7 @@ import java.util.Map;
 import java.io.File;
 
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 
 import generic.stl.Pair;
 import ghidra.app.cmd.disassemble.DisassembleCommand;
@@ -30,6 +26,7 @@ import ghidra.program.model.symbol.SourceType;
 import ghidra.program.model.symbol.Symbol;
 import ghidra.util.exception.InvalidInputException;
 import ghidra.util.task.TaskMonitor;
+import psx.Utils;
 
 public final class SigApplier {
 	private final List<PsyqSig> signatures;
@@ -46,8 +43,8 @@ public final class SigApplier {
 		final File libJsonFile = new File(libJsonPath);
 		this.shortLibName = libJsonFile.getName().replace(".json", "");
 		
-		final JsonArray root = jsonArrayFromFile(libJsonPath);
-		final JsonArray patches = jsonArrayFromFile(patchesFile);
+		final JsonArray root = Utils.jsonArrayFromFile(libJsonPath);
+		final JsonArray patches = Utils.jsonArrayFromFile(patchesFile);
 		
 		final String psyLibVersion = libJsonFile.getParentFile().getName();
 		final JsonArray patchesObj = findGamePatches(patches, psyLibVersion);
@@ -72,18 +69,6 @@ public final class SigApplier {
 //		try (BufferedWriter writer = new BufferedWriter(new FileWriter(new File(file + ".log")))) {
 //		    writer.write(sb.toString());
 //		}
-	}
-	
-	public static JsonArray jsonArrayFromFile(final String file) throws IOException {
-		if (file == null) {
-			return null;
-		}
-		
-		final byte[] bytes = Files.readAllBytes(Path.of(file));
-		final String json = new String(bytes, "UTF8");
-		
-		final JsonElement tokens = JsonParser.parseString(json);
-		return tokens.getAsJsonArray();
 	}
 	
 	private JsonArray findGamePatches(final JsonArray patches, final String version) {

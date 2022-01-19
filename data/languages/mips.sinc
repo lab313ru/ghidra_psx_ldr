@@ -188,6 +188,12 @@ define register offset=0 size=$(REGSIZE) [
     pc
 ];
 
+# gte macroses calls special registers
+define register offset=0x10000 size=$(REGSIZE) [
+	gte0 gte1 gte2 gte3 gte4 gte5 gte6 gte7 gte8
+	gte9 gte10 gte11 gte12 gte13 gte14 gte15 gte_r
+];
+
 @ifdef MIPS64
 # We need the 32-bit pieces of the main registers for the 32-bit instructions
 @if ENDIAN == "big"

@@ -11,17 +11,25 @@ import ghidra.app.services.AnalyzerType;
 import ghidra.app.util.importer.MessageLog;
 import ghidra.framework.Application;
 import ghidra.framework.options.Options;
+import ghidra.framework.store.LockException;
 import ghidra.program.model.address.Address;
+import ghidra.program.model.address.AddressOverflowException;
 import ghidra.program.model.address.AddressRange;
 import ghidra.program.model.address.AddressRangeIterator;
 import ghidra.program.model.address.AddressSetView;
+import ghidra.program.model.data.DataTypeManager;
 import ghidra.program.model.listing.Program;
+import ghidra.program.model.mem.MemoryConflictException;
+import ghidra.program.model.util.CodeUnitInsertionException;
+import ghidra.util.exception.DuplicateNameException;
+import ghidra.util.exception.InvalidInputException;
 import ghidra.util.task.TaskMonitor;
 import psyq.SigApplier;
 
 
 public class PsxAnalyzer extends AbstractAnalyzer {
 	private Map<String, SigApplier> appliers;
+	private boolean gteFuncsCreated;
 	
 	public static boolean onlyFirst = true;
 	public static float minEntropy = 3.0f;
@@ -41,6 +49,7 @@ public class PsxAnalyzer extends AbstractAnalyzer {
 		setSupportsOneTimeAnalysis();
 		
 		appliers = new HashMap<>();
+		gteFuncsCreated = false;
 	}
 	
 	@Override
@@ -104,11 +113,18 @@ public class PsxAnalyzer extends AbstractAnalyzer {
 			
 			monitor.setMessage("Applying PsyQ functions and data types...");
 			monitor.clearCanceled();
-			
-			PsxLoader.loadPsyqGdt(program, set);
-			
+			DataTypeManager mgr = PsxLoader.loadPsyqGdt(program, set, log, true);
 			monitor.setMessage("Applying PsyQ functions and data types done.");
-		} catch (IOException e) {
+			
+			if (!gteFuncsCreated) {
+				monitor.setMessage("Creating GTE macro call functions...");
+				monitor.clearCanceled();
+				PsxLoader.addGteMacroSpace(program, mgr, log);
+				monitor.setMessage("Creating GTE macro call functions done.");
+				
+				gteFuncsCreated = true;
+			}
+		} catch (IOException | InvalidInputException | DuplicateNameException | LockException | IllegalArgumentException | MemoryConflictException | AddressOverflowException | CodeUnitInsertionException e) {
 			e.printStackTrace();
 			log.appendException(e);
 			return false;

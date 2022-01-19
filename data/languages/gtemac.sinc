@@ -221,21 +221,21 @@ addiu_x1_x2_2: is is_addiu & simmed=2 {}
 addiu_x1_x2_4: is is_addiu & simmed=4 {}
 
 #MulMatrix0_: is SetRotMatrix_; ldclmv_1; rtir_1; stclmv_1; addiu_x1_x2_2; ldclmv_2; rtir_2; stclmv_2; addiu_x1_x2_4; ldclmv_3; rtir_3; stclmv_3 {}
-:MulMatrix0 base1,base2,base3 is 
-								 lw_12_0 & base1 & mem_loc1; lw_13_4; ctc2_12_0; ctc2_13_1; lw_12_8; lw_13_12; lw_14_16; ctc2_12_2; ctc2_13_3; ctc2_14_4;
-								 lhu_12_0 & base2 & mem_loc2; lhu_13_6; lhu_14_12; mtc2_12_9; mtc2_13_10; mtc2_14_11;
-								 rtir_1;
-								 mfc2_12_9; mfc2_13_10; mfc2_14_11; sh_12_0 & base3 & mem_loc3; sh_13_6; sh_14_12;
-								 addiu_x1_x2_2;
-								 ldclmv_2;
-								 rtir_2;
-								 stclmv_2;
-								 addiu_x1_x2_4;
-								 ldclmv_3;
-								 rtir_3;
-								 stclmv_3 {
-    gte_MulMatrix0(mem_loc1,mem_loc2,mem_loc3);
-}
+#:MulMatrix0 base1,base2,base3 is 
+#								 lw_12_0 & base1; lw_13_4; ctc2_12_0; ctc2_13_1; lw_12_8; lw_13_12; lw_14_16; ctc2_12_2; ctc2_13_3; ctc2_14_4;
+#								 lhu_12_0 & base2; lhu_13_6; lhu_14_12; mtc2_12_9; mtc2_13_10; mtc2_14_11;
+#								 rtir_1;
+#								 mfc2_12_9; mfc2_13_10; mfc2_14_11; sh_12_0 & base3; sh_13_6; sh_14_12;
+#								 addiu_x1_x2_2;
+#								 ldclmv_2;
+#								 rtir_2;
+#								 stclmv_2;
+#								 addiu_x1_x2_4;
+#								 ldclmv_3;
+#								 rtir_3;
+#								 stclmv_3 {
+#    gte_MulMatrix0(base1,base2,base3);
+#}
 
 #:ApplyMatrix  is SetRotMatrix_; ldv0_; rtv0_; stlvnl_ {
 #    gte_ApplyMatrix();
