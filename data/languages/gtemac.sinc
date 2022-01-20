@@ -48,18 +48,31 @@ define pcodeop gte_ApplyRotMatrix;
 
 
 
-#:RotTransPers is ldv0_; rtps_; stsxy_; stdp_; stflg_; stszotz_ {
-#    gte_RotTransPers();
-#}
-#
-#:RotTransPers3  is ldv3_; rtpt_; stsxy3_; stdp_; stflg_; stszotz_ {
-#    gte_RotTransPers3();
-#}
-#
-#:RotTrans  is ldv0_; rt_; stlvnl_; stflg_ {
-#    gte_RotTrans();
-#}
-#
+:RotTransPers base1,base2,base3,base4,base5 is lwc2_0_0 & base1; lwc2_1_4;
+				 rtps_;
+				 swc2_14_0 & base2;
+				 swc2_8_0 & base3;
+				 cfc2_12_31; nop1; sw_12_0_1 & base4;
+				 mfc2_12_19; nop2; sra_12_12_2; sw_12_0_2 & base5 {
+    MacroCall5(base1,base2,base3,base4,base5);
+}
+
+:RotTransPers3 base1,base2,base3,base4,base5,base6,base7,base8,base9 is lwc2_0_0 & base1; lwc2_1_4; lwc2_2_0 & base2; lwc2_3_4; lwc2_4_0 & base3; lwc2_5_4;
+                   rtpt_; 
+                   swc2_12_0 & base4; swc2_13_0 & base5; swc2_14_0 & base6; 
+                   swc2_8_0 & base7; 
+                   cfc2_12_31; nop1; sw_12_0_1 & base8; 
+                   mfc2_12_19; nop2; sra_12_12_2; sw_12_0_2 & base9 {
+    MacroCall9(base1,base2,base3,base4,base5,base6,base7,base8,base9);
+}
+
+:RotTrans  is lwc2_0_0 & base1; lwc2_1_4;
+              rt_;
+              swc2_25_0 & base2; swc2_26_4; swc2_27_8;
+              cfc2_12_31; nop1; sw_12_0 & base3 {
+    MacroCall3(base1,base2,base3);
+}
+
 #:LocalLight  is ldv0_; ll_; stlvl_ {
 #    gte_LocalLight();
 #}
@@ -221,21 +234,21 @@ addiu_x1_x2_2: is is_addiu & simmed=2 {}
 addiu_x1_x2_4: is is_addiu & simmed=4 {}
 
 #MulMatrix0_: is SetRotMatrix_; ldclmv_1; rtir_1; stclmv_1; addiu_x1_x2_2; ldclmv_2; rtir_2; stclmv_2; addiu_x1_x2_4; ldclmv_3; rtir_3; stclmv_3 {}
-#:MulMatrix0 base1,base2,base3 is 
-#								 lw_12_0 & base1; lw_13_4; ctc2_12_0; ctc2_13_1; lw_12_8; lw_13_12; lw_14_16; ctc2_12_2; ctc2_13_3; ctc2_14_4;
-#								 lhu_12_0 & base2; lhu_13_6; lhu_14_12; mtc2_12_9; mtc2_13_10; mtc2_14_11;
-#								 rtir_1;
-#								 mfc2_12_9; mfc2_13_10; mfc2_14_11; sh_12_0 & base3; sh_13_6; sh_14_12;
-#								 addiu_x1_x2_2;
-#								 ldclmv_2;
-#								 rtir_2;
-#								 stclmv_2;
-#								 addiu_x1_x2_4;
-#								 ldclmv_3;
-#								 rtir_3;
-#								 stclmv_3 {
-#    gte_MulMatrix0(base1,base2,base3);
-#}
+:MulMatrix0 base1,base2,base3 is 
+								 lw_12_0 & base1; lw_13_4; ctc2_12_0; ctc2_13_1; lw_12_8; lw_13_12; lw_14_16; ctc2_12_2; ctc2_13_3; ctc2_14_4;
+								 lhu_12_0 & base2; lhu_13_6; lhu_14_12; mtc2_12_9; mtc2_13_10; mtc2_14_11;
+								 rtir_1;
+								 mfc2_12_9; mfc2_13_10; mfc2_14_11; sh_12_0 & base3; sh_13_6; sh_14_12;
+								 addiu_x1_x2_2;
+								 ldclmv_2;
+								 rtir_2;
+								 stclmv_2;
+								 addiu_x1_x2_4;
+								 ldclmv_3;
+								 rtir_3;
+								 stclmv_3 {
+    MacroCall3(base1,base2,base3);
+}
 
 #:ApplyMatrix  is SetRotMatrix_; ldv0_; rtv0_; stlvnl_ {
 #    gte_ApplyMatrix();

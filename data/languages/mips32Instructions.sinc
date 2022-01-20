@@ -1756,5 +1756,3 @@ define pcodeop SYNC;
 	signalReservedInstruction(immed:2);
 }
 
-
-@include "mipsfloat.sinc"

@@ -138,42 +138,6 @@
   		</pentry>
   	</input>
   	<output>
-  		<pentry minsize="2" maxsize="4">
-  			<register name="gte_r"/>
-  		</pentry>
   	</output>
- 	<unaffected>
- 		<register name="zero"/>
- 		<register name="at"/>
- 		<register name="v0"/>
- 		<register name="v1"/>
- 		<register name="a0"/>
- 		<register name="a1"/>
- 		<register name="a2"/>
- 		<register name="a3"/>
- 		<register name="t0"/>
- 		<register name="t1"/>
- 		<register name="t2"/>
- 		<register name="t3"/>
- 		<register name="t4"/>
- 		<register name="t5"/>
- 		<register name="t6"/>
- 		<register name="t7"/>
- 		<register name="s0"/>
- 		<register name="s1"/>
- 		<register name="s2"/>
- 		<register name="s3"/>
- 		<register name="s4"/>
- 		<register name="s5"/>
- 		<register name="s6"/>
- 		<register name="s7"/>
- 		<register name="t8"/>
- 		<register name="t9"/>
- 		<register name="k0"/>
- 		<register name="k1"/>
- 		<register name="gp"/>
- 		<register name="sp"/>
- 		<register name="s8"/>
- 	</unaffected>
   </prototype>
 </compiler_spec>

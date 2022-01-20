@@ -189,9 +189,9 @@ define register offset=0 size=$(REGSIZE) [
 ];
 
 # gte macroses calls special registers
-define register offset=0x10000 size=$(REGSIZE) [
+define register offset=0x10000 size=4 [
 	gte0 gte1 gte2 gte3 gte4 gte5 gte6 gte7 gte8
-	gte9 gte10 gte11 gte12 gte13 gte14 gte15 gte_r
+	gte9 gte10 gte11 gte12 gte13 gte14 gte15
 ];
 
 @ifdef MIPS64
@@ -458,6 +458,19 @@ define token instr(32)
     base1       = (21,25)
     base2       = (21,25)
     base3       = (21,25)
+    base4       = (21,25)
+    base5       = (21,25)
+    base6       = (21,25)
+    base7       = (21,25)
+    base8       = (21,25)
+    base9       = (21,25)
+    base10      = (21,25)
+    base11      = (21,25)
+    base12      = (21,25)
+    base13      = (21,25)
+    base14      = (21,25)
+    base15      = (21,25)
+    base16      = (21,25)
     format      = (21,25)
     copop       = (21,25)
     mfmc0       = (21,25)
@@ -573,7 +586,7 @@ define token instr(32)
     simmed11	= (0,10)
 ;
 
-attach variables [ rs rt rt1 rt2 rt3 rt4 rd base base1 base2 base3 index baser6 ] [ 
+attach variables [ rs rt rt1 rt2 rt3 rt4 rd base base1 base2 base3 base4 base5 base6 base7 base8 base9 base10 base11 base12 base13 base14 base15 base16 index baser6 ] [ 
     zero  at  v0  v1  a0  a1  a2  a3
     t0    t1  t2  t3  t4  t5  t6  t7
     s0    s1  s2  s3  s4  s5  s6  s7
@@ -791,11 +804,6 @@ macro ValCast(dest,src) {
 @endif
 
 OFF_BASE: simmed(base)  is simmed & base    { tmp:$(REGSIZE) = base + simmed; tmpscaled:$(ADDRSIZE) = 0; ValCast(tmpscaled,tmp); export tmpscaled; }
-OFF_BASE1: simmed1(base1)  is simmed1 & base1    { tmp:$(REGSIZE) = base1 + simmed1; tmpscaled:$(ADDRSIZE) = 0; ValCast(tmpscaled,tmp); export tmpscaled; }
-OFF_BASE2: simmed2(base2)  is simmed2 & base2    { tmp:$(REGSIZE) = base2 + simmed2; tmpscaled:$(ADDRSIZE) = 0; ValCast(tmpscaled,tmp); export tmpscaled; }
-OFF_BASE3: simmed3(base3)  is simmed3 & base3    { tmp:$(REGSIZE) = base3 + simmed3; tmpscaled:$(ADDRSIZE) = 0; ValCast(tmpscaled,tmp); export tmpscaled; }
-OFF_BASE4: simmed(base)  is simmed & base    { tmp:$(REGSIZE) = base + simmed; tmpscaled:$(ADDRSIZE) = 0; ValCast(tmpscaled,tmp); export tmpscaled; }
-OFF_BASE5: simmed(base)  is simmed & base    { tmp:$(REGSIZE) = base + simmed; tmpscaled:$(ADDRSIZE) = 0; ValCast(tmpscaled,tmp); export tmpscaled; }
 INDEX_BASE: index(base) is index & base     { tmp:$(REGSIZE) = base + index; tmpscaled:$(ADDRSIZE) = 0; ValCast(tmpscaled,tmp); export tmpscaled; }
 
 OFF_BASER6: simmed(base)	is REL6=0 & simmed & base	{ tmp:$(REGSIZE) = base + simmed; tmpscaled:$(ADDRSIZE) = 0; ValCast(tmpscaled,tmp); export tmpscaled; }

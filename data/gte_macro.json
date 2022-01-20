@@ -36,7 +36,7 @@
 
     {
         "name": "gte_ldv01c",
-        "args": [ "SVECTOR [2]" ]
+        "args": [ "SVECTOR *" ]
     },
 
     {
@@ -71,7 +71,7 @@
 
     {
         "name": "gte_ldbv",
-        "args": [ "char [2]" ]
+        "args": [ "char *" ]
     },
 
     {
@@ -221,22 +221,22 @@
 
     {
         "name": "gte_ld_intpol_uv0",
-        "args": [ "char [2]" ]
+        "args": [ "char *" ]
     },
 
     {
         "name": "gte_ld_intpol_uv1",
-        "args": [ "char [2]" ]
+        "args": [ "char *" ]
     },
 
     {
         "name": "gte_ld_intpol_bv0",
-        "args": [ "char [2]" ]
+        "args": [ "char *" ]
     },
 
     {
         "name": "gte_ld_intpol_bv1",
-        "args": [ "char [2]" ]
+        "args": [ "char *" ]
     },
 
     {
@@ -251,7 +251,7 @@
 
     {
         "name": "gte_ldfc",
-        "args": [ "long [3]" ]
+        "args": [ "long *" ]
     },
 
     {
@@ -266,7 +266,7 @@
 
     {
         "name": "gte_stsxy3c",
-        "args": [ "long [3]" ]
+        "args": [ "long *" ]
     },
 
     {
@@ -291,7 +291,7 @@
 
     {
         "name": "gte_stsxy01c",
-        "args": [ "long [2]" ]
+        "args": [ "long *" ]
     },
 
     {
@@ -426,7 +426,7 @@
 
     {
         "name": "gte_stbv",
-        "args": [ "char [2]" ]
+        "args": [ "char *" ]
     },
 
     {
@@ -501,7 +501,7 @@
 
     {
         "name": "gte_stfc",
-        "args": [ "long [3]" ]
+        "args": [ "long *" ]
     },
 
     {
@@ -522,5 +522,240 @@
     {
         "name": "gte_adddvd",
         "args": [ "DVECTOR *", "DVECTOR *", "DVECTOR *" ]
+    },
+
+    {
+        "name": "gte_RotTransPers",
+        "args": [ "SVECTOR *", "long *", "long *", "long *", "long *" ]
+    },
+
+    {
+        "name": "gte_RotTransPers3",
+        "args": [ "SVECTOR *", "SVECTOR *", "SVECTOR *", "long *", "long *", "long *", "long *", "long *", "long *" ]
+    },
+
+    {
+        "name": "gte_RotTrans",
+        "args": [ "SVECTOR *", "VECTOR *", "long *" ]
+    },
+
+    {
+        "name": "gte_LocalLight",
+        "args": [ "SVECTOR *", "VECTOR *" ]
+    },
+
+    {
+        "name": "gte_LightColor",
+        "args": [ "VECTOR *", "VECTOR *" ]
+    },
+
+    {
+        "name": "gte_DpqColorLight",
+        "args": [ "VECTOR *", "CVECTOR *", "long", "CVECTOR *" ]
+    },
+
+    {
+        "name": "gte_DpqColor",
+        "args": [ "CVECTOR *", "long", "CVECTOR *" ]
+    },
+
+    {
+        "name": "gte_DpqColor3",
+        "args": [ "CVECTOR *", "CVECTOR *", "CVECTOR *", "long", "CVECTOR *", "CVECTOR *", "CVECTOR *" ]
+    },
+
+    {
+        "name": "gte_Intpl",
+        "args": [ "VECTOR *", "long", "CVECTOR *" ]
+    },
+
+    {
+        "name": "gte_Square12",
+        "args": [ "VECTOR *", "VECTOR *" ]
+    },
+ 
+    {
+        "name": "gte_Square0",
+        "args": [ "VECTOR *", "VECTOR *" ]
+    },
+ 
+    {
+        "name": "gte_NormalColor",
+        "args": [ "SVECTOR *", "CVECTOR *" ]
+    },
+
+    {
+        "name": "gte_NormalColor3",
+        "args": [ "SVECTOR *", "SVECTOR *", "SVECTOR *", "CVECTOR *", "CVECTOR *", "CVECTOR *" ]
+    },
+
+    {
+        "name": "gte_NormalColorDpq",
+        "args": [ "SVECTOR *", "CVECTOR *", "long", "CVECTOR *" ]
+    },
+
+    {
+        "name": "gte_NormalColorDpq3",
+        "args": [ "SVECTOR *", "SVECTOR *", "SVECTOR *", "CVECTOR *", "long", "CVECTOR *", "CVECTOR *", "CVECTOR *" ]
+    },
+
+    {
+        "name": "gte_NormalColorCol",
+        "args": [ "SVECTOR *", "CVECTOR *", "CVECTOR *" ]
+    },
+
+    {
+        "name": "gte_NormalColorCol3",
+        "args": [ "SVECTOR *", "SVECTOR *", "SVECTOR *", "CVECTOR *", "CVECTOR *", "CVECTOR *", "CVECTOR *" ]
+    },
+
+    {
+        "name": "gte_ColorDpq",
+        "args": [ "VECTOR *", "CVECTOR *", "long", "CVECTOR *" ]
+    },
+
+    {
+        "name": "gte_ColorCol",
+        "args": [ "VECTOR *", "CVECTOR *", "CVECTOR *" ]
+    },
+
+    {
+        "name": "gte_NormalClip",
+        "args": [ "long", "long", "long", "long *" ]
+    },
+
+    {
+        "name": "gte_AverageZ3",
+        "args": [ "long", "long", "long", "long *" ]
+    },
+
+    {
+        "name": "gte_AverageZ4",
+        "args": [ "long", "long", "long", "long", "long *" ]
+    },
+
+    {
+        "name": "gte_OuterProduct12",
+        "args": [ "VECTOR *", "VECTOR *", "VECTOR *" ]
+    },
+
+    {
+        "name": "gte_OuterProduct0",
+        "args": [ "VECTOR *", "VECTOR *", "VECTOR *" ]
+    },
+
+    {
+        "name": "gte_OuterProduct12SVL",
+        "args": [ "SVECTOR *", "SVECTOR *", "VECTOR *" ]
+    },
+
+    {
+        "name": "gte_OuterProduct0SVL",
+        "args": [ "SVECTOR *", "SVECTOR *", "VECTOR *" ]
+    },
+
+    {
+        "name": "gte_OuterProduct12SV",
+        "args": [ "SVECTOR *", "SVECTOR *", "SVECTOR *" ]
+    },
+
+    {
+        "name": "gte_OuterProduct0SV",
+        "args": [ "SVECTOR *", "SVECTOR *", "SVECTOR *" ]
+    },
+
+    {
+        "name": "gte_Lzc",
+        "args": [ "long", "long *" ]
+    },
+
+    {
+        "name": "gte_RotAverage3",
+        "args": [ "SVECTOR *", "SVECTOR *", "SVECTOR *", "long *", "long *", "long *", "long *", "long *", "long *" ]
+    },
+
+    {
+        "name": "gte_RotNclip3",
+        "args": [ "SVECTOR *", "SVECTOR *", "SVECTOR *", "long *", "long *", "long *", "long *", "long *", "long *", "long *" ]
+    },
+
+    {
+        "name": "gte_RotAverageNclip3",
+        "args": [ "SVECTOR *", "SVECTOR *", "SVECTOR *", "long *", "long *", "long *", "long *", "long *", "long *", "long *" ]
+    },
+
+    {
+        "name": "gte_RotColorDpq",
+        "args": [ "SVECTOR *", "SVECTOR *", "CVECTOR *", "long *", "CVECTOR *", "long *", "long *" ]
+    },
+
+    {
+        "name": "gte_RotColorDpq3",
+        "args": [ "SVECTOR *", "SVECTOR *", "SVECTOR *", "SVECTOR *", "SVECTOR *", "SVECTOR *", "CVECTOR *", "long *", "long *", "long *", "CVECTOR *", "CVECTOR *", "CVECTOR *", "long *", "long *" ]
+    },
+
+    {
+        "name": "gte_RotAverageNclipColorDpq3",
+        "args": [ "SVECTOR *", "SVECTOR *", "SVECTOR *", "SVECTOR *", "SVECTOR *", "SVECTOR *", "CVECTOR *", "long *", "long *", "long *", "CVECTOR *", "CVECTOR *", "CVECTOR *", "long *", "long *", "long *" ]
+    },
+
+    {
+        "name": "gte_RotAverageNclipColorCol3",
+        "args": [ "SVECTOR *", "SVECTOR *", "SVECTOR *", "SVECTOR *", "SVECTOR *", "SVECTOR *", "CVECTOR *", "long *", "long *", "long *", "CVECTOR *", "CVECTOR *", "CVECTOR *", "long *", "long *", "long *" ]
+    },
+
+    {
+        "name": "gte_LoadAverage12",
+        "args": [ "VECTOR *", "VECTOR *", "long", "long", "VECTOR *" ]
+    },
+
+    {
+        "name": "gte_LoadAverage0",
+        "args": [ "VECTOR *", "VECTOR *", "long", "long", "VECTOR *" ]
+    },
+
+    {
+        "name": "gte_LoadAverageShort12",
+        "args": [ "SVECTOR *", "SVECTOR *", "long", "long", "SVECTOR *" ]
+    },
+
+    {
+        "name": "gte_LoadAverageShort0",
+        "args": [ "SVECTOR *", "SVECTOR *", "long", "long", "SVECTOR *" ]
+    },
+
+    {
+        "name": "gte_LoadAverageByte",
+        "args": [ "char *", "char *", "long", "long", "char *" ]
+    },
+
+    {
+        "name": "gte_LoadAverageCol",
+        "args": [ "CVECTOR *", "CVECTOR *", "long", "long", "CVECTOR *" ]
+    },
+
+    {
+        "name": "gte_MulMatrix0",
+        "args": [ "MATRIX *", "MATRIX *", "MATRIX *" ]
+    },
+
+    {
+        "name": "gte_ApplyMatrix",
+        "args": [ "MATRIX *", "SVECTOR *", "VECTOR *" ]
+    },
+
+    {
+        "name": "gte_ApplyMatrixSV",
+        "args": [ "MATRIX *", "SVECTOR *", "SVECTOR *" ]
+    },
+
+    {
+        "name": "gte_CompMatrix",
+        "args": [ "MATRIX *", "MATRIX *", "MATRIX *" ]
+    },
+
+    {
+        "name": "gte_ApplyRotMatrix",
+        "args": [ "SVECTOR *", "VECTOR *" ]
     }
 ]
