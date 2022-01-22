@@ -17,6 +17,14 @@ Video tutorial on how to deal with overlays: https://youtu.be/DuQQfjTkkQc
 * In case you have a directory with OBJ-files extracted from a LIB-file, create an empty `PSYQ_LIBNAME_XXX` file, where `LIBNAME` is your LIB-file name (for ex. `LIBSND`) and `XXX` is PSYQ version number according to [this list](https://github.com/lab313ru/psx_psyq_signatures).
 * In case you want to batch-import all OBJ-files for a LIB-file or import a standalone OBJ-file (like `8MBYTE.OBJ`), create an empty `PSYQ_XXX` file, where `XXX` is PSYQ version number according to [this list](https://github.com/lab313ru/psx_psyq_signatures).
 
+# Decompiling GTE macroses in your old projects
+If you have some Ghidra project which has been created before `01/22/2022`, in order to decompile any GTE related stuff it requires to undefine (*select disasm lines and press `C`*) and disassemble (*press `D`*) instructions again, because Ghidra's decompiler uses disasm and Pcodes information stored in a project.
+
+# Fixing a problem with "`psyq/xx`" cannot be found:
+- Go to `Edit`->`Options for 'blabla'`->`Program information`->`PsyQ Version` field
+- Add `.0` there
+![Screen8](/imgs/screen8.png?raw=true)
+
 # Patches format ([example here](https://github.com/lab313ru/psx_psyq_signatures/blob/main/patches.json))
 
 * `~` - is for replacing some pattern in a signature. check field is the original bytes in the signature to compare with
