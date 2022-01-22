@@ -1,3 +1,4 @@
+define pcodeop gte_ldsv_;
 define pcodeop gte_ldsxy3;
 define pcodeop gte_ldsz3;
 define pcodeop gte_ldsz4;
@@ -472,6 +473,10 @@ macro MacroCall16(idx,r0,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15) {
 
 :ldlvl base  is lwc2_9_0 & base; lwc2_10_4; lwc2_11_8 {
     MacroCall1($(ldlvl_idx),base);
+}
+
+:ldsv_ RTsrc1,RTsrc2,RTsrc3  is mtc2_x_9 & RTsrc1; mtc2_x_10 & RTsrc2; mtc2_x_11 & RTsrc3 {
+    gte_ldsv_(RTsrc1,RTsrc2,RTsrc3);
 }
 
 :ldsv base  is lhu_12_0 & base; lhu_13_2; lhu_14_4; mtc2_12_9; mtc2_13_10; mtc2_14_11 {
