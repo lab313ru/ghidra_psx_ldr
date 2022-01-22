@@ -758,7 +758,7 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 	
 	public static final String GTEMAC = "GTEMAC";
 	
-	public static void addGteMacroSpace(Program program, DataTypeManager mgr, MessageLog log) throws IOException, InvalidInputException, DuplicateNameException, LockException, IllegalArgumentException, MemoryConflictException, AddressOverflowException, CodeUnitInsertionException {
+	private static List<PsxGteMacro> preloadGteMacroses() throws IOException {
 		File gteMacroFile = Application.getModuleDataFile("gte_macro.json").getFile(false);
 		JsonArray gteMacroses = Utils.jsonArrayFromFile(gteMacroFile.getAbsolutePath());
 		
@@ -779,13 +779,24 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 			macroses.add(new PsxGteMacro(name, args.toArray(String[]::new)));
 		}
 		
+		return macroses;
+	}
+	
+	public static void addGteMacroSpace(Program program, DataTypeManager mgr, MessageLog log) throws IOException, InvalidInputException, DuplicateNameException, LockException, IllegalArgumentException, MemoryConflictException, AddressOverflowException, CodeUnitInsertionException {
+		List<PsxGteMacro> macroses = preloadGteMacroses();
+		
 		Listing listing = program.getListing();
 		AddressSpace defSpace = program.getAddressFactory().getDefaultAddressSpace();
 		Address start = defSpace.getAddress(0x20000000L);
 		
-		if (program.getMemory().getBlock(GTEMAC) != null) {
-			return;
+		MemoryBlock gteMacBlock = program.getMemory().getBlock(GTEMAC); 
+		if (gteMacBlock != null) {
+			if (macroses.size() * 4 == gteMacBlock.getSize()) {
+				return;
+			}
+			program.getMemory().removeBlock(gteMacBlock, TaskMonitor.DUMMY);
 		}
+		
 		createUnitializedSegment(program, "GTEMAC", start, macroses.size() * 4, false, true, log);
 		
 		Pattern pat = Pattern.compile("^.+?\\[(\\d+)\\]$");
