@@ -405,8 +405,8 @@ gpl0_: is nop1; nop2; is_cop2 & cofun=0x01A0003E {}
 }
 
 rt_: is nop1; nop2; is_cop2_mvmva & cop2_sf=1 & cop2_mx & cop2_v & cop2_cv & cop2_lm {}
-:nMVMVA cop2_sf,cop2_mx,cop2_v,cop2_cv,cop2_lm is nop1; nop2; is_cop2_mvmva & cop2_sf & cop2_mx & cop2_v & cop2_cv & cop2_lm {
-    gte_mvmva(cop2_sf:1,cop2_mx:2,cop2_v:2,cop2_cv:2,cop2_lm:1);
+:nMVMVA cop2_sf,cop2_mx,cop2_v,cop2_cv,cop2_lm is nop1; nop2; is_cop2_mvmva & cop2_sf=0 & cop2_mx & cop2_v & cop2_cv & cop2_lm {
+    gte_mvmva(cop2_sf:1,cop2_mx:1,cop2_v:1,cop2_cv:1,cop2_lm:1);
 }
 
 sqr0_: is nop1; nop2; is_cop2 & cofun=0x00A00428 & cop2_sf {}
