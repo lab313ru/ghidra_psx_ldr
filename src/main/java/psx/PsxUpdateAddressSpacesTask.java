@@ -155,6 +155,10 @@ public class PsxUpdateAddressSpacesTask extends Task {
 	private void workWithToken(AddressSpace constSpace, ClangToken token, final Address funcAddr, final Address newAddr, boolean store) {		
 		PcodeOp op = token.getPcodeOp();
 		
+		if (op == null) {
+			return;
+		}
+		
 		int spaceId = newAddr.getAddressSpace().getSpaceID();
 		int lineNum = token.getLineParent().getLineNumber();
 		
