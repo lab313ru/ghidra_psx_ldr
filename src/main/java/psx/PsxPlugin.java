@@ -86,7 +86,7 @@ public class PsxPlugin extends ProgramPlugin {
 	
 	@Override
 	public void programActivated(Program program) {
-		if (PsxAnalyzer.isPsxLoader(program)) {
+		if (PsxAnalyzer.isPsxLoaderOrPsxLanguage(program)) {
 			createOmAction();
 
 			oldMap = getOverrides(program);

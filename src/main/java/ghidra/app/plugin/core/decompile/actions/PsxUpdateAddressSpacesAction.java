@@ -42,7 +42,7 @@ public class PsxUpdateAddressSpacesAction extends AbstractDecompilerAction {
 
 	@Override
 	protected boolean isEnabledForDecompilerContext(DecompilerActionContext context) {
-		if (!PsxAnalyzer.isPsxLoader(context.getProgram())) {
+		if (!PsxAnalyzer.isPsxLoaderOrPsxLanguage(context.getProgram())) {
 			return false;
 		}
 		

@@ -36,8 +36,9 @@ public class PsxAnalyzer extends AbstractAnalyzer {
 	private final String MIN_ENTROPY = "Minimal signature entropy";
 	private final String MANUAL_VER_OPTION = "PsyQ Version if not found";
 	
-	public static boolean isPsxLoader(Program program) {
-		return program.getExecutableFormat().equalsIgnoreCase(PsxLoader.PSX_LOADER);
+	public static boolean isPsxLoaderOrPsxLanguage(Program program) {
+		return program.getExecutableFormat().equalsIgnoreCase(PsxLoader.PSX_LOADER) ||
+				program.getLanguageID().equals(new LanguageID(PsxLoader.PSX_LANG_ID));
 	}
 	
 	public PsxAnalyzer() {
@@ -50,12 +51,12 @@ public class PsxAnalyzer extends AbstractAnalyzer {
 	
 	@Override
 	public boolean getDefaultEnablement(Program program) {
-		return isPsxLoader(program);
+		return isPsxLoaderOrPsxLanguage(program);
 	}
 
 	@Override
 	public boolean canAnalyze(Program program) {
-		return isPsxLoader(program);
+		return isPsxLoaderOrPsxLanguage(program);
 	}
 	
 	@Override
@@ -121,14 +122,10 @@ public class PsxAnalyzer extends AbstractAnalyzer {
 			DataTypeManager mgr = PsxLoader.loadPsyqGdt(program, set, log, true);
 			monitor.setMessage("Applying PsyQ functions and data types done.");
 			
-			boolean gteFuncsCreated = program.getMemory().getBlock(PsxLoader.GTEMAC) != null;
-			
-			if (!gteFuncsCreated) {
-				monitor.setMessage("Creating GTE macro call functions...");
-				monitor.clearCanceled();
-				PsxLoader.addGteMacroSpace(program, mgr, log);
-				monitor.setMessage("Creating GTE macro call functions done.");
-			}
+			monitor.setMessage("Creating GTE macro call functions...");
+			monitor.clearCanceled();
+			PsxLoader.addGteMacroSpace(program, mgr, log);
+			monitor.setMessage("Creating GTE macro call functions done.");
 		} catch (Exception e) {
 			e.printStackTrace();
 			log.appendException(e);
