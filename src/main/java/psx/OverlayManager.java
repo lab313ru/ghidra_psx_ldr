@@ -23,6 +23,7 @@ import ghidra.program.model.mem.MemoryBlock;
 import ghidra.util.MessageType;
 import ghidra.util.Msg;
 import ghidra.util.NamingUtilities;
+import ghidra.util.exception.NoValueException;
 import ghidra.util.exception.NotFoundException;
 import ghidra.util.task.TaskMonitor;
 
@@ -250,7 +251,7 @@ public class OverlayManager extends JPanel {
 	}
 	
 	private void setEnabledNewBlock(boolean enabled) {
-		boolean more = refreshOverlaysList();
+		refreshOverlaysList();
 		
 		lblBlockName.setEnabled(enabled);
 		blockName.setEnabled(enabled);
@@ -258,7 +259,7 @@ public class OverlayManager extends JPanel {
 		blockStart.setEnabled(enabled);
 		btnNewBlock.setEnabled(enabled);
 		
-		overlaysList.setEnabled(more);
+		overlaysList.setEnabled(false);
 	}
 	
 	private boolean refreshOverlaysList() {
@@ -305,9 +306,11 @@ public class OverlayManager extends JPanel {
 	private boolean addressChanged() {
 		btnNewBlock.setEnabled(false);
 		long addr = blockStart.getValue();
+		
+		long ramBase = program.getImageBase().getOffset();
 
-		if ((addr < PsxLoader.ramBase) || (addr >= (PsxLoader.ramBase + PsxLoader.RAM_SIZE))) {
-			provider.setStatusText(String.format("An address must be in range: %08X-%08X", PsxLoader.ramBase, PsxLoader.ramBase + PsxLoader.RAM_SIZE - 1));
+		if ((addr < ramBase) || (addr >= (ramBase + PsxLoader.RAM_SIZE))) {
+			provider.setStatusText(String.format("An address must be in range: %08X-%08X", ramBase, ramBase + PsxLoader.RAM_SIZE - 1));
 			return false;
 		}
 		
@@ -413,7 +416,8 @@ public class OverlayManager extends JPanel {
 					program.endTransaction(tranId, true);
 					
 					MessageLog log = new MessageLog();
-					PsxLoader.setRegisterValue(program, "gp", block.getStart(), block.getEnd(), PsxLoader.psxGpReg, log);
+					long psxGpReg = PsxLoader.getGpBase(program);
+					PsxLoader.setRegisterValue(program, "gp", block.getStart(), block.getEnd(), psxGpReg, log);
 					
 					refreshBlocks();
 					checkNameAndAddress();
@@ -424,6 +428,8 @@ public class OverlayManager extends JPanel {
 					Msg.showError(this, OverlayManager.this, "Error", "Cannot read overlay file!", e1);
 				} catch (MemoryAccessException e1) {
 					Msg.showError(this, OverlayManager.this, "Error", "Cannot set block data!", e1);
+				} catch (NoValueException e1) {
+					Msg.showError(this, OverlayManager.this, "Error", "Cannot get GP value!", e1);
 				}
 			}
 		});

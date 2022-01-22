@@ -45,6 +45,7 @@ import ghidra.app.util.opinion.AbstractLibrarySupportLoader;
 import ghidra.app.util.opinion.LoadSpec;
 import ghidra.framework.Application;
 import ghidra.framework.model.DomainObject;
+import ghidra.framework.options.Options;
 import ghidra.program.flatapi.FlatProgramAPI;
 import ghidra.program.model.address.Address;
 import ghidra.program.model.data.ByteDataType;
@@ -65,6 +66,7 @@ import ghidra.program.model.util.CodeUnitInsertionException;
 import ghidra.util.exception.CancelledException;
 import ghidra.util.exception.InvalidInputException;
 import ghidra.util.task.TaskMonitor;
+import psx.PsxLoader;
 import psx.Utils;
 import psyq.structs.*;
 
@@ -112,7 +114,7 @@ public class PsyqLoader extends AbstractLibrarySupportLoader {
 			int version = reader.readByte(3);
 			
 			if (version == 2) {
-				loadSpecs.add(new LoadSpec(this, 0, new LanguageCompilerSpecPair("PSX:LE:32:default", "default"), true));
+				loadSpecs.add(new LoadSpec(this, 0, new LanguageCompilerSpecPair(PsxLoader.PSX_LANG_ID, "default"), true));
 			}
 		}
 
@@ -199,6 +201,9 @@ public class PsyqLoader extends AbstractLibrarySupportLoader {
 	@Override
 	protected void load(ByteProvider provider, LoadSpec loadSpec, List<Option> options, Program program, TaskMonitor monitor, MessageLog log)
 			throws CancelledException, IOException {
+		
+		Options aOpts = program.getOptions(Program.ANALYSIS_PROPERTIES);
+		aOpts.setBoolean("Non-Returning Functions - Discovered", false);
 		
 		SymbolTable symTbl = program.getSymbolTable();
 		Listing listing = program.getListing();

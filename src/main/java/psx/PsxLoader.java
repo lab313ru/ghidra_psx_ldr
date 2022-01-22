@@ -51,6 +51,7 @@ import ghidra.program.model.address.AddressOutOfBoundsException;
 import ghidra.program.model.address.AddressOverflowException;
 import ghidra.program.model.address.AddressRange;
 import ghidra.program.model.address.AddressRangeImpl;
+import ghidra.program.model.address.AddressRangeIterator;
 import ghidra.program.model.address.AddressSetView;
 import ghidra.program.model.address.AddressSpace;
 import ghidra.program.model.data.ArrayDataType;
@@ -62,6 +63,7 @@ import ghidra.program.model.data.DataUtilities.ClearDataMode;
 import ghidra.program.model.data.PointerDataType;
 import ghidra.program.model.data.VoidDataType;
 import ghidra.program.model.lang.LanguageCompilerSpecPair;
+import ghidra.program.model.lang.Register;
 import ghidra.program.model.lang.RegisterValue;
 import ghidra.program.model.listing.ContextChangeException;
 import ghidra.program.model.listing.Function;
@@ -70,6 +72,8 @@ import ghidra.program.model.listing.Instruction;
 import ghidra.program.model.listing.Listing;
 import ghidra.program.model.listing.ParameterImpl;
 import ghidra.program.model.listing.Program;
+import ghidra.program.model.listing.ProgramContext;
+import ghidra.program.model.listing.ProgramUserData;
 import ghidra.program.model.mem.Memory;
 import ghidra.program.model.mem.MemoryAccessException;
 import ghidra.program.model.mem.MemoryBlock;
@@ -80,8 +84,10 @@ import ghidra.program.model.symbol.Reference;
 import ghidra.program.model.symbol.SourceType;
 import ghidra.program.model.symbol.SymbolTable;
 import ghidra.program.model.util.CodeUnitInsertionException;
+import ghidra.program.model.util.LongPropertyMap;
 import ghidra.util.exception.DuplicateNameException;
 import ghidra.util.exception.InvalidInputException;
+import ghidra.util.exception.NoValueException;
 import ghidra.util.exception.NotFoundException;
 import ghidra.util.task.TaskMonitor;
 import psyq.DetectPsyQ;
@@ -146,10 +152,14 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 	public static final String PSX_LOADER = "PSX Executables Loader";
 	
 	private PsxExe psxExe;
+	private static final String GPBASE = "GPBASE";
+	private static final long GPBASE_ADDR = DEF_RAM_BASE + 0x1000;
 	
 	private static final String OPTION_NAME = "RAM Base Address: ";
-	public static long ramBase = DEF_RAM_BASE;
-	public static long psxGpReg = DEF_RAM_BASE;
+	private long ramBase = DEF_RAM_BASE;
+	
+	public static final String PSX_LANG_ID = "PSX:LE:32:default";
+	public static final String PSX_LANG_SPEC_ID = "default";
 
 	@Override
 	public String getName() {
@@ -165,7 +175,7 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 		psxExe = new PsxExe(reader);
 		
 		if (psxExe.isParsed()) {
-			loadSpecs.add(new LoadSpec(this, 0, new LanguageCompilerSpecPair("PSX:LE:32:default", "default"), true));
+			loadSpecs.add(new LoadSpec(this, 0, new LanguageCompilerSpecPair(PSX_LANG_ID, "default"), true));
 		}
 
 		return loadSpecs;
@@ -278,11 +288,10 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 		}
 		
 		addPsyqVerOption(program, ramBase, log);
-		psxGpReg = psxExe.getInitGp();
-		//setRegisterValue(program, "sp", fpa.toAddr(psxExe.getInitPc()), psxExe.getSpBase() + psxExe.getSpOff(), log);
+		setGpBase(program, psxExe.getInitGp());
 		
 		for (final AddressRange range : segments) {
-			setRegisterValue(program, "gp", range.getMinAddress(), range.getMaxAddress(), psxGpReg, log);
+			setRegisterValue(program, "gp", range.getMinAddress(), range.getMaxAddress(), psxExe.getInitGp(), log);
 		}
 		
 		Address romStart = fpa.toAddr(psxExe.getRomStart());
@@ -293,6 +302,37 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 		}
 		
 		monitor.setMessage("Loading PSX binary done.");
+	}
+	
+	public static long getGpBase(Program program) throws NoValueException {
+		ProgramUserData data = program.getProgramUserData();
+		
+		int transactionId = data.startTransaction();
+		LongPropertyMap map = data.getLongProperty(PsxPlugin.class.getName(), GPBASE, true);
+		Address objAddress = program.getAddressFactory().getDefaultAddressSpace().getAddress(GPBASE_ADDR);
+
+		data.endTransaction(transactionId);
+		if (map.hasProperty(objAddress)) {
+			return map.getLong(objAddress);
+		}
+		
+		long gpRegVal = getRegisterValue(program, "gp", program.getImageBase());
+		setGpBase(program, gpRegVal);
+		
+		return gpRegVal;
+	}
+	
+	public static void setGpBase(Program program, long newRamBase) {
+		ProgramUserData data = program.getProgramUserData();
+		
+		int transactionId = data.startTransaction();
+		LongPropertyMap map = data.getLongProperty(PsxPlugin.class.getName(), GPBASE, true);
+		
+		Address objAddress = program.getAddressFactory().getDefaultAddressSpace().getAddress(GPBASE_ADDR);
+		map.remove(objAddress);
+		map.add(objAddress, newRamBase);
+		
+		data.endTransaction(transactionId);
 	}
 	
 	public static DataTypeManagerService getDataTypeManagerService(Program program) {
@@ -412,6 +452,25 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 		}
 	}
 	
+	public static long getRegisterValue(Program program, String name, Address start) {
+		Register gpReg = program.getRegister(name);
+		ProgramContext ctx = program.getProgramContext();
+		
+		AddressRangeIterator it = ctx.getRegisterValueAddressRanges(gpReg);
+		
+		while (it.hasNext()) {
+			AddressRange addrRange = it.next();
+			
+			Address minAddr = addrRange.getMinAddress(); 
+			if (!minAddr.equals(minAddr.getNewAddress(DEF_RAM_BASE))) {
+				BigInteger value = ctx.getValue(gpReg, addrRange.getMinAddress(), false);
+				return value.longValue();
+			}
+		}
+		
+		return DEF_RAM_BASE;
+	}
+	
 	private static void disasmInstruction(Program program, Address address) {
 		DisassembleCommand cmd = new DisassembleCommand(address, null, true);
 		cmd.applyTo(program, TaskMonitor.DUMMY);
@@ -490,7 +549,7 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 		return jalMainRefs[0];
 	}
 	
-	private static void createCompilerSegments(ByteProvider provider, FlatProgramAPI fpa, Address searchAddress, Reference mainRef, MessageLog log) {
+	private void createCompilerSegments(ByteProvider provider, FlatProgramAPI fpa, Address searchAddress, Reference mainRef, MessageLog log) {
 		Program program = fpa.getCurrentProgram();
 		Memory mem = program.getMemory();
 		Listing listing = program.getListing();
@@ -595,8 +654,7 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 			_sdata_block.setWrite(true);
 			_sdata_block.setExecute(false);
 			
-			psxGpReg = _sdata_addr.getOffset();
-			//setRegisterValue(program, "gp", mainRef.getToAddress(), _sdata_addr.getOffset(), log);
+			setGpBase(program, _sdata_addr.getOffset());
 			
 			Address _sbss_addr = fpa.toAddr((sbss1.getUnsignedValue() << 16) + ((Scalar)(sbss2[0])).getSignedValue());
 			MemoryBlock _sbss_block = mem.getBlock(_sbss_addr);
