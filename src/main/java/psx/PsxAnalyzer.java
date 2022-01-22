@@ -6,23 +6,21 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import ghidra.app.plugin.processors.sleigh.SleighLanguageProvider;
 import ghidra.app.services.AbstractAnalyzer;
 import ghidra.app.services.AnalyzerType;
 import ghidra.app.util.importer.MessageLog;
 import ghidra.framework.Application;
 import ghidra.framework.options.Options;
-import ghidra.framework.store.LockException;
 import ghidra.program.model.address.Address;
-import ghidra.program.model.address.AddressOverflowException;
 import ghidra.program.model.address.AddressRange;
 import ghidra.program.model.address.AddressRangeIterator;
 import ghidra.program.model.address.AddressSetView;
 import ghidra.program.model.data.DataTypeManager;
+import ghidra.program.model.lang.CompilerSpecID;
+import ghidra.program.model.lang.Language;
+import ghidra.program.model.lang.LanguageID;
 import ghidra.program.model.listing.Program;
-import ghidra.program.model.mem.MemoryConflictException;
-import ghidra.program.model.util.CodeUnitInsertionException;
-import ghidra.util.exception.DuplicateNameException;
-import ghidra.util.exception.InvalidInputException;
 import ghidra.util.task.TaskMonitor;
 import psyq.SigApplier;
 
@@ -81,6 +79,15 @@ public class PsxAnalyzer extends AbstractAnalyzer {
 	@Override
 	public boolean added(Program program, AddressSetView set, TaskMonitor monitor, MessageLog log) {
 		try {
+			if (!program.getLanguageID().getIdAsString().equals(PsxLoader.PSX_LANG_ID)) {
+				SleighLanguageProvider lngProv = new SleighLanguageProvider();
+				LanguageID langId = new LanguageID(PsxLoader.PSX_LANG_ID);
+				Language lng = lngProv.getLanguage(langId);
+				CompilerSpecID specId = new CompilerSpecID(PsxLoader.PSX_LANG_SPEC_ID);
+				
+				program.setLanguage(lng, specId, false, monitor);
+			}
+			
 			String psyqVersion = PsxLoader.getProgramPsyqVersion(program);
 			
 			if (psyqVersion.isEmpty() && !manualVer.isEmpty()) {
@@ -122,7 +129,7 @@ public class PsxAnalyzer extends AbstractAnalyzer {
 				PsxLoader.addGteMacroSpace(program, mgr, log);
 				monitor.setMessage("Creating GTE macro call functions done.");
 			}
-		} catch (IOException | InvalidInputException | DuplicateNameException | LockException | IllegalArgumentException | MemoryConflictException | AddressOverflowException | CodeUnitInsertionException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 			log.appendException(e);
 			return false;
