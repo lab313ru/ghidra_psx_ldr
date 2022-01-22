@@ -1,3 +1,4 @@
+define pcodeop gte_rt;
 define pcodeop gte_rtps;
 define pcodeop gte_rtpt;
 define pcodeop gte_rtv0;
@@ -131,7 +132,8 @@ define pcodeop gte_gpl0_b;
 
 is_nop: is $(AMODE) & prime=0 & rs=0 & rt=0 & rd=0 & sa=0 & fct=0 {}
 is_cop2: is $(AMODE) & prime=0x12 & bit25=1 {}
-is_cop2_mvmva: is is_cop2 & cop2_mvmva1=0x12 & cop2_mvmva2=0x4 {}
+is_cop2_mvmva_rt: is is_cop2 & cop2_sf=1 & cop2_mvmva1=0x12 & cop2_mvmva2=0x4 {}
+is_cop2_mvmva: is is_cop2 & cop2_sf=0 & cop2_mvmva1=0x12 & cop2_mvmva2=0x4 {}
 
 nop1: is is_nop {}
 nop2: is is_nop {}
@@ -168,6 +170,10 @@ rtir_3: is nop1; nop2; is_cop2 & cofun=0x0049E012 {}
 
 :nRTIR_SF0  is nop1; nop2; is_cop2 & cofun=0x0041E012 {
     gte_rtir_sf0();
+}
+
+:nRT  is nop1; nop2; is_cop2 & cofun=0x00480012 {
+    gte_rt();
 }
 
 :nRTV1TR  is nop1; nop2; is_cop2 & cofun=0x00488012 {
@@ -404,8 +410,8 @@ gpl0_: is nop1; nop2; is_cop2 & cofun=0x01A0003E {}
     gte_gpl0();
 }
 
-rt_: is nop1; nop2; is_cop2_mvmva & cop2_sf=1 & cop2_mx & cop2_v & cop2_cv & cop2_lm {}
-:nMVMVA cop2_sf,cop2_mx,cop2_v,cop2_cv,cop2_lm is nop1; nop2; is_cop2_mvmva & cop2_sf=0 & cop2_mx & cop2_v & cop2_cv & cop2_lm {
+rt_: is nop1; nop2; is_cop2_mvmva_rt & cop2_mx & cop2_v & cop2_cv & cop2_lm {}
+:nMVMVA cop2_sf,cop2_mx,cop2_v,cop2_cv,cop2_lm is nop1; nop2; is_cop2_mvmva & cop2_sf & cop2_mx & cop2_v & cop2_cv & cop2_lm {
     gte_mvmva(cop2_sf:1,cop2_mx:1,cop2_v:1,cop2_cv:1,cop2_lm:1);
 }
 
@@ -664,7 +670,7 @@ gpf0_: is nop1; nop2; is_cop2 & cofun=0x0190003D & cop2_sf {}
 }
 
 :MVMVA cop2_sf,cop2_mx,cop2_v,cop2_cv,cop2_lm is is_cop2_mvmva & cop2_sf & cop2_mx & cop2_v & cop2_cv & cop2_lm {
-    gte_mvmva_b(cop2_sf:1,cop2_mx:2,cop2_v:2,cop2_cv:2,cop2_lm:1);
+    gte_mvmva_b(cop2_sf:1,cop2_mx:1,cop2_v:1,cop2_cv:1,cop2_lm:1);
 }
 
 :SQR0 cop2_sf is is_cop2 & cofun=0x00A00428 & cop2_sf {
