@@ -5,7 +5,6 @@
     <property key="addressesDoNotAppearDirectlyInCode" value="true"/>
     <property key="emulateInstructionStateModifierClass" value="ghidra.program.emulation.MIPSEmulateInstructionStateModifier"/>
     <property key="assemblyRating:MIPS:BE:32:default" value="PLATINUM"/>
-    <property key="pcodeInjectLibraryClass" value="psx.PsxGteMacroInjectLibrary"/>
   </properties>
   <programcounter register="pc"/>
   <context_data>

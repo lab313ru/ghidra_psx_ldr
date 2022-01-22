@@ -29,7 +29,6 @@ import psyq.SigApplier;
 
 public class PsxAnalyzer extends AbstractAnalyzer {
 	private Map<String, SigApplier> appliers;
-	private boolean gteFuncsCreated;
 	
 	public static boolean onlyFirst = true;
 	public static float minEntropy = 3.0f;
@@ -49,7 +48,6 @@ public class PsxAnalyzer extends AbstractAnalyzer {
 		setSupportsOneTimeAnalysis();
 		
 		appliers = new HashMap<>();
-		gteFuncsCreated = false;
 	}
 	
 	@Override
@@ -116,13 +114,13 @@ public class PsxAnalyzer extends AbstractAnalyzer {
 			DataTypeManager mgr = PsxLoader.loadPsyqGdt(program, set, log, true);
 			monitor.setMessage("Applying PsyQ functions and data types done.");
 			
+			boolean gteFuncsCreated = program.getMemory().getBlock(PsxLoader.GTEMAC) != null;
+			
 			if (!gteFuncsCreated) {
 				monitor.setMessage("Creating GTE macro call functions...");
 				monitor.clearCanceled();
 				PsxLoader.addGteMacroSpace(program, mgr, log);
 				monitor.setMessage("Creating GTE macro call functions done.");
-				
-				gteFuncsCreated = true;
 			}
 		} catch (IOException | InvalidInputException | DuplicateNameException | LockException | IllegalArgumentException | MemoryConflictException | AddressOverflowException | CodeUnitInsertionException e) {
 			e.printStackTrace();

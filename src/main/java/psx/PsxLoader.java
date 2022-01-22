@@ -698,6 +698,8 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 		return res;
 	}
 	
+	public static final String GTEMAC = "GTEMAC";
+	
 	public static void addGteMacroSpace(Program program, DataTypeManager mgr, MessageLog log) throws IOException, InvalidInputException, DuplicateNameException, LockException, IllegalArgumentException, MemoryConflictException, AddressOverflowException, CodeUnitInsertionException {
 		File gteMacroFile = Application.getModuleDataFile("gte_macro.json").getFile(false);
 		JsonArray gteMacroses = Utils.jsonArrayFromFile(gteMacroFile.getAbsolutePath());
@@ -723,7 +725,7 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 		AddressSpace defSpace = program.getAddressFactory().getDefaultAddressSpace();
 		Address start = defSpace.getAddress(0x20000000L);
 		
-		if (program.getMemory().getBlock("GTEMAC") != null) {
+		if (program.getMemory().getBlock(GTEMAC) != null) {
 			return;
 		}
 		createUnitializedSegment(program, "GTEMAC", start, macroses.size() * 4, false, true, log);

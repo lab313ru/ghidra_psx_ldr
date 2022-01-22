@@ -844,29 +844,6 @@ macro JXWritePC(addr) {
 #fmt: "L"        is format=0x15   { }
 #fmt: "PS"       is format=0x16   { }
 
-fmt1: "S"       is format=0x10   { }
-fmt1: "D"       is format=0x11   { }
-fmt1: "PS"      is format=0x16   { }
-
-fmt2: "S"       is format=0x10   { }
-fmt2: "D"       is format=0x11   { }
-
-fmt3: "S"       is format=0x10   { }
-fmt3: "W"       is format=0x14   { }
-fmt3: "L"       is format=0x15   { }
-
-fmt4: "D"       is format=0x11   { }
-fmt4: "W"       is format=0x14   { }
-fmt4: "L"       is format=0x15   { }
-
-fmt5: "S"       is format1X=0x0   { }
-fmt5: "D"       is format1X=0x1   { }
-fmt5: "PS"      is format1X=0x6   { }
-
-# Release 6 and later:
-fmt6: "S"	is format=0x14    { }
-fmt6: "D"	is format=0x15    { }
-
 # Custom Pcode Operations
 #
 # To add a new pcodeop op that is implemented in Java code:

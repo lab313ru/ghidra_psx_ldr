@@ -1,267 +1,453 @@
-define pcodeop gte_RotTransPers;
-define pcodeop gte_RotTransPers3;
-define pcodeop gte_RotTrans;
-define pcodeop gte_LocalLight;
-define pcodeop gte_LightColor;
-define pcodeop gte_DpqColorLight;
-define pcodeop gte_DpqColor;
-define pcodeop gte_DpqColor3;
-define pcodeop gte_Intpl;
-define pcodeop gte_Square12;
-define pcodeop gte_Square0;
-define pcodeop gte_NormalColor;
-define pcodeop gte_NormalColor3;
-define pcodeop gte_NormalColorDpq;
-define pcodeop gte_NormalColorDpq3;
-define pcodeop gte_NormalColorCol;
-define pcodeop gte_NormalColorCol3;
-define pcodeop gte_ColorDpq;
-define pcodeop gte_ColorCol;
-define pcodeop gte_NormalClip;
-define pcodeop gte_AverageZ3;
-define pcodeop gte_AverageZ4;
-define pcodeop gte_OuterProduct12;
-define pcodeop gte_OuterProduct0;
-define pcodeop gte_OuterProduct12SVL;
-define pcodeop gte_OuterProduct0SVL;
-define pcodeop gte_OuterProduct12SV;
-define pcodeop gte_OuterProduct0SV;
-define pcodeop gte_Lzc;
-define pcodeop gte_RotAverage3;
-define pcodeop gte_RotNclip3;
-define pcodeop gte_RotAverageNclip3;
-define pcodeop gte_RotColorDpq;
-define pcodeop gte_RotColorDpq3;
-define pcodeop gte_RotAverageNclipColorDpq3;
-define pcodeop gte_RotAverageNclipColorCol3;
-define pcodeop gte_LoadAverage12;
-define pcodeop gte_LoadAverage0;
-define pcodeop gte_LoadAverageShort12;
-define pcodeop gte_LoadAverageShort0;
-define pcodeop gte_LoadAverageByte;
-define pcodeop gte_LoadAverageCol;
-define pcodeop gte_MulMatrix0;
-define pcodeop gte_ApplyMatrix;
-define pcodeop gte_ApplyMatrixSV;
-define pcodeop gte_CompMatrix;
-define pcodeop gte_ApplyRotMatrix;
-
-
-
-:RotTransPers base1,base2,base3,base4,base5 is lwc2_0_0 & base1; lwc2_1_4;
-				 rtps_;
-				 swc2_14_0 & base2;
-				 swc2_8_0 & base3;
-				 cfc2_12_31; nop1; sw_12_0_1 & base4;
-				 mfc2_12_19; nop2; sra_12_12_2; sw_12_0_2 & base5 {
-    MacroCall5(base1,base2,base3,base4,base5);
+:RotTransPers base1,base2,base3,base4,base5 is
+lwc2_0_0 & base1; lwc2_1_4;
+rtps_;
+swc2_14_0 & base2;
+swc2_8_0 & base3;
+cfc2_12_31; nop1; sw_12_0_1 & base4;
+mfc2_12_19; nop2; sra_12_12_2; sw_12_0_2 & base5 {
+    MacroCall5($(RotTransPers_idx),base1,base2,base3,base4,base5);
 }
 
-:RotTransPers3 base1,base2,base3,base4,base5,base6,base7,base8,base9 is lwc2_0_0 & base1; lwc2_1_4; lwc2_2_0 & base2; lwc2_3_4; lwc2_4_0 & base3; lwc2_5_4;
-                   rtpt_; 
-                   swc2_12_0 & base4; swc2_13_0 & base5; swc2_14_0 & base6; 
-                   swc2_8_0 & base7; 
-                   cfc2_12_31; nop1; sw_12_0_1 & base8; 
-                   mfc2_12_19; nop2; sra_12_12_2; sw_12_0_2 & base9 {
-    MacroCall9(base1,base2,base3,base4,base5,base6,base7,base8,base9);
+:RotTransPers3 base1,base2,base3,base4,base5,base6,base7,base8,base9 is
+lwc2_0_0 & base1; lwc2_1_4; lwc2_2_0 & base2; lwc2_3_4; lwc2_4_0 & base3; lwc2_5_4;
+rtpt_; 
+swc2_12_0 & base4; swc2_13_0 & base5; swc2_14_0 & base6; 
+swc2_8_0 & base7; 
+cfc2_12_31; nop1; sw_12_0_1 & base8; 
+mfc2_12_19; nop2; sra_12_12_2; sw_12_0_2 & base9 {
+    MacroCall9($(RotTransPers3_idx),base1,base2,base3,base4,base5,base6,base7,base8,base9);
 }
 
-:RotTrans  is lwc2_0_0 & base1; lwc2_1_4;
-              rt_;
-              swc2_25_0 & base2; swc2_26_4; swc2_27_8;
-              cfc2_12_31; nop1; sw_12_0 & base3 {
-    MacroCall3(base1,base2,base3);
+:RotTrans base1,base2,base3 is 
+lwc2_0_0 & base1; lwc2_1_4;
+rt_;
+swc2_25_0 & base2; swc2_26_4; swc2_27_8;
+cfc2_12_31; nop1; sw_12_0 & base3 {
+    MacroCall3($(RotTrans_idx),base1,base2,base3);
 }
 
-#:LocalLight  is ldv0_; ll_; stlvl_ {
-#    gte_LocalLight();
-#}
-#
-#:LightColor  is ldlvl_; lc_; stlvl_ {
-#    gte_LightColor();
-#}
-#
-#:DpqColorLight  is ldlvl_; ldrgb_; lddp_; dpcl_; strgb_ {
-#    gte_DpqColorLight();
-#}
-#
-#:DpqColor  is ldrgb_; lddp_; dpcs_; strgb_ {
-#    gte_DpqColor();
-#}
-#
-#:DpqColor3  is ldrgb3_; lddp_; dpct_; strgb3_ {
-#    gte_DpqColor3();
-#}
-#
-#:Intpl  is ldlvl_; lddp_; intpl_; strgb_ {
-#    gte_Intpl();
-#}
-#
-#:Square12  is ldlvl_; sqr12_; stlvnl_ {
-#    gte_Square12();
-#}
-#
-#:Square0  is ldlvl_; sqr0_; stlvnl_ {
-#    gte_Square0();
-#}
-#
-#:NormalColor  is ldv0_; ncs_; strgb_ {
-#    gte_NormalColor();
-#}
-#
-#:NormalColor3  is ldv3_; nct_; strgb3_ {
-#    gte_NormalColor3();
-#}
-#
-#:NormalColorDpq  is ldv0_; ldrgb_; lddp_; ncds_; strgb_ {
-#    gte_NormalColorDpq();
-#}
-#
-#:NormalColorDpq3  is ldv3_; ldrgb_; lddp_; ncdt_; strgb3_ {
-#    gte_NormalColorDpq3();
-#}
-#
-#:NormalColorCol  is ldv0_; ldrgb_; nccs_; strgb_ {
-#    gte_NormalColorCol();
-#}
-#
-#:NormalColorCol3  is ldv3_; ldrgb_; ncct_; strgb3_ {
-#    gte_NormalColorCol3();
-#}
-#
-#:ColorDpq  is ldlvl_; ldrgb_; lddp_; cdp_; strgb_ {
-#    gte_ColorDpq();
-#}
-#
-#:ColorCol  is ldlvl_; ldrgb_; cc_; strgb_ {
-#    gte_ColorCol();
-#}
-#
-#:NormalClip  is ldsxy3_; nclip_; stopz_ {
-#    gte_NormalClip();
-#}
-#
-#:AverageZ3  is ldsz3_; avsz3_; stotz_ {
-#    gte_AverageZ3();
-#}
-#
-#:AverageZ4  is ldsz4_; avsz4_; stotz_ {
-#    gte_AverageZ4();
-#}
-#
-#:OuterProduct12  is ldopv1_; ldopv2_; op12_; stlvnl_ {
-#    gte_OuterProduct12();
-#}
-#
-#:OuterProduct0  is ldopv1_; ldopv2_; op0_; stlvnl_ {
-#    gte_OuterProduct0();
-#}
-#
-#:OuterProduct12SVL  is ldopv1SV_; ldopv2sv_; op12_; stlvnl_ {
-#    gte_OuterProduct12SVL();
-#}
-#
-#:OuterProduct0SVL  is ldopv1SV_; ldopv2sv_; op0_; stlvnl_ {
-#    gte_OuterProduct0SVL();
-#}
-#
-#:OuterProduct12SV  is ldopv1SV_; ldopv2sv_; op12_; stsv_ {
-#    gte_OuterProduct12SV();
-#}
-#
-#:OuterProduct0SV  is ldopv1SV_; ldopv2sv_; op0_; stsv_ {
-#    gte_OuterProduct0SV();
-#}
-#
-#:Lzc  is ldlzc_; nop1; nop2; stlzc_ {
-#    gte_Lzc();
-#}
-#
-#:RotAverage3  is ldv3_; rtpt_; stsxy3_; stdp_; stflg_; avsz3_; stotz_ {
-#    gte_RotAverage3();
-#}
-#
-#:RotNclip3  is ldv3_; rtpt_; stflg_; nclip_; stopz_; stsxy3_; stdp_; stszotz_ {
-#    gte_RotNclip3();
-#}
-#
-#:RotAverageNclip3  is ldv3_; rtpt_; stflg_; nclip_; stopz_; stsxy3_; stdp_; avsz3_; stotz_ {
-#    gte_RotAverageNclip3();
-#}
-#
-#:RotColorDpq  is ldv0_1; rtps_; stsxy_; stflg_; ldv0_2; ldrgb_; ncds_; strgb_; stszotz_ {
-#    gte_RotColorDpq();
-#}
-#
-#:RotColorDpq3  is ldv3_1; rtpt_; stsxy3_; stflg_; ldv3_2; ldrgb_; ncdt_; strgb3_; stszotz_ {
-#    gte_RotColorDpq3();
-#}
-#
-#:RotAverageNclipColorDpq3  is ldv3_1; rtpt_; stflg_; nclip_; stopz_; ldv3_2; ldrgb_; ncdt_; stsxy3_; strgb3_; avsz3_; stotz_ {
-#    gte_RotAverageNclipColorDpq3();
-#}
-#
-#:RotAverageNclipColorCol3  is ldv3_1; rtpt_; stflg_; nclip_; stopz_; ldv3_2; ldrgb_; ncct_; stsxy3_; strgb3_; avsz3_; stotz_ {
-#    gte_RotAverageNclipColorCol3();
-#}
-#
-#:LoadAverage12  is lddp_1; ldlvl_1; gpf12_; lddp_2; ldlvl_2; gpl12_; stlvl_ {
-#    gte_LoadAverage12();
-#}
-#
-#:LoadAverage0  is lddp_1; ldlvl_1; gpf0_; lddp_2; ldlvl_2; gpl0_; stlvl_ {
-#    gte_LoadAverage0();
-#}
-#
-#:LoadAverageShort12  is lddp_1; ldsv_1; gpf12_; lddp_2; ldsv_2; gpl12_; stsv_ {
-#    gte_LoadAverageShort12();
-#}
-#
-#:LoadAverageShort0  is lddp_1; ldsv_1; gpf0_; lddp_2; ldsv_2; gpl0_; stsv_ {
-#    gte_LoadAverageShort0();
-#}
-#
-#:LoadAverageByte  is lddp_1; ldbv_1; gpf12_; lddp_2; ldbv_2; gpl12_; stbv_ {
-#    gte_LoadAverageByte();
-#}
-#
-#:LoadAverageCol  is lddp_1; ldcv_1; gpf12_; lddp_2; ldcv_2; gpl12_; stcv_ {
-#    gte_LoadAverageCol();
-#}
-#
+:LocalLight base1,base2 is 
+lwc2_0_0 & base1; lwc2_1_4;
+ll_;
+swc2_9_0 & base2; swc2_10_4; swc2_11_8 {
+    MacroCall2($(LocalLight_idx),base1,base2);
+}
+
+:LightColor base1,base2 is
+lwc2_9_0 & base1; lwc2_10_4; lwc2_11_8;
+lc_;
+swc2_9_0 & base2; swc2_10_4; swc2_11_8 {
+    MacroCall2($(LightColor_idx),base1,base2);
+}
+
+:DpqColorLight base1,base2,RTsrc,base3 is
+lwc2_9_0 & base1; lwc2_10_4; lwc2_11_8;
+lwc2_6_0 & base2;
+mtc2_x_8 & RTsrc;
+dpcl_;
+swc2_22_0 & base3 {
+    MacroCall4($(DpqColorLight_idx),base1,base2,RTsrc,base3);
+}
+
+:DpqColor base1,RTsrc,base2 is 
+lwc2_6_0 & base1;
+mtc2_x_8 & RTsrc;
+dpcs_;
+swc2_22_0 & base2 {
+    MacroCall3($(DpqColor_idx),base1,RTsrc,base2);
+}
+
+:DpqColor3 base1,base2,base3,RTsrc,base4,base5,base6 is 
+lwc2_20_0 & base1; lwc2_21_0 & base2; lwc2_22_0 & base3; lwc2_6_0;
+mtc2_x_8 & RTsrc;
+dpct_;
+swc2_20_0 & base4; swc2_21_0 & base5; swc2_22_0 & base6 {
+    MacroCall7($(DpqColor3_idx),base1,base2,base3,RTsrc,base4,base5,base6);
+}
+
+:Intpl base1,RTsrc,base2 is 
+lwc2_9_0 & base1; lwc2_10_4; lwc2_11_8;
+mtc2_x_8 & RTsrc;
+intpl_;
+swc2_22_0 & base2 {
+    MacroCall3($(Intpl_idx),base1,RTsrc,base2);
+}
+
+:Square12 base1,base2 is 
+lwc2_9_0 & base1; lwc2_10_4; lwc2_11_8;
+sqr12_;
+swc2_25_0 & base2; swc2_26_4; swc2_27_8 {
+    MacroCall2($(Square12_idx),base1,base2);
+}
+
+:Square0 base1,base2 is 
+lwc2_9_0 & base1; lwc2_10_4; lwc2_11_8;
+sqr0_;
+swc2_25_0 & base2; swc2_26_4; swc2_27_8 {
+    MacroCall2($(Square0_idx),base1,base2);
+}
+
+:NormalColor base1,base2 is 
+lwc2_0_0 & base1; lwc2_1_4;
+ncs_;
+swc2_22_0 & base2 {
+    MacroCall2($(NormalColor_idx),base1,base2);
+}
+
+:NormalColor3 base1,base2,base3,base4,base5,base6 is 
+lwc2_0_0 & base1; lwc2_1_4; lwc2_2_0 & base2; lwc2_3_4; lwc2_4_0 & base3; lwc2_5_4;
+nct_;
+swc2_20_0 & base4; swc2_21_0 & base5; swc2_22_0 & base6 {
+    MacroCall6($(NormalColor3_idx),base1,base2,base3,base4,base5,base6);
+}
+
+:NormalColorDpq base1,base2,RTsrc,base3 is 
+lwc2_0_0 & base1; lwc2_1_4;
+lwc2_6_0 & base2;
+mtc2_x_8 & RTsrc;
+ncds_;
+swc2_22_0 & base3 {
+    MacroCall4($(NormalColorDpq_idx),base1,base2,RTsrc,base3);
+}
+
+:NormalColorDpq3 base1,base2,base3,base4,RTsrc,base5,base6,base7 is 
+lwc2_0_0 & base1; lwc2_1_4; lwc2_2_0 & base2; lwc2_3_4; lwc2_4_0 & base3; lwc2_5_4;
+lwc2_6_0 & base4;
+mtc2_x_8 & RTsrc;
+ncdt_;
+swc2_20_0 & base5; swc2_21_0 & base6; swc2_22_0 & base7 {
+    MacroCall8($(NormalColorDpq3_idx),base1,base2,base3,base4,RTsrc,base5,base6,base7);
+}
+
+:NormalColorCol base1,base2,base3 is 
+lwc2_0_0 & base1; lwc2_1_4;
+lwc2_6_0 & base2;
+nccs_;
+swc2_22_0 & base3 {
+    MacroCall3($(NormalColorCol_idx),base1,base2,base3);
+}
+
+:NormalColorCol3 base1,base2,base3,base4,base5,base6,base7 is 
+lwc2_0_0 & base1; lwc2_1_4; lwc2_2_0 & base2; lwc2_3_4; lwc2_4_0 & base3; lwc2_5_4;
+lwc2_6_0 & base4;
+ncct_;
+swc2_20_0 & base5; swc2_21_0 & base6; swc2_22_0 & base7 {
+    MacroCall7($(NormalColorCol3_idx),base1,base2,base3,base4,base5,base6,base7);
+}
+
+:ColorDpq base1,base2,RTsrc,base3 is 
+lwc2_9_0 & base1; lwc2_10_4; lwc2_11_8;
+lwc2_6_0 & base2;
+mtc2_x_8 & RTsrc;
+cdp_;
+swc2_22_0 & base3 {
+    MacroCall4($(ColorDpq_idx),base1,base2,RTsrc,base3);
+}
+
+:ColorCol base1,base2,base3 is 
+lwc2_9_0 & base1; lwc2_10_4; lwc2_11_8;
+lwc2_6_0 & base2;
+cc_;
+swc2_22_0 & base3 {
+    MacroCall3($(ColorCol_idx),base1,base2,base3);
+}
+
+:NormalClip RTsrc1,RTsrc2,RTsrc3,base is 
+mtc2_x_12 & RTsrc1; mtc2_x_14 & RTsrc2; mtc2_x_13 & RTsrc3;
+nclip_;
+swc2_24_0 & base {
+    MacroCall4($(NormalClip_idx),RTsrc1,RTsrc2,RTsrc3,base);
+}
+
+:AverageZ3 RTsrc1,RTsrc2,RTsrc3,base is 
+mtc2_x_17 & RTsrc1; mtc2_x_18 & RTsrc2; mtc2_x_19 & RTsrc3;
+avsz3_;
+swc2_7_0 & base {
+    MacroCall4($(AverageZ3_idx),RTsrc1,RTsrc2,RTsrc3,base);
+}
+
+:AverageZ4 RTsrc1,RTsrc2,RTsrc3,RTsrc4,base is 
+mtc2_x_16 & RTsrc1; mtc2_x_17 & RTsrc2; mtc2_x_18 & RTsrc3; mtc2_x_19 & RTsrc4;
+avsz4_;
+swc2_7_0 & base {
+    MacroCall5($(AverageZ4_idx),RTsrc1,RTsrc2,RTsrc3,RTsrc4,base);
+}
+
+:OuterProduct12 base1,base2,base3 is 
+lw_12_0 & base1; lw_13_4; ctc2_12_0; lw_14_8; ctc2_13_2; ctc2_14_4;
+lwc2_11_8 & base2; lwc2_9_0; lwc2_10_4;
+op12_;
+swc2_25_0 & base3; swc2_26_4; swc2_27_8 {
+    MacroCall3($(OuterProduct12_idx),base1,base2,base3);
+}
+
+:OuterProduct0 base1,base2,base3 is 
+lw_12_0 & base1; lw_13_4; ctc2_12_0; lw_14_8; ctc2_13_2; ctc2_14_4;
+lwc2_11_8 & base2; lwc2_9_0; lwc2_10_4;
+op0_;
+swc2_25_0 & base3; swc2_26_4; swc2_27_8 {
+    MacroCall3($(OuterProduct0_idx),base1,base2,base3);
+}
+
+:OuterProduct12SVL base1,base2,base3 is 
+lh_12_0_1 & base1; lh_13_2_1; ctc2_12_0; lh_14_4_1; ctc2_13_2; ctc2_14_4;
+lh_12_0_2 & base2; lh_13_2_2; lh_14_4_2; mtc2_12_9; mtc2_13_10; mtc2_14_11;
+op12_;
+swc2_25_0 & base3; swc2_26_4; swc2_27_8 {
+    MacroCall3($(OuterProduct12SVL_idx),base1,base2,base3);
+}
+
+:OuterProduct0SVL base1,base2,base3 is 
+lh_12_0_1 & base1; lh_13_2_1; ctc2_12_0; lh_14_4_1; ctc2_13_2; ctc2_14_4;
+lh_12_0_2 & base2; lh_13_2_2; lh_14_4_2; mtc2_12_9; mtc2_13_10; mtc2_14_11;
+op0_;
+swc2_25_0 & base3; swc2_26_4; swc2_27_8 {
+    MacroCall3($(OuterProduct0SVL_idx),base1,base2,base3);
+}
+
+:OuterProduct12SV base1,base2,base3 is 
+lh_12_0_1 & base1; lh_13_2_1; ctc2_12_0; lh_14_4_1; ctc2_13_2; ctc2_14_4;
+lh_12_0_2 & base2; lh_13_2_2; lh_14_4_2; mtc2_12_9; mtc2_13_10; mtc2_14_11;
+op12_;
+mfc2_12_9; mfc2_13_10; mfc2_14_11; sh_12_0 & base3; sh_13_2; sh_14_4 {
+    MacroCall3($(OuterProduct12SV_idx),base1,base2,base3);
+}
+
+:OuterProduct0SV base1,base2,base3 is 
+lh_12_0_1 & base1; lh_13_2_1; ctc2_12_0; lh_14_4_1; ctc2_13_2; ctc2_14_4;
+lh_12_0_2 & base2; lh_13_2_2; lh_14_4_2; mtc2_12_9; mtc2_13_10; mtc2_14_11;
+op0_;
+mfc2_12_9; mfc2_13_10; mfc2_14_11; sh_12_0 & base3; sh_13_2; sh_14_4 {
+    MacroCall3($(OuterProduct0SV_idx),base1,base2,base3);
+}
+
+:Lzc RTsrc,base is 
+mtc2_x_30 & RTsrc;
+nop1;
+nop2;
+swc2_31_0 & base {
+    MacroCall2($(Lzc_idx),RTsrc,base);
+}
+
+:RotAverage3 base1,base2,base3,base4,base5,base6,base7,base8,base9 is 
+lwc2_0_0 & base1; lwc2_1_4; lwc2_2_0 & base2; lwc2_3_4; lwc2_4_0 & base3; lwc2_5_4;
+rtpt_;
+swc2_12_0 & base4; swc2_13_0 & base5; swc2_14_0 & base6;
+swc2_8_0 & base7;
+cfc2_12_31; nop1; sw_12_0 & base8;
+avsz3_;
+swc2_7_0 & base9 {
+    MacroCall9($(RotAverage3_idx),base1,base2,base3,base4,base5,base6,base7,base8,base9);
+}
+
+:RotNclip3 base1,base2,base3,base4,base5,base6,base7,base8,base9,base10 is 
+lwc2_0_0 & base1; lwc2_1_4; lwc2_2_0 & base2; lwc2_3_4; lwc2_4_0 & base3; lwc2_5_4;
+rtpt_;
+cfc2_12_31; nop1; sw_12_0_1 & base4;
+nclip_;
+swc2_24_0 & base5;
+swc2_12_0 & base6; swc2_13_0 & base7; swc2_14_0 & base8;
+swc2_8_0 & base9;
+mfc2_12_19; nop2; sra_12_12_2; sw_12_0_2 & base10 {
+    MacroCall10($(RotNclip3_idx),base1,base2,base3,base4,base5,base6,base7,base8,base9,base10);
+}
+
+:RotAverageNclip3 base1,base2,base3,base4,base5,base6,base7,base8,base9,base10 is 
+lwc2_0_0 & base1; lwc2_1_4; lwc2_2_0 & base2; lwc2_3_4; lwc2_4_0 & base3; lwc2_5_4;
+rtpt_;
+cfc2_12_31; nop1; sw_12_0 & base4;
+nclip_;
+swc2_24_0 & base5;
+swc2_12_0 & base6; swc2_13_0 & base7; swc2_14_0 & base8;
+swc2_8_0 & base9;
+avsz3_;
+swc2_7_0 & base10 {
+    MacroCall10($(RotAverageNclip3_idx),base1,base2,base3,base4,base5,base6,base7,base8,base9,base10);
+}
+
+:RotColorDpq base1,base2,base3,base4,base5,base6,base7 is 
+lwc2_0_0_1 & base1; lwc2_1_4_1;
+rtps_;
+swc2_14_0 & base2;
+cfc2_12_31; nop1; sw_12_0_1 & base3;
+lwc2_0_0_2 & base4; lwc2_1_4_2;
+lwc2_6_0 & base5;
+ncds_;
+swc2_22_0 & base6;
+mfc2_12_19; nop2; sra_12_12_2; sw_12_0_2 & base7 {
+    MacroCall7($(RotColorDpq_idx),base1,base2,base3,base4,base5,base6,base7);
+}
+
+:RotColorDpq3 base1,base2,base3,base4,base5,base6,base7,base8,base9,base10,base11,base12,base13,base14,base15 is 
+lwc2_0_0_1 & base1; lwc2_1_4_1; lwc2_2_0_1 & base2; lwc2_3_4_1; lwc2_4_0_1 & base3; lwc2_5_4_1;
+rtpt_;
+swc2_12_0 & base4; swc2_13_0 & base5; swc2_14_0 & base6;
+cfc2_12_31; nop1; sw_12_0_1 & base7;
+lwc2_0_0_2 & base8; lwc2_1_4_2; lwc2_2_0_2 & base9; lwc2_3_4_2; lwc2_4_0_2 & base10; lwc2_5_4_2;
+lwc2_6_0 & base11;
+ncdt_;
+swc2_20_0 & base12; swc2_21_0 & base13; swc2_22_0 & base14;
+mfc2_12_19; nop2; sra_12_12_2; sw_12_0_2 & base15 {
+    MacroCall15($(RotColorDpq3_idx),base1,base2,base3,base4,base5,base6,base7,base8,base9,base10,base11,base12,base13,base14,base15);
+}
+
+:RotAverageNclipColorDpq3 base1,base2,base3,base4,base5,base6,base7,base8,base9,base10,base11,base12,base13,base14,base15,base16 is 
+lwc2_0_0_1 & base1; lwc2_1_4_1; lwc2_2_0_1 & base2; lwc2_3_4_1; lwc2_4_0_1 & base3; lwc2_5_4_1;
+rtpt_;
+cfc2_12_31; nop1; sw_12_0 & base4;
+nclip_;
+swc2_24_0 & base5;
+lwc2_0_0_2 & base6; lwc2_1_4_2; lwc2_2_0_2 & base7; lwc2_3_4_2; lwc2_4_0_2 & base8; lwc2_5_4_2;
+lwc2_6_0 & base9;
+ncdt_;
+swc2_12_0 & base10; swc2_13_0 & base11; swc2_14_0 & base12;
+swc2_20_0 & base13; swc2_21_0 & base14; swc2_22_0 & base15;
+avsz3_;
+swc2_7_0 & base16 {
+    MacroCall16($(RotAverageNclipColorDpq3_idx),base1,base2,base3,base4,base5,base6,base7,base8,base9,base10,base11,base12,base13,base14,base15,base16);
+}
+
+:RotAverageNclipColorCol3 base1,base2,base3,base4,base5,base6,base7,base8,base9,base10,base11,base12,base13,base14,base15,base16 is 
+lwc2_0_0_1 & base1; lwc2_1_4_1; lwc2_2_0_1 & base2; lwc2_3_4_1; lwc2_4_0_1 & base3; lwc2_5_4_1;
+rtpt_;
+cfc2_12_31; nop1; sw_12_0 & base4;
+nclip_;
+swc2_24_0 & base5;
+lwc2_0_0_2 & base6; lwc2_1_4_2; lwc2_2_0_2 & base7; lwc2_3_4_2; lwc2_4_0_2 & base8; lwc2_5_4_2;
+lwc2_6_0 & base9;
+ncct_;
+swc2_12_0 & base10; swc2_13_0 & base11; swc2_14_0 & base12;
+swc2_20_0 & base13; swc2_21_0 & base14; swc2_22_0 & base15;
+avsz3_;
+swc2_7_0 & base16 {
+    MacroCall16($(RotAverageNclipColorCol3_idx),base1,base2,base3,base4,base5,base6,base7,base8,base9,base10,base11,base12,base13,base14,base15,base16);
+}
+
+:LoadAverage12 RTsrc1,base1,RTsrc2,base2,base3 is 
+mtc2_x_8_1 & RTsrc1;
+lwc2_9_0_1 & base1; lwc2_10_4_1; lwc2_11_8_1;
+gpf12_;
+mtc2_x_8_2 & RTsrc2;
+lwc2_9_0_2 & base2; lwc2_10_4_2; lwc2_11_8_2;
+gpl12_;
+swc2_9_0 & base3; swc2_10_4; swc2_11_8 {
+    MacroCall5($(LoadAverage12_idx),RTsrc1,base1,RTsrc2,base2,base3);
+}
+
+:LoadAverage0 RTsrc1,base1,RTsrc2,base2,base3 is 
+mtc2_x_8_1 & RTsrc1;
+lwc2_9_0_1 & base1; lwc2_10_4_1; lwc2_11_8_1;
+gpf0_;
+mtc2_x_8_2 & RTsrc2;
+lwc2_9_0_2 & base2; lwc2_10_4_2; lwc2_11_8_2;
+gpl0_;
+swc2_9_0 & base3; swc2_10_4; swc2_11_8 {
+    MacroCall5($(LoadAverage0_idx),RTsrc1,base1,RTsrc2,base2,base3);
+}
+
+:LoadAverageShort12 RTsrc1,base1,RTsrc2,base2,base3 is 
+mtc2_x_8_1 & RTsrc1;
+lhu_12_0_1 & base1; lhu_13_2_1; lhu_14_4_1; mtc2_12_9_1; mtc2_13_10_1; mtc2_14_11_1;
+gpf12_;
+mtc2_x_8_2 & RTsrc2;
+lhu_12_0_2 & base2; lhu_13_2_2; lhu_14_4_2; mtc2_12_9_2; mtc2_13_10_2; mtc2_14_11_2;
+gpl12_;
+mfc2_12_9; mfc2_13_10; mfc2_14_11; sh_12_0 & base3; sh_13_2; sh_14_4 {
+    MacroCall5($(LoadAverageShort12_idx),RTsrc1,base1,RTsrc2,base2,base3);
+}
+
+:LoadAverageShort0 RTsrc1,base1,RTsrc2,base2,base3 is 
+mtc2_x_8_1 & RTsrc1;
+lhu_12_0_1 & base1; lhu_13_2_1; lhu_14_4_1; mtc2_12_9_1; mtc2_13_10_1; mtc2_14_11_1;
+gpf0_;
+mtc2_x_8_2 & RTsrc2;
+lhu_12_0_2 & base2; lhu_13_2_2; lhu_14_4_2; mtc2_12_9_2; mtc2_13_10_2; mtc2_14_11_2;
+gpl0_;
+mfc2_12_9; mfc2_13_10; mfc2_14_11; sh_12_0 & base3; sh_13_2; sh_14_4 {
+    MacroCall5($(LoadAverageShort0_idx),RTsrc1,base1,RTsrc2,base2,base3);
+}
+
+:LoadAverageByte RTsrc1,base1,RTsrc2,base2,base3 is 
+mtc2_x_8_1 & RTsrc1;
+lbu_12_0_1 & base1; lbu_13_1_1; mtc2_12_9_1; mtc2_13_10_1;
+gpf12_;
+mtc2_x_8_2 & RTsrc2;
+lbu_12_0_2 & base2; lbu_13_1_2; mtc2_12_9_2; mtc2_13_10_2;
+gpl12_;
+mfc2_12_9; mfc2_13_10; sb_12_0 & base3; sb_13_1 {
+    MacroCall5($(LoadAverageByte_idx),RTsrc1,base1,RTsrc2,base2,base3);
+}
+
+:LoadAverageCol RTsrc1,base1,RTsrc2,base2,base3 is 
+mtc2_x_8_1 & RTsrc1;
+lbu_12_0_1 & base1; lbu_13_1_1; lbu_14_2_1; mtc2_12_9_1; mtc2_13_10_1; mtc2_14_11_1;
+gpf12_;
+mtc2_x_8_2 & RTsrc2;
+lbu_12_0_2 & base2; lbu_13_1_2; lbu_14_2_2; mtc2_12_9_2; mtc2_13_10_2; mtc2_14_11_2;
+gpl12_;
+mfc2_12_9; mfc2_13_10; mfc2_14_11; sb_12_0 & base3; sb_13_1; sb_14_2 {
+    MacroCall5($(LoadAverageCol_idx),RTsrc1,base1,RTsrc2,base2,base3);
+}
+
 is_addiu: is $(AMODE) & prime=9 {}
 addiu_x1_x2_2: is is_addiu & simmed=2 {}
 addiu_x1_x2_4: is is_addiu & simmed=4 {}
 
-#MulMatrix0_: is SetRotMatrix_; ldclmv_1; rtir_1; stclmv_1; addiu_x1_x2_2; ldclmv_2; rtir_2; stclmv_2; addiu_x1_x2_4; ldclmv_3; rtir_3; stclmv_3 {}
 :MulMatrix0 base1,base2,base3 is 
-								 lw_12_0 & base1; lw_13_4; ctc2_12_0; ctc2_13_1; lw_12_8; lw_13_12; lw_14_16; ctc2_12_2; ctc2_13_3; ctc2_14_4;
-								 lhu_12_0 & base2; lhu_13_6; lhu_14_12; mtc2_12_9; mtc2_13_10; mtc2_14_11;
-								 rtir_1;
-								 mfc2_12_9; mfc2_13_10; mfc2_14_11; sh_12_0 & base3; sh_13_6; sh_14_12;
-								 addiu_x1_x2_2;
-								 ldclmv_2;
-								 rtir_2;
-								 stclmv_2;
-								 addiu_x1_x2_4;
-								 ldclmv_3;
-								 rtir_3;
-								 stclmv_3 {
-    MacroCall3(base1,base2,base3);
+lw_12_0 & base1; lw_13_4; ctc2_12_0; ctc2_13_1; lw_12_8; lw_13_12; lw_14_16; ctc2_12_2; ctc2_13_3; ctc2_14_4;
+lhu_12_0 & base2; lhu_13_6; lhu_14_12; mtc2_12_9; mtc2_13_10; mtc2_14_11;
+rtir_1;
+mfc2_12_9; mfc2_13_10; mfc2_14_11; sh_12_0 & base3; sh_13_6; sh_14_12;
+addiu_x1_x2_2;
+ldclmv_2;
+rtir_2;
+stclmv_2;
+addiu_x1_x2_4;
+ldclmv_3;
+rtir_3;
+stclmv_3 {
+    MacroCall3($(MulMatrix0_idx),base1,base2,base3);
 }
 
-#:ApplyMatrix  is SetRotMatrix_; ldv0_; rtv0_; stlvnl_ {
-#    gte_ApplyMatrix();
-#}
-#
-#:ApplyMatrixSV  is SetRotMatrix_; ldv0_; rtv0_; stsv_ {
-#    gte_ApplyMatrixSV();
-#}
+:ApplyMatrix base1,base2,base3 is
+lw_12_0 & base1; lw_13_4; ctc2_12_0; ctc2_13_1; lw_12_8; lw_13_12; lw_14_16; ctc2_12_2; ctc2_13_3; ctc2_14_4;
+lwc2_0_0 & base2; lwc2_1_4;
+rtv0_;
+swc2_25_0 & base3; swc2_26_4; swc2_27_8 {
+    MacroCall3($(ApplyMatrix_idx),base1,base2,base3);
+}
 
-#:CompMatrix  is MulMatrix0_; SetTransMatrix_; ldlv0_; rt_; stlvnl_ {
-#    gte_CompMatrix();
-#}
+:ApplyMatrixSV base1,base2,base3 is
+lw_12_0 & base1; lw_13_4; ctc2_12_0; ctc2_13_1; lw_12_8; lw_13_12; lw_14_16; ctc2_12_2; ctc2_13_3; ctc2_14_4;
+lwc2_0_0 & base2; lwc2_1_4;
+rtv0_;
+mfc2_12_9; mfc2_13_10; mfc2_14_11; sh_12_0 & base3; sh_13_2; sh_14_4 {
+    MacroCall3($(ApplyMatrixSV_idx),base1,base2,base3);
+}
 
-#:ApplyRotMatrix  is ldv0_; rtv0_; stlvnl_ {
-#    gte_ApplyRotMatrix();
-#}
+:CompMatrix base1,base2,base3,base4,base5,base6 is
+lw_12_0 & base1; lw_13_4; ctc2_12_0; ctc2_13_1; lw_12_8; lw_13_12; lw_14_16; ctc2_12_2; ctc2_13_3; ctc2_14_4;
+lhu_12_0_1 & base2; lhu_13_6; lhu_14_12; mtc2_12_9; mtc2_13_10; mtc2_14_11;
+rtir_1;
+mfc2_12_9; mfc2_13_10; mfc2_14_11; sh_12_0 & base3; sh_13_6; sh_14_12;
+addiu_x1_x2_2;
+ldclmv_2;
+rtir_2;
+stclmv_2;
+addiu_x1_x2_4;
+ldclmv_3;
+rtir_3;
+stclmv_3;
+lw_12_20 & base4; lw_13_24; ctc2_12_5; lw_14_28; ctc2_13_6; ctc2_14_7;
+lhu_13_4 & base5; lhu_12_0_2; sll_13_13_16; or_12_12_13; mtc2_12_0; lwc2_1_8;
+rt_;
+swc2_25_0 & base6; swc2_26_4; swc2_27_8 {
+    MacroCall6($(CompMatrix_idx),base1,base2,base3,base4,base5,base6);
+}
+
+:ApplyRotMatrix base1,base2 is
+lwc2_0_0 & base1; lwc2_1_4;
+rtv0_;
+swc2_25_0 & base2; swc2_26_4; swc2_27_8 {
+    MacroCall2($(ApplyRotMatrix_idx),base1,base2);
+}

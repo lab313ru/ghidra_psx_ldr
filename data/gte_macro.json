@@ -121,7 +121,7 @@
 
     {
         "name": "gte_ldsz4",
-        "args": [ "long", "long", "long" ]
+        "args": [ "long", "long", "long", "long" ]
     },
 
     {
@@ -132,6 +132,16 @@
     {
         "name": "gte_ldopv2",
         "args": [ "VECTOR *" ]
+    },
+
+    {
+        "name": "gte_ldopv1SV",
+        "args": [ "SVECTOR *" ]
+    },
+
+    {
+        "name": "gte_ldopv2SV",
+        "args": [ "SVECTOR *" ]
     },
 
     {
@@ -241,11 +251,6 @@
 
     {
         "name": "gte_ld_intpol_sv0",
-        "args": [ "SVECTOR *" ]
-    },
-
-    {
-        "name": "gte_ld_intpol_sv1",
         "args": [ "SVECTOR *" ]
     },
 
