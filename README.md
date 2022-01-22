@@ -17,6 +17,11 @@ Video tutorial on how to deal with overlays: https://youtu.be/DuQQfjTkkQc
 * In case you have a directory with OBJ-files extracted from a LIB-file, create an empty `PSYQ_LIBNAME_XXX` file, where `LIBNAME` is your LIB-file name (for ex. `LIBSND`) and `XXX` is PSYQ version number according to [this list](https://github.com/lab313ru/psx_psyq_signatures).
 * In case you want to batch-import all OBJ-files for a LIB-file or import a standalone OBJ-file (like `8MBYTE.OBJ`), create an empty `PSYQ_XXX` file, where `XXX` is PSYQ version number according to [this list](https://github.com/lab313ru/psx_psyq_signatures).
 
+# Moving from projects created without `ghidra_psx_ldr`
+- On your project: `Set Language`, choose `PSX`, `Yes`, `Yes`, `OK`
+- Script Manager->`PSX GTE` folder, run `CreateGteMacSegment` script
+- Reanalyze
+
 # Decompiling GTE macroses in your old projects
 - Reanalyze. It will create a special segment with GTE macro handlers.
 If you have some Ghidra project which has been created before `01/22/2022`, in order to decompile any GTE related stuff it requires to undefine (*select disasm lines and press `C`*) and disassemble (*press `D`*) instructions again, because Ghidra's decompiler uses disasm and Pcodes information stored in a project.
