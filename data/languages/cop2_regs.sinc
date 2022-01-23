@@ -110,9 +110,11 @@ ctc2_12_16: is is_ctc2 & rt=12 & immed=(16<<11) {}
 ctc2_12_18: is is_ctc2 & rt=12 & immed=(18<<11) {}
 ctc2_12_21: is is_ctc2 & rt=12 & immed=(21<<11) {}
 ctc2_12_24: is is_ctc2 & rt=12 & immed=(24<<11) {}
+ctc2_13_0: is is_ctc2 & rt=13 & immed=(0<<11) {}
 ctc2_13_1: is is_ctc2 & rt=13 & immed=(1<<11) {}
 ctc2_13_2: is is_ctc2 & rt=13 & immed=(2<<11) {}
 ctc2_13_3: is is_ctc2 & rt=13 & immed=(3<<11) {}
+ctc2_13_5: is is_ctc2 & rt=13 & immed=(5<<11) {}
 ctc2_13_6: is is_ctc2 & rt=13 & immed=(6<<11) {}
 ctc2_13_9: is is_ctc2 & rt=13 & immed=(9<<11) {}
 ctc2_13_11: is is_ctc2 & rt=13 & immed=(11<<11) {}
@@ -123,12 +125,17 @@ ctc2_13_22: is is_ctc2 & rt=13 & immed=(22<<11) {}
 ctc2_13_25: is is_ctc2 & rt=13 & immed=(25<<11) {}
 ctc2_14_0: is is_ctc2 & rt=14 & immed=(0<<11) {}
 ctc2_14_1: is is_ctc2 & rt=14 & immed=(1<<11) {}
+ctc2_14_3: is is_ctc2 & rt=14 & immed=(3<<11) {}
 ctc2_14_4: is is_ctc2 & rt=14 & immed=(4<<11) {}
+ctc2_14_6: is is_ctc2 & rt=14 & immed=(6<<11) {}
 ctc2_14_7: is is_ctc2 & rt=14 & immed=(7<<11) {}
 ctc2_14_12: is is_ctc2 & rt=14 & immed=(12<<11) {}
 ctc2_14_15: is is_ctc2 & rt=14 & immed=(15<<11) {}
 ctc2_14_20: is is_ctc2 & rt=14 & immed=(20<<11) {}
 ctc2_14_23: is is_ctc2 & rt=14 & immed=(23<<11) {}
+ctc2_15_4: is is_ctc2 & rt=15 & immed=(4<<11) {}
+ctc2_15_7: is is_ctc2 & rt=15 & immed=(7<<11) {}
+
 
 cfc2_12_0: is is_cfc2 & rt=12 & immed=(0<<11) {}
 cfc2_12_2: is is_cfc2 & rt=12 & immed=(2<<11) {}
