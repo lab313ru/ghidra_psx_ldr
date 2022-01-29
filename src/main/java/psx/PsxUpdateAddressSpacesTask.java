@@ -66,22 +66,25 @@ public class PsxUpdateAddressSpacesTask extends Task {
 		
 		for (final Map.Entry<Address, String> entry : entries.entrySet()) {
 			final Address symAddr = entry.getKey();
-			final String name = entry.getValue();
+			String name = entry.getValue();
 			
 			List<ClangToken> tokens = panel.findTokensByName(name);
 			
 			if (tokens.size() == 0) {
-				String symName = findAnotherSpaceSymbolName(defSpace, symAddr.getOffset());
+				name = findAnotherSpaceSymbolName(defSpace, symAddr.getOffset());
 				
-				if (symName == null) {
-					continue;
+				if (name != null) {
+					tokens = panel.findTokensByName(name);
 				}
-				
-				tokens = panel.findTokensByName(symName);
 			}
 			
+			name = getOffsetAsValue(symAddr.getOffset());
 			if (tokens.size() == 0) { // WARNING!: hack to find undefined function naming "func_0xXXXXXXXX"
-				tokens = panel.findTokensByName(String.format("func_0x%08x", symAddr.getOffset()));
+				tokens = panel.findTokensByName(String.format("func_%s", name));
+			}
+			
+			if (tokens.size() == 0) { // WARNING!: hack to find offset as a hex value "0xXXXXXXXX"
+				tokens = panel.findTokensByName(name);
 			}
 			
 			if (tokens.size() == 0) { // here can be a constant resolved string, it's OK
@@ -144,6 +147,10 @@ public class PsxUpdateAddressSpacesTask extends Task {
 		return (token instanceof ClangVariableToken) || (token instanceof ClangFuncNameToken);
 	}
 	
+	private static String getOffsetAsValue(long offset) {
+		return String.format("0x%08x", offset);
+	}
+	
 	private String findAnotherSpaceSymbolName(final AddressSpace space, long offset) {
 		SymbolTable symTable = decompProvider.getProgram().getSymbolTable();
 		
@@ -201,18 +208,21 @@ public class PsxUpdateAddressSpacesTask extends Task {
 		if (token instanceof ClangVariableToken) {
 			HighVariable highVar = varnode.getHigh();
 			HighSymbol symbol = highVar.getSymbol();
-			VariableStorage storage = symbol.getStorage();
-			Varnode symbolVarnode = storage.getFirstVarnode();
-
-			TestUtils.setInstanceField("address", symbolVarnode, newAddr);
-			TestUtils.setInstanceField("spaceID", symbolVarnode, spaceId);
 			
-			if (!(symbol instanceof HighFunctionShellSymbol)) { // like some function has been passed as an argument to another function
-				TestUtils.setInstanceField("symbol", symbol, newSymbol);
+			if (symbol != null) {
+				VariableStorage storage = symbol.getStorage();
+				Varnode symbolVarnode = storage.getFirstVarnode();
+	
+				TestUtils.setInstanceField("address", symbolVarnode, newAddr);
+				TestUtils.setInstanceField("spaceID", symbolVarnode, spaceId);
+				
+				if (!(symbol instanceof HighFunctionShellSymbol)) { // like some function has been passed as an argument to another function
+					TestUtils.setInstanceField("symbol", symbol, newSymbol);
+				}
+				
+				TestUtils.setInstanceField("id", symbol, newSymbol.getID());
+				TestUtils.setInstanceField("name", symbol, newSymbol.getName());
 			}
-			
-			TestUtils.setInstanceField("id", symbol, newSymbol.getID());
-			TestUtils.setInstanceField("name", symbol, newSymbol.getName());
 		}
 		
 		TestUtils.setInstanceField("text", token, newSymbol.getName());
