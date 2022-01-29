@@ -295,10 +295,11 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 		}
 		
 		Address romStart = fpa.toAddr(psxExe.getRomStart());
+		Address romEnd = fpa.toAddr(psxExe.getRomEnd());
 		Reference mainRef = findAndAppyMain(provider, fpa, romStart, log);
 		
 		if (mainRef != null) {
-			createCompilerSegments(provider, fpa, romStart, mainRef, log);
+			createCompilerSegments(provider, fpa, romStart, romEnd, mainRef, log);
 		}
 		
 		monitor.setMessage("Loading PSX binary done.");
@@ -549,7 +550,7 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 		return jalMainRefs[0];
 	}
 	
-	private void createCompilerSegments(ByteProvider provider, FlatProgramAPI fpa, Address searchAddress, Reference mainRef, MessageLog log) {
+	private void createCompilerSegments(ByteProvider provider, FlatProgramAPI fpa, Address searchAddress, Address romEnd, Reference mainRef, MessageLog log) {
 		Program program = fpa.getCurrentProgram();
 		Memory mem = program.getMemory();
 		Listing listing = program.getListing();
@@ -660,17 +661,22 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 			MemoryBlock _sbss_block = mem.getBlock(_sbss_addr);
 			
 			if (_sbss_block.getStart().getOffset() < _sbss_addr.getOffset()) {
+				Address _sbss_start = _sbss_block.getStart();
+				
 				mem.split(_sbss_block, _sbss_addr);
 				_sbss_block = mem.getBlock(_sbss_addr);
 				_sbss_block.setName(".sbss");
+				
+				MemoryBlock ram = mem.getBlock(_sbss_start);
+				
+				if (!ram.equals(_sdata_block)) {
+					ram.setWrite(true);
+					ram.setExecute(true);
+				}
 			}
 
 			_sbss_block.setWrite(true);
 			_sbss_block.setExecute(false);
-			
-			if (_sbss_block.isInitialized()) {
-				mem.convertToUninitialized(_sbss_block);
-			}
 			
 			Address _bss_ptr = structPtr.add(0x18);
 			long _bss = reader.readUnsignedInt(_bss_ptr.subtract(searchAddress.subtract(PsxExe.HEADER_SIZE)));
@@ -687,22 +693,33 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 			_bss_block.setWrite(false);
 			_bss_block.setExecute(false);
 			
-			if (_bss_block.isInitialized()) {
-				mem.convertToUninitialized(_bss_block);
-			}
-			
+			Address lastRam = _bss_addr.add(_bsslen);
 			if (_bss_block.getSize() < _bsslen) {
-				MemoryBlock block2 = mem.getBlock(_bss_addr.add(_bsslen));
+				MemoryBlock block2 = mem.getBlock(lastRam);
 				mem.join(_bss_block, block2);
 				_bss_block = mem.getBlock(_bss_addr);
 			}
 			
-			mem.split(_bss_block, _bss_addr.add(_bsslen));
+			mem.split(_bss_block, lastRam);
 			
-			MemoryBlock ram = mem.getBlock(_bss_addr.add(_bsslen));
-			ram.setName("RAM");
-			ram.setWrite(true);
-			ram.setExecute(true);
+			if (_sbss_block.isInitialized()) {
+				mem.convertToUninitialized(_sbss_block);
+			}
+			
+			if (_bss_block.isInitialized()) {
+				mem.convertToUninitialized(_bss_block);
+			}
+			
+			MemoryBlock ram = mem.getBlock(lastRam);
+			if (romEnd.compareTo(ram.getEnd()) > 0) {
+				ram.setName(".text");
+				ram.setWrite(false);
+				ram.setExecute(true);
+			} else {
+				ram.setName("RAM");
+				ram.setWrite(true);
+				ram.setExecute(true);
+			}
 		} catch (IOException | MemoryBlockException | LockException | NotFoundException e) {
 			log.appendException(e);
 		}
