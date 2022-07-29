@@ -278,7 +278,18 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 					program.getMemory().getBytes(gpSet, gp1);
 					program.getMemory().getBytes(gpSet.add(4), gp2);
 
-					psxExe.setInitGp(((gp1[1] & 0xFF) << 24) | ((gp1[0] & 0xFF) << 16) | ((gp2[1] & 0xFF) << 8) | ((gp2[0] & 0xFF) << 0));
+					// Grab top bits from the lui instruction
+					long gp = ((((long)gp1[1]) & 0xFF) << 24) | ((((long)gp1[0]) & 0xFF) << 16);
+
+					// Load and sign-extend the addui operand
+					long add_op = ((((long)gp2[1]) & 0xFF) << 8) | ((((long)gp2[0]) & 0xFF) << 0);
+					if (add_op >= 0x8000)
+						add_op = 0xFFFF0000L | add_op;
+
+					// Calculate final gp value, truncating to 32 bits
+					gp = (gp + add_op) & 0xFFFFFFFFL;
+
+					psxExe.setInitGp(gp);
 				} catch (MemoryAccessException e) {
 					e.printStackTrace();
 					log.appendException(e);
