@@ -49,7 +49,6 @@ import ghidra.framework.options.Options;
 import ghidra.program.flatapi.FlatProgramAPI;
 import ghidra.program.model.address.Address;
 import ghidra.program.model.data.ByteDataType;
-import ghidra.program.model.data.DataTypeConflictException;
 import ghidra.program.model.data.PointerDataType;
 import ghidra.program.model.lang.LanguageCompilerSpecPair;
 import ghidra.program.model.lang.RegisterValue;
@@ -881,7 +880,7 @@ public class PsyqLoader extends AbstractLibrarySupportLoader {
 						fpa.createFunction(refAddr, sym.getName());
 						listing.createData(refAddr, PointerDataType.dataType);
 					}
-				} catch (CodeUnitInsertionException | DataTypeConflictException e) {
+				} catch (CodeUnitInsertionException e) {
 					log.appendException(e);
 					return;
 				}

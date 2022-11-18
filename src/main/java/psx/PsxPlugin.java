@@ -81,7 +81,7 @@ public class PsxPlugin extends ProgramPlugin {
 	private PsxUpdateAddressSpacesOverrides oldMap;
 
 	public PsxPlugin(PluginTool tool) {
-		super(tool, true, false);
+		super(tool);
 	}
 	
 	@Override
@@ -182,8 +182,8 @@ public class PsxPlugin extends ProgramPlugin {
 				}
 
 				@Override
-				public void doWheNotBusy(Callback c) {
-					callbackHandler.doWheNotBusy(c);
+				public void doWhenNotBusy(Callback c) {
+					callbackHandler.doWhenNotBusy(c);
 				}
 				
 			});
@@ -211,7 +211,7 @@ public class PsxPlugin extends ProgramPlugin {
 
 		data.endTransaction(transactionId);
 		if (map.hasProperty(objAddress)) {
-			return (PsxUpdateAddressSpacesOverrides) map.getObject(objAddress);
+			return (PsxUpdateAddressSpacesOverrides) map.get(objAddress);
 		}
 		
 		return new PsxUpdateAddressSpacesOverrides();

@@ -46,7 +46,7 @@ public class PsxExe implements StructConverter {
 			return;
 		}
 		
-		String ascii_id = reader.readFixedLenAsciiString(ASCII_ID_OFF, ASCII_ID_LEN);
+		String ascii_id = reader.readAsciiString(ASCII_ID_OFF, ASCII_ID_LEN);
 		
 		if (!ascii_id.equals(ASCII_ID)) {
 			return;
