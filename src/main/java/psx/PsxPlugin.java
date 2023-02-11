@@ -81,7 +81,7 @@ public class PsxPlugin extends ProgramPlugin {
 	private PsxUpdateAddressSpacesOverrides oldMap;
 
 	public PsxPlugin(PluginTool tool) {
-		super(tool, true, false);
+		super(tool);
 	}
 	
 	@Override
@@ -182,8 +182,8 @@ public class PsxPlugin extends ProgramPlugin {
 				}
 
 				@Override
-				public void doWheNotBusy(Callback c) {
-					callbackHandler.doWheNotBusy(c);
+				public void doWhenNotBusy(Callback c) {
+					callbackHandler.doWhenNotBusy(c);
 				}
 				
 			});
@@ -206,12 +206,12 @@ public class PsxPlugin extends ProgramPlugin {
 		ProgramUserData data = program.getProgramUserData();
 		
 		int transactionId = data.startTransaction();
-		ObjectPropertyMap map = data.getObjectProperty(PsxPlugin.class.getName(), PsxUpdateAddressSpacesTask.OVERRIDES, PsxUpdateAddressSpacesOverrides.class, true);
+		ObjectPropertyMap<PsxUpdateAddressSpacesOverrides> map = data.getObjectProperty(PsxPlugin.class.getName(), PsxUpdateAddressSpacesTask.OVERRIDES, PsxUpdateAddressSpacesOverrides.class, true);
 		Address objAddress = program.getAddressFactory().getDefaultAddressSpace().getAddress(PsxUpdateAddressSpacesOverrides.ADDRESS);
 
 		data.endTransaction(transactionId);
 		if (map.hasProperty(objAddress)) {
-			return (PsxUpdateAddressSpacesOverrides) map.getObject(objAddress);
+			return map.get(objAddress);
 		}
 		
 		return new PsxUpdateAddressSpacesOverrides();
@@ -225,7 +225,7 @@ public class PsxPlugin extends ProgramPlugin {
 		ProgramUserData data = program.getProgramUserData();
 		
 		int transactionId = data.startTransaction();
-		ObjectPropertyMap map = data.getObjectProperty(PsxPlugin.class.getName(), PsxUpdateAddressSpacesTask.OVERRIDES, PsxUpdateAddressSpacesOverrides.class, true);
+		ObjectPropertyMap<PsxUpdateAddressSpacesOverrides> map = data.getObjectProperty(PsxPlugin.class.getName(), PsxUpdateAddressSpacesTask.OVERRIDES, PsxUpdateAddressSpacesOverrides.class, true);
 		
 		Address objAddress = program.getAddressFactory().getDefaultAddressSpace().getAddress(PsxUpdateAddressSpacesOverrides.ADDRESS);
 		map.remove(objAddress);
