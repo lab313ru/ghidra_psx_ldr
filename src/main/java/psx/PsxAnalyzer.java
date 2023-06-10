@@ -81,7 +81,8 @@ public class PsxAnalyzer extends AbstractAnalyzer {
 	public boolean added(Program program, AddressSetView set, TaskMonitor monitor, MessageLog log) {
 		try {
 			if (!program.getLanguageID().getIdAsString().equals(PsxLoader.PSX_LANG_ID)) {
-				SleighLanguageProvider lngProv = new SleighLanguageProvider();
+				// should this use DefaultLanguageService instead?
+				SleighLanguageProvider lngProv = SleighLanguageProvider.getSleighLanguageProvider();
 				LanguageID langId = new LanguageID(PsxLoader.PSX_LANG_ID);
 				Language lng = lngProv.getLanguage(langId);
 				CompilerSpecID specId = new CompilerSpecID(PsxLoader.PSX_LANG_SPEC_ID);

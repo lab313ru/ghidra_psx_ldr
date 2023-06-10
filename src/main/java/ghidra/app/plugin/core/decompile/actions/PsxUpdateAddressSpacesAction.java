@@ -17,7 +17,7 @@ import ghidra.app.plugin.core.decompile.DecompilerProvider;
 import ghidra.framework.plugintool.PluginTool;
 import ghidra.program.model.address.Address;
 import ghidra.program.model.listing.Function;
-import ghidra.program.model.pcode.HighSymbol;
+import ghidra.program.model.pcode.*;
 import ghidra.util.UndefinedFunction;
 import ghidra.util.task.TaskLauncher;
 import psx.PsxAnalyzer;
@@ -62,7 +62,7 @@ public class PsxUpdateAddressSpacesAction extends AbstractDecompilerAction {
 			return false;
 		}
 
-		HighSymbol highSymbol = findHighSymbolFromToken(tokenAtCursor, context.getHighFunction());
+		HighSymbol highSymbol = tokenAtCursor.getHighSymbol(context.getHighFunction());
 		if (highSymbol == null) {
 			return isFunctionCall(tokenAtCursor);
 		}
