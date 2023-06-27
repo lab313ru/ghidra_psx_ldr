@@ -22,6 +22,7 @@ import ghidra.program.model.lang.Language;
 import ghidra.program.model.lang.LanguageID;
 import ghidra.program.model.listing.Program;
 import ghidra.util.task.TaskMonitor;
+import psyq.LibgpuMacroDetector;
 import psyq.SigApplier;
 
 
@@ -113,8 +114,11 @@ public class PsxAnalyzer extends AbstractAnalyzer {
 			
 			while (i.hasNext()) {
 				AddressRange next = i.next();
-			
-				applyPsyqSignaturesByVersion(files, patchesFilePath, program, next.getMinAddress(), next.getMaxAddress(), monitor, log);
+				Address startAddr = next.getMinAddress();
+				Address endAddr = next.getMaxAddress();
+				
+				applyPsyqSignaturesByVersion(files, patchesFilePath, program, startAddr, endAddr, monitor, log);
+				LibgpuMacroDetector.detectLibgpuMacros(program, startAddr, endAddr, monitor);
 			}
 			
 			monitor.setMessage("Applying PsyQ functions and data types...");
