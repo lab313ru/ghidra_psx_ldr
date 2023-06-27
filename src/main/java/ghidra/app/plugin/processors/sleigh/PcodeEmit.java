@@ -13,10 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/*
- * Created on Feb 4, 2005
- *
- */
 package ghidra.app.plugin.processors.sleigh;
 
 import java.io.IOException;
@@ -33,12 +29,6 @@ import ghidra.program.model.pcode.PcodeOverride;
 import ghidra.program.model.symbol.RefType;
 import ghidra.util.exception.NotYetImplementedException;
 
-/**
- * 
- *
- * Class for converting ConstructTpl into a pcode ops given
- * a particular InstructionContext
- */
 /**
  * 
  *
