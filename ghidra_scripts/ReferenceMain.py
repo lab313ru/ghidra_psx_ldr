@@ -13,17 +13,15 @@ addFact = api.getAddressFactory()
 refs = currentProgram.referenceManager.getReferencesTo(currentAddress)
 
 for ref in refs:
-	instruction = api.getInstructionAt(ref.getFromAddress())
+	data = api.getDataAt(ref.getFromAddress())
 
-	if not instruction:
+	if not data:
 		continue
 
-	operand = ref.getOperandIndex()
 	address = addFact.getAddress(ref.getToAddress().toString("ram:"))
 	refType = ref.getReferenceType()
+	newRef = api.createMemoryReference(data, address, refType)
 
-	newRef = api.createMemoryReference(instruction, operand, address, refType)
 	api.setReferencePrimary(newRef)
-
 	api.removeReference(ref)
 
