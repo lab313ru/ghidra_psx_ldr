@@ -14,14 +14,19 @@ refs = currentProgram.referenceManager.getReferencesTo(currentAddress)
 
 for ref in refs:
 	data = api.getDataAt(ref.getFromAddress())
-
-	if not data:
-		continue
+	instruction = api.getInstructionAt(ref.getFromAddress())
 
 	address = addFact.getAddress(ref.getToAddress().toString("ram:"))
 	refType = ref.getReferenceType()
-	newRef = api.createMemoryReference(data, address, refType)
 
-	api.setReferencePrimary(newRef)
+	if data:
+		newRef = api.createMemoryReference(data, address, refType)
+		api.setReferencePrimary(newRef)
+
+	if instruction:
+		operand = ref.getOperandIndex()
+		newRef = api.createMemoryReference(instruction, operand, address, refType)
+		api.setReferencePrimary(newRef)
+
 	api.removeReference(ref)
 
