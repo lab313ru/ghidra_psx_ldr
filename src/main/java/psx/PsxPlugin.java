@@ -64,7 +64,7 @@ import ghidra.MiscellaneousPluginPackage;
 @PluginInfo(
 	status = PluginStatus.RELEASED,
 	packageName = MiscellaneousPluginPackage.NAME,
-	category = PluginCategoryNames.DECOMPILER,
+	category = PluginCategoryNames.ANALYSIS,
 	shortDescription = "This plugin creates/imports overlayed binaries for PSX.",
 	description = "This plugin gives an ability to create/import binaries into an overlayed blocks for PSX.",
 	servicesRequired = { GoToService.class }
