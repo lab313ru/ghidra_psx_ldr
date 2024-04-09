@@ -568,16 +568,19 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 		BinaryReader reader = new BinaryReader(provider, true);
 		
 		Address mainRefAddr = mainRef.getFromAddress();
-		Instruction heapBaseInstr_1 = listing.getInstructionAt(mainRefAddr.add(__heapbase_off));
-		Instruction heapBaseInstr_2 = listing.getInstructionAt(mainRefAddr.add(__heapbase_off).add(4));
-		Instruction sbssInstr1 = listing.getInstructionAt(mainRefAddr.add(_sbss_off));
-		Instruction sbssInstr2 = listing.getInstructionAt(mainRefAddr.add(_sbss_off).add(4));
-		Instruction sdataInstr1 = listing.getInstructionAt(mainRefAddr.add(_sdata_off));
-		Instruction sdataInstr2 = listing.getInstructionAt(mainRefAddr.add(_sdata_off).add(4));
+		
+		// Instruction offsets assume that a jal InitHeap() instruction and subsequent addiu (in delay slot) exist.
+		// Some games do not have that pair of instructions, so adjust offsets by two instructions if that is the case.
+		Instruction initHeapDelay = listing.getInstructionAt(mainRefAddr.add(-4 * 4));
+		long initHeapAdjustment = initHeapDelay.isInDelaySlot() ? 0 : 8;
+		
+		Instruction heapBaseInstr_1 = listing.getInstructionAt(mainRefAddr.add(__heapbase_off + initHeapAdjustment));
+		Instruction heapBaseInstr_2 = listing.getInstructionAt(mainRefAddr.add(__heapbase_off + initHeapAdjustment).add(4));
+		Instruction sbssInstr1 = listing.getInstructionAt(mainRefAddr.add(_sbss_off + initHeapAdjustment));
+		Instruction sbssInstr2 = listing.getInstructionAt(mainRefAddr.add(_sbss_off + initHeapAdjustment).add(4));
 		
 		if (heapBaseInstr_1 == null || heapBaseInstr_2 == null ||
-				sbssInstr1 == null || sbssInstr2 == null ||
-				sdataInstr1 == null || sdataInstr2 == null) {
+				sbssInstr1 == null || sbssInstr2 == null) {
 			return;
 		}
 		
@@ -585,12 +588,9 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 		Object[] heapBase2 = heapBaseInstr_2.getOpObjects(1);
 		Scalar sbss1 = sbssInstr1.getScalar(1);
 		Object[] sbss2 = sbssInstr2.getOpObjects(1);
-		Scalar sdata1 = sdataInstr1.getScalar(1);
-		Scalar sdata2 = sdataInstr2.getScalar(2);
 		
 		if (heapBase1 == null || heapBase2 == null || heapBase2.length != 2 ||
-				sbss1 == null || sbss2 == null || sbss2.length != 2 ||
-				sdata1 == null || sdata2 == null) {
+				sbss1 == null || sbss2 == null || sbss2.length != 2) {
 			return;
 		}
 		
@@ -660,7 +660,7 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 				mem.split(_data_block, _data_addr.add(_datalen));
 			}
 			
-			Address _sdata_addr = fpa.toAddr((sdata1.getUnsignedValue() << 16) + sdata2.getSignedValue());
+			Address _sdata_addr = _data_addr.add(_datalen);
 			MemoryBlock _sdata_block = mem.getBlock(_sdata_addr);
 			_sdata_block.setName(".sdata");
 			_sdata_block.setWrite(true);
@@ -701,7 +701,7 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 			
 			_bss_block = mem.getBlock(_bss_addr);
 			_bss_block.setName(".bss");
-			_bss_block.setWrite(false);
+			_bss_block.setWrite(true);
 			_bss_block.setExecute(false);
 			
 			Address lastRam = _bss_addr.add(_bsslen);
