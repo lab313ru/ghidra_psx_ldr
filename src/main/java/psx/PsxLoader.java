@@ -666,8 +666,6 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 			_sdata_block.setWrite(true);
 			_sdata_block.setExecute(false);
 			
-			setGpBase(program, _sdata_addr.getOffset());
-			
 			Address _sbss_addr = fpa.toAddr((sbss1.getUnsignedValue() << 16) + ((Scalar)(sbss2[0])).getSignedValue());
 			MemoryBlock _sbss_block = mem.getBlock(_sbss_addr);
 			
