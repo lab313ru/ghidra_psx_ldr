@@ -103,7 +103,7 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 	public static final long RAM_SIZE = 0x200000L;
 	private static final long __heapbase_off = -0x30;
 	private static final long _sbss_off = -0x28;
-	private static final long _sdata_off = -0x20;
+	private static final long initHeap_delay_off = -0x10;
 	
 	private static final byte[] MAIN_SIGN_47 = new byte[]{
 			0x00, 0x00, 0x00, 0x0C, // jal main
@@ -310,7 +310,7 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 		Reference mainRef = findAndAppyMain(provider, fpa, romStart, log);
 		
 		if (mainRef != null) {
-			createCompilerSegments(provider, fpa, romStart, romEnd, mainRef, log);
+			createCompilerSegments(provider, fpa, romStart, romEnd, initPc, mainRef, log);
 		}
 		
 		monitor.setMessage("Loading PSX binary done.");
@@ -561,7 +561,7 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 		return jalMainRefs[0];
 	}
 	
-	private void createCompilerSegments(ByteProvider provider, FlatProgramAPI fpa, Address searchAddress, Address romEnd, Reference mainRef, MessageLog log) {
+	private void createCompilerSegments(ByteProvider provider, FlatProgramAPI fpa, Address searchAddress, Address romEnd, Address startFunc, Reference mainRef, MessageLog log) {
 		Program program = fpa.getCurrentProgram();
 		Memory mem = program.getMemory();
 		Listing listing = program.getListing();
@@ -569,15 +569,14 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 		
 		Address mainRefAddr = mainRef.getFromAddress();
 		
-		// Instruction offsets assume that a jal InitHeap() instruction and subsequent addiu (in delay slot) exist.
-		// Some games do not have that pair of instructions, so adjust offsets by two instructions if that is the case.
-		Instruction initHeapDelay = listing.getInstructionAt(mainRefAddr.add(-4 * 4));
-		long initHeapAdjustment = initHeapDelay.isInDelaySlot() ? 0 : 8;
+		// Games that link NOHEAP.OBJ will not have the jal/addiu instruction pair that calls the InitHeap function.
+		Instruction initHeapDelaySlot = listing.getInstructionAt(mainRefAddr.add(initHeap_delay_off));
+		long noheapAdjustment = initHeapDelaySlot.isInDelaySlot() ? 0 : 8;
 		
-		Instruction heapBaseInstr_1 = listing.getInstructionAt(mainRefAddr.add(__heapbase_off + initHeapAdjustment));
-		Instruction heapBaseInstr_2 = listing.getInstructionAt(mainRefAddr.add(__heapbase_off + initHeapAdjustment).add(4));
-		Instruction sbssInstr1 = listing.getInstructionAt(mainRefAddr.add(_sbss_off + initHeapAdjustment));
-		Instruction sbssInstr2 = listing.getInstructionAt(mainRefAddr.add(_sbss_off + initHeapAdjustment).add(4));
+		Instruction heapBaseInstr_1 = listing.getInstructionAt(mainRefAddr.add(__heapbase_off + noheapAdjustment));
+		Instruction heapBaseInstr_2 = listing.getInstructionAt(mainRefAddr.add(__heapbase_off + noheapAdjustment).add(4));
+		Instruction sbssInstr1 = listing.getInstructionAt(startFunc);
+		Instruction sbssInstr2 = listing.getInstructionAt(startFunc.add(4));
 		
 		if (heapBaseInstr_1 == null || heapBaseInstr_2 == null ||
 				sbssInstr1 == null || sbssInstr2 == null) {
@@ -587,10 +586,10 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 		Scalar heapBase1 = heapBaseInstr_1.getScalar(1);
 		Object[] heapBase2 = heapBaseInstr_2.getOpObjects(1);
 		Scalar sbss1 = sbssInstr1.getScalar(1);
-		Object[] sbss2 = sbssInstr2.getOpObjects(1);
+		Object[] sbss2 = sbssInstr2.getOpObjects(2);
 		
 		if (heapBase1 == null || heapBase2 == null || heapBase2.length != 2 ||
-				sbss1 == null || sbss2 == null || sbss2.length != 2) {
+				sbss1 == null || sbss2 == null || sbss2.length != 1) {
 			return;
 		}
 		
@@ -659,14 +658,17 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 			if (_data_block.getSize() > _datalen) {
 				mem.split(_data_block, _data_addr.add(_datalen));
 			}
-			
+
 			Address _sdata_addr = _data_addr.add(_datalen);
 			MemoryBlock _sdata_block = mem.getBlock(_sdata_addr);
-			_sdata_block.setName(".sdata");
-			_sdata_block.setWrite(true);
-			_sdata_block.setExecute(false);
-			
 			Address _sbss_addr = fpa.toAddr((sbss1.getUnsignedValue() << 16) + ((Scalar)(sbss2[0])).getSignedValue());
+
+			if (_sdata_addr.getOffset() < _sbss_addr.getOffset()) {
+				_sdata_block.setName(".sdata");
+				_sdata_block.setWrite(true);
+				_sdata_block.setExecute(false);
+			}
+			
 			MemoryBlock _sbss_block = mem.getBlock(_sbss_addr);
 			
 			if (_sbss_block.getStart().getOffset() < _sbss_addr.getOffset()) {
@@ -674,16 +676,17 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 				
 				mem.split(_sbss_block, _sbss_addr);
 				_sbss_block = mem.getBlock(_sbss_addr);
-				_sbss_block.setName(".sbss");
 				
 				MemoryBlock ram = mem.getBlock(_sbss_start);
 				
 				if (!ram.equals(_sdata_block)) {
+					ram.setName("RAM");
 					ram.setWrite(true);
 					ram.setExecute(true);
 				}
 			}
 
+			_sbss_block.setName(".sbss");
 			_sbss_block.setWrite(true);
 			_sbss_block.setExecute(false);
 			
