@@ -102,7 +102,6 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 	private static final long DEF_RAM_BASE = 0x80000000L;
 	public static final long RAM_SIZE = 0x200000L;
 	private static final long __heapbase_off = -0x30;
-	private static final long _sbss_off = -0x28;
 	private static final long initHeap_delay_off = -0x10;
 	
 	private static final byte[] MAIN_SIGN_47 = new byte[]{
@@ -671,6 +670,7 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 			
 			MemoryBlock _sbss_block = mem.getBlock(_sbss_addr);
 			
+			// Account for a possible gap between .sdata and .sbss (can happen when .sdata runs to the program end).
 			if (_sbss_block.getStart().getOffset() < _sbss_addr.getOffset()) {
 				Address _sbss_start = _sbss_block.getStart();
 				
@@ -685,7 +685,7 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 					ram.setExecute(true);
 				}
 			}
-
+			
 			_sbss_block.setName(".sbss");
 			_sbss_block.setWrite(true);
 			_sbss_block.setExecute(false);
@@ -693,13 +693,18 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 			Address _bss_ptr = structPtr.add(0x18);
 			long _bss = reader.readUnsignedInt(_bss_ptr.subtract(searchAddress.subtract(PsxExe.HEADER_SIZE)));
 			long _bsslen = reader.readUnsignedInt(_bss_ptr.add(4).subtract(searchAddress.subtract(PsxExe.HEADER_SIZE)));
-			
 			_bsslen = _bsslen == 0L ? 4L : _bsslen;
-			
+
 			Address _bss_addr = fpa.toAddr(_bss);
 			MemoryBlock _bss_block = mem.getBlock(_bss_addr);
 			mem.split(_bss_block, _bss_addr);
-			
+
+			// A gap between .sbss and .bss implies .sbss spans over the program end. Extend .sbss to .bss.
+			if (!_bss_block.equals(_sbss_block)) {
+				mem.convertToInitialized(_bss_block, (byte)0x0);
+				mem.join(_sbss_block, _bss_block);
+			}
+
 			_bss_block = mem.getBlock(_bss_addr);
 			_bss_block.setName(".bss");
 			_bss_block.setWrite(true);
@@ -708,11 +713,20 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 			Address lastRam = _bss_addr.add(_bsslen);
 			if (_bss_block.getSize() < _bsslen) {
 				MemoryBlock block2 = mem.getBlock(lastRam);
+				
+				// If the end of .bss lies in an uninitialized block, then the block spans the program end point.
+				// Slice off some extra RAM and join it with .bss.
+				if (!block2.isInitialized()) {
+					mem.split(block2, lastRam);
+					mem.convertToInitialized(block2, (byte)0x0);
+				}
+
 				mem.join(_bss_block, block2);
 				_bss_block = mem.getBlock(_bss_addr);
 			}
 			
-			mem.split(_bss_block, lastRam);
+			if (_bss_block.contains(lastRam))
+				mem.split(_bss_block, lastRam);
 			
 			if (_sbss_block.isInitialized()) {
 				mem.convertToUninitialized(_sbss_block);
