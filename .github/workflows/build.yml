@@ -1,0 +1,38 @@
+name: Build
+on:
+  pull_request:
+  push:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        ghidra:
+          - "11.1.2"
+          - "11.1.1"
+          - "11.1"
+          - "11.0.3"
+          - "11.0.2"
+          - "11.0.1"
+          - "11.0"
+          - "10.4"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+      - name: Setup ghidra
+        uses: antoniovazquezblanco/setup-ghidra@v2.0.3
+        with:
+          version: ${{ matrix.ghidra }}
+      - name: Build Ghidra extension (using gradle)
+        uses: gradle/gradle-build-action@v3
+        with:
+          gradle-version: 'current'
+          arguments: 'buildExtension'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: psx_ldr_Ghidra_${{ matrix.ghidra }}
+          path: dist/*.zip
