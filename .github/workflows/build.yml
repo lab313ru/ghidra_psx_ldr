@@ -24,6 +24,8 @@ jobs:
           - "10.4"
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: true
       - uses: actions/setup-java@v4
         with:
           java-version: '21'
