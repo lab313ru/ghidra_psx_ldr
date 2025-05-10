@@ -9,6 +9,11 @@ jobs:
     strategy:
       matrix:
         ghidra:
+          - "11.3.2"
+          - "11.3.1"
+          - "11.3"
+          - "11.2.1"
+          - "11.2"
           - "11.1.2"
           - "11.1.1"
           - "11.1"
@@ -19,12 +24,14 @@ jobs:
           - "10.4"
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: true
       - uses: actions/setup-java@v4
         with:
-          java-version: '17'
+          java-version: '21'
           distribution: 'temurin'
       - name: Setup ghidra
-        uses: antoniovazquezblanco/setup-ghidra@v2.0.3
+        uses: antoniovazquezblanco/setup-ghidra@v2.0.10
         with:
           version: ${{ matrix.ghidra }}
       - name: Build Ghidra extension (using gradle)

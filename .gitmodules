@@ -1,3 +1,3 @@
 [submodule "data/psyq"]
 	path = data/psyq
-	url = ../psx_psyq_signatures
+	url = https://github.com/lab313ru/psx_psyq_signatures.git
