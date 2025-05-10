@@ -1,7 +1,12 @@
 name: Build
 on:
   pull_request:
+    branches: [ master ]
   push:
+    branches:
+      - '*'
+    tags:
+      - '*'
 
 jobs:
   build:
@@ -25,21 +30,32 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          submodules: true
+          fetch-depth: 0
+          submodules: 'recursive'
+
       - uses: actions/setup-java@v4
         with:
           java-version: '21'
           distribution: 'temurin'
+
       - name: Setup ghidra
         uses: antoniovazquezblanco/setup-ghidra@v2.0.10
         with:
           version: ${{ matrix.ghidra }}
+
       - name: Build Ghidra extension (using gradle)
         uses: gradle/gradle-build-action@v3
         with:
           gradle-version: 'current'
           arguments: 'buildExtension'
+
       - uses: actions/upload-artifact@v4
         with:
           name: psx_ldr_Ghidra_${{ matrix.ghidra }}
           path: dist/*.zip
+
+      - name: Upload to GitHub Releases
+        uses: softprops/action-gh-release@v2
+        if: github.ref_type == 'tag'
+        with:
+          files: dist/*.zip
