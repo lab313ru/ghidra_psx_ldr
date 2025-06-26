@@ -17,6 +17,7 @@ import ghidra.program.database.ProgramDB;
 import ghidra.program.database.code.CodeManager;
 import ghidra.program.model.address.Address;
 import ghidra.program.model.listing.CodeUnit;
+import ghidra.program.model.listing.CommentType;
 import ghidra.program.model.listing.Function;
 import ghidra.program.model.listing.FunctionManager;
 import ghidra.program.model.listing.Program;
@@ -29,7 +30,7 @@ public class LibgpuMacroDetector {
 
 	static private void SetComment(PcodeOpAST value, String comment, CodeManager codeManager) {
 		Address address = value.getSeqnum().getTarget();
-		codeManager.setComment(address, CodeUnit.PRE_COMMENT, comment);
+		codeManager.setComment(address, CommentType.PRE, comment);
 	}
 
 	static public void detectLibgpuMacros(Program program, final Address startAddr, final Address endAddr,
