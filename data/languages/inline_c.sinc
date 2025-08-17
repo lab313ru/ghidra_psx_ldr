@@ -505,7 +505,7 @@ ldclmv_3: is lhu_12_0; lhu_13_6; lhu_14_12; mtc2_12_9; mtc2_13_10; mtc2_14_11 {}
     MacroCall1($(ldclmv_idx),base);
 }
 
-:ldsxy3 RTsrc1,RTsrc2,RTsrc3  is mtc2_x_12 & RTsrc1; mtc2_x_14 & RTsrc2; mtc2_x_13 & RTsrc3 {
+:ldsxy3 RTsrc1,RTsrc2,RTsrc3  is mtc2_x_12 & RTsrc1; mtc2_x_14 & RTsrc3; mtc2_x_13 & RTsrc2 {
     gte_ldsxy3(RTsrc1,RTsrc2,RTsrc3);
 }
 
