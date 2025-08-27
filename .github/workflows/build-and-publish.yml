@@ -16,6 +16,7 @@ jobs:
         ghidra:
           - "11.4"
           - "11.4.1"
+          - "11.4.2"
     steps:
       - uses: actions/checkout@v4
         with:
