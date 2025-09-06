@@ -746,7 +746,7 @@ public class ImportPSX_SYM extends GhidraScript {
 	}
 
 	private SYMLexer symLexer;
-	private List<SYMParser> symParsers;
+	private SYMParser symParser;
 
 	private Listing listing;
 	private SymbolTable symbolTable;
@@ -773,24 +773,22 @@ public class ImportPSX_SYM extends GhidraScript {
 		writer.println("Finished lexing SYM file.");
 
 		writer.println("Parsing SYM file...");
-		symParsers = new ArrayList<>();
-		SYMParser parser = null;
+		symParser = new SYMParser();
 		for (Chunk chunk : symLexer.chunks) {
-			if (chunk instanceof ChunkSLDFilenameSet32) {
-				ChunkSLDFilenameSet32 chunkSld = (ChunkSLDFilenameSet32) chunk;
-
-				parser = new SYMParser();
-				symParsers.add(parser);
-			}
-
-			parser.processChunk(chunk);
+			symParser.processChunk(chunk);
 		}
 		writer.println("Finished parsing SYM file.");
 
-		for (SYMParser p : symParsers) {
-			writer.println("Importing SYM file (" + p.sldFile.filename + ")...");
-			p.importToProgram();
+		String filename;
+		if (symParser.sldFile == null || symParser.sldFile.filename.isEmpty()) {
+			filename = file.getAbsolutePath();
 		}
+		else {
+			filename = symParser.sldFile.filename;
+		}
+
+		writer.println("Importing SYM file (" + filename + ")...");
+		symParser.importToProgram();
 	}
 
 	protected BuiltInDataTypeManager getBuiltInDataTypeManager() {
