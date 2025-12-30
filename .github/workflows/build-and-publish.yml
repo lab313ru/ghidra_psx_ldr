@@ -18,18 +18,18 @@ jobs:
           - "11.4.1"
           - "11.4.2"
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
           submodules: 'recursive'
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with:
           java-version: '21'
           distribution: 'temurin'
 
       - name: Setup ghidra
-        uses: antoniovazquezblanco/setup-ghidra@v2.0.12
+        uses: antoniovazquezblanco/setup-ghidra@v2.0.17
         with:
           version: ${{ matrix.ghidra }}
 
@@ -39,7 +39,7 @@ jobs:
           gradle-version: 'current'
           arguments: 'buildExtension'
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           name: psx_ldr_Ghidra_${{ matrix.ghidra }}
           path: dist/*.zip
