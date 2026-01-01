@@ -34,9 +34,9 @@ jobs:
           version: ${{ matrix.ghidra }}
 
       - name: Build Ghidra extension (using gradle)
-        uses: gradle/gradle-build-action@v3
+        uses: gradle/actions/setup-gradle@v5
         with:
-          gradle-version: 'current'
+          gradle-version: '8.14.3'
           arguments: 'buildExtension'
 
       - uses: actions/upload-artifact@v6
