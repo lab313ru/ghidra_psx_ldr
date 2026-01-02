@@ -14,9 +14,7 @@ jobs:
     strategy:
       matrix:
         ghidra:
-          - "11.4"
-          - "11.4.1"
-          - "11.4.2"
+          - "12.0"
     steps:
       - uses: actions/checkout@v6
         with:
