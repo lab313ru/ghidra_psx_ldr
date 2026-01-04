@@ -4,4 +4,6 @@
 /dist/
 /\.antProperties.xml
 /\.idea
-/\
+/\.settings
+.classpath
+.project
