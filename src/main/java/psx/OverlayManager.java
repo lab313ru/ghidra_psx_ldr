@@ -24,7 +24,6 @@ import ghidra.util.MessageType;
 import ghidra.util.Msg;
 import ghidra.util.NamingUtilities;
 import ghidra.util.exception.NoValueException;
-import ghidra.util.exception.NotFoundException;
 import ghidra.util.task.TaskMonitor;
 
 import java.awt.Insets;
@@ -470,7 +469,7 @@ public class OverlayManager extends JPanel {
 					Msg.showInfo(this, OverlayManager.this, "Information", "Overlay data has been applied!");
 				} catch (IOException e1) {
 					Msg.showError(this, OverlayManager.this, "Error", "Cannot read overlay file!", e1);
-				} catch (MemoryAccessException | LockException | NotFoundException e2) {
+				} catch (MemoryAccessException | LockException e2) {
 					Msg.showError(this, OverlayManager.this, "Error", "Cannot set overlay block data!", e2);
 				}
 			}

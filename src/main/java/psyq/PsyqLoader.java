@@ -198,8 +198,7 @@ public class PsyqLoader extends AbstractLibrarySupportLoader {
 	}
 
 	@Override
-	protected void load(ByteProvider provider, LoadSpec loadSpec, List<Option> options, Program program, TaskMonitor monitor, MessageLog log)
-			throws CancelledException, IOException {
+	protected void load(Program program, ImporterSettings settings) throws CancelledException, IOException {
 		
 		Options aOpts = program.getOptions(Program.ANALYSIS_PROPERTIES);
 		aOpts.setBoolean("Non-Returning Functions - Discovered", false);
@@ -208,7 +207,7 @@ public class PsyqLoader extends AbstractLibrarySupportLoader {
 		Listing listing = program.getListing();
 		
 		String libObjPath = program.getExecutablePath();
-		var root = provider.getFSRL();
+		var root = settings.provider().getFSRL();
 		
 		while (root != null) {
 			root = root.getFS().getContainer();
@@ -220,13 +219,13 @@ public class PsyqLoader extends AbstractLibrarySupportLoader {
 		
 		final var objsXbss = loadXbssList(libObjPath);
 		
-		BinaryReader reader = new BinaryReader(provider, true);
+		BinaryReader reader = new BinaryReader(settings.provider(), true);
 		reader.setPointerIndex(4);
 		
-		monitor.clearCanceled();
+		settings.monitor().clearCancelled();
 
 		while (true) {
-			if (monitor.isCancelled()) {
+			if (settings.monitor().isCancelled()) {
 				break;
 			}
 			
@@ -281,7 +280,7 @@ public class PsyqLoader extends AbstractLibrarySupportLoader {
 			} break;
 			case 10: {
 				int patchOffset = sections.get(sectionSwitch).getPatchOffset();
-				PatchInfo patchInfo = new PatchInfo(patchOffset, sectionSwitch, reader, log);
+				PatchInfo patchInfo = new PatchInfo(patchOffset, sectionSwitch, reader, settings.log());
 				patches.add(patchInfo);
 			} break;
 			case 12: {
@@ -364,7 +363,7 @@ public class PsyqLoader extends AbstractLibrarySupportLoader {
 			} break;
 			case 22: {
 				int patchOffset = sections.get(sectionSwitch).getPatchOffset();
-				PatchInfo patchInfo = new PatchInfo(patchOffset, sectionSwitch, reader, log);
+				PatchInfo patchInfo = new PatchInfo(patchOffset, sectionSwitch, reader, settings.log());
 				int offset = reader.readNextUnsignedShort();
 				RegisterPatch patch = new RegisterPatch(1, patchInfo, offset);
 				
@@ -372,7 +371,7 @@ public class PsyqLoader extends AbstractLibrarySupportLoader {
 			} break;
 			case 24: {
 				int patchOffset = sections.get(sectionSwitch).getPatchOffset();
-				PatchInfo patchInfo = new PatchInfo(patchOffset, sectionSwitch, reader, log);
+				PatchInfo patchInfo = new PatchInfo(patchOffset, sectionSwitch, reader, settings.log());
 				int offset = reader.readNextUnsignedShort();
 				RegisterPatch patch = new RegisterPatch(2, patchInfo, offset);
 				
@@ -380,7 +379,7 @@ public class PsyqLoader extends AbstractLibrarySupportLoader {
 			} break;
 			case 26: {
 				int patchOffset = sections.get(sectionSwitch).getPatchOffset();
-				PatchInfo patchInfo = new PatchInfo(patchOffset, sectionSwitch, reader, log);
+				PatchInfo patchInfo = new PatchInfo(patchOffset, sectionSwitch, reader, settings.log());
 				int offset = reader.readNextUnsignedShort();
 				RegisterPatch patch = new RegisterPatch(4, patchInfo, offset);
 				
@@ -419,7 +418,7 @@ public class PsyqLoader extends AbstractLibrarySupportLoader {
 			} break;
 			case 42: {
 				int patchOffset = sections.get(sectionSwitch).getPatchOffset();
-				PatchInfo patchInfo = new PatchInfo(patchOffset, sectionSwitch, reader, log);
+				PatchInfo patchInfo = new PatchInfo(patchOffset, sectionSwitch, reader, settings.log());
 				int offset = reader.readNextUnsignedShort();
 				RegisterPatch patch = new RegisterPatch(3, patchInfo, offset);
 				
@@ -481,21 +480,21 @@ public class PsyqLoader extends AbstractLibrarySupportLoader {
 			} break;
 			case 62: {
 				int patchOffset = sections.get(sectionSwitch).getPatchOffset();
-				PatchInfo patchInfo = new PatchInfo(patchOffset, sectionSwitch, reader, log);
+				PatchInfo patchInfo = new PatchInfo(patchOffset, sectionSwitch, reader, settings.log());
 				long count = reader.readNextUnsignedInt();
 				RepeatedData rep = new RepeatedData(patchInfo, count, 1);
 				repeatedData.add(rep);
 			} break;
 			case 64: {
 				int patchOffset = sections.get(sectionSwitch).getPatchOffset();
-				PatchInfo patchInfo = new PatchInfo(patchOffset, sectionSwitch, reader, log);
+				PatchInfo patchInfo = new PatchInfo(patchOffset, sectionSwitch, reader, settings.log());
 				long count = reader.readNextUnsignedInt();
 				RepeatedData rep = new RepeatedData(patchInfo, count, 2);
 				repeatedData.add(rep);
 			} break;
 			case 66: {
 				int patchOffset = sections.get(sectionSwitch).getPatchOffset();
-				PatchInfo patchInfo = new PatchInfo(patchOffset, sectionSwitch, reader, log);
+				PatchInfo patchInfo = new PatchInfo(patchOffset, sectionSwitch, reader, settings.log());
 				long count = reader.readNextUnsignedInt();
 				RepeatedData rep = new RepeatedData(patchInfo, count, 4);
 				repeatedData.add(rep);
@@ -506,7 +505,7 @@ public class PsyqLoader extends AbstractLibrarySupportLoader {
 			} break;
 			case 72: {
 				int patchOffset = sections.get(sectionSwitch).getPatchOffset();
-				PatchInfo patchInfo = new PatchInfo(patchOffset, sectionSwitch, reader, log);
+				PatchInfo patchInfo = new PatchInfo(patchOffset, sectionSwitch, reader, settings.log());
 				long count = reader.readNextUnsignedInt();
 				RepeatedData rep = new RepeatedData(patchInfo, count, 3);
 				repeatedData.add(rep);
@@ -597,7 +596,7 @@ public class PsyqLoader extends AbstractLibrarySupportLoader {
 				defs2.add(def);
 			} break;
 			default: {
-				log.appendException(new Exception(String.format("%d : Unknown tag", type)));
+				settings.log().appendException(new Exception(String.format("%d : Unknown tag", type)));
 				return;
 			}
 			}
@@ -607,7 +606,7 @@ public class PsyqLoader extends AbstractLibrarySupportLoader {
 			}
 		}
 		
-		FlatProgramAPI fpa = new FlatProgramAPI(program, monitor);
+		FlatProgramAPI fpa = new FlatProgramAPI(program, settings.monitor());
 		
 		for (Integer sectionIndex : xbssList.keySet()) {
 			List<XbssSymbol> sectXbss = xbssList.get(sectionIndex);
@@ -652,7 +651,7 @@ public class PsyqLoader extends AbstractLibrarySupportLoader {
 					try {
 						program.getProgramContext().setRegisterValue(start, start, value);
 					} catch (ContextChangeException e) {
-						log.appendException(e);
+						settings.log().appendException(e);
 						return;
 					}
 					break;
@@ -726,7 +725,7 @@ public class PsyqLoader extends AbstractLibrarySupportLoader {
 				} break;
 				}
 			} catch (Exception e) {
-				log.appendException(e);
+				settings.log().appendException(e);
 				return;
 			}
 		}
@@ -736,7 +735,7 @@ public class PsyqLoader extends AbstractLibrarySupportLoader {
 			try {
 				symTbl.createLabel(offset, xdef.getName(), SourceType.ANALYSIS);
 			} catch (InvalidInputException e) {
-				log.appendException(e);
+				settings.log().appendException(e);
 				return;
 			}
 			
@@ -752,7 +751,7 @@ public class PsyqLoader extends AbstractLibrarySupportLoader {
 			try {
 				symTbl.createLabel(offset, xref.getName(), SourceType.IMPORTED);
 			} catch (Exception e) {
-				log.appendException(e);
+				settings.log().appendException(e);
 				return;
 			}
 		}
@@ -762,7 +761,7 @@ public class PsyqLoader extends AbstractLibrarySupportLoader {
 			try {
 				symTbl.createLabel(offset, local.getName(), SourceType.IMPORTED);
 			} catch (Exception e) {
-				log.appendException(e);
+				settings.log().appendException(e);
 				return;
 			}
 		}
@@ -772,7 +771,7 @@ public class PsyqLoader extends AbstractLibrarySupportLoader {
 			try {
 				symTbl.createLabel(offset, vlocal.getName(), SourceType.IMPORTED);
 			} catch (Exception e) {
-				log.appendException(e);
+				settings.log().appendException(e);
 				return;
 			}
 		}
@@ -786,7 +785,7 @@ public class PsyqLoader extends AbstractLibrarySupportLoader {
 					CreateArrayCmd array = new CreateArrayCmd(offset, (int) xbss.getLength(), ByteDataType.dataType, 1);
 					array.applyTo(program);
 				} catch (InvalidInputException e) {
-					log.appendException(e);
+					settings.log().appendException(e);
 					return;
 				}
 			}
@@ -835,7 +834,7 @@ public class PsyqLoader extends AbstractLibrarySupportLoader {
 						newLine = line.replaceFirst("0x[0-9A-Fa-f]+", String.format("0x%X", newAddr));
 					} break;
 					default: {
-						log.appendException(new Exception(String.format("Unknown patch tag 0x%02X", patch.getType())));
+						settings.log().appendException(new Exception(String.format("Unknown patch tag 0x%02X", patch.getType())));
 						return;
 					}
 					}
@@ -843,7 +842,7 @@ public class PsyqLoader extends AbstractLibrarySupportLoader {
 					newBytes = asm.assembleLine(addr, newLine);
 					System.arraycopy(newBytes, 0, sectionBytes, patch.getOffset(), newBytes.length);
 				} catch (AssemblySyntaxException | AssemblySemanticException e) {
-					log.appendException(e);
+					settings.log().appendException(e);
 					return;
 				}
 				
@@ -851,7 +850,7 @@ public class PsyqLoader extends AbstractLibrarySupportLoader {
 					asm.patchProgram(newBytes, addr);
 					
 				} catch (MemoryAccessException e) {
-					log.appendException(e);
+					settings.log().appendException(e);
 					return;
 				}
 			} else {
@@ -864,7 +863,7 @@ public class PsyqLoader extends AbstractLibrarySupportLoader {
 					instructionStasher.restore();
 					
 				} catch (MemoryAccessException | CodeUnitInsertionException e) {
-					log.appendException(e);
+					settings.log().appendException(e);
 					return;
 				}
 			}
@@ -881,7 +880,7 @@ public class PsyqLoader extends AbstractLibrarySupportLoader {
 						listing.createData(refAddr, PointerDataType.dataType);
 					}
 				} catch (CodeUnitInsertionException e) {
-					log.appendException(e);
+					settings.log().appendException(e);
 					return;
 				}
 			}
@@ -897,7 +896,7 @@ public class PsyqLoader extends AbstractLibrarySupportLoader {
 
 	@Override
 	public List<Option> getDefaultOptions(ByteProvider provider, LoadSpec loadSpec,
-			DomainObject domainObject, boolean isLoadIntoProgram) {
-		return super.getDefaultOptions(provider, loadSpec, domainObject, isLoadIntoProgram);
+			DomainObject domainObject, boolean isLoadIntoProgram, boolean mirrorFsLayout) {
+		return super.getDefaultOptions(provider, loadSpec, domainObject, isLoadIntoProgram, mirrorFsLayout);
 	}
 }
