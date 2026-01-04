@@ -3,5 +3,5 @@
 /bin/
 /dist/
 /\.antProperties.xml
-/\.classpath
-/\.project
+/\.idea
+/\
