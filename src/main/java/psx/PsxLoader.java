@@ -88,7 +88,6 @@ import ghidra.program.model.util.LongPropertyMap;
 import ghidra.util.exception.DuplicateNameException;
 import ghidra.util.exception.InvalidInputException;
 import ghidra.util.exception.NoValueException;
-import ghidra.util.exception.NotFoundException;
 import ghidra.util.task.TaskMonitor;
 import psyq.DetectPsyQ;
 
@@ -182,7 +181,7 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 	
 	@Override
 	public List<Option> getDefaultOptions(ByteProvider provider, LoadSpec loadSpec, DomainObject domainObject,
-			boolean loadIntoProgram) {
+			boolean loadIntoProgram, boolean mirrorFsLayout) {
 		
 		List<Option> list = new ArrayList<>();
 		
@@ -205,20 +204,19 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 	}
 
 	@Override
-	protected void load(ByteProvider provider, LoadSpec loadSpec, List<Option> options, Program program, TaskMonitor monitor, MessageLog log)
-			throws IOException {
+	protected void load(Program program, ImporterSettings settings) throws IOException {
 		
 		Options aOpts = program.getOptions(Program.ANALYSIS_PROPERTIES);
 		aOpts.setBoolean("Non-Returning Functions - Discovered", false);
 
 		if (!psxExe.isParsed()) {
-			monitor.setMessage(String.format("%s : Cannot load", getName()));
+			settings.monitor().setMessage(String.format("%s : Cannot load", getName()));
 			return;
 		}
 		
-		monitor.setMessage("Loading PSX binary...");
+		settings.monitor().setMessage("Loading PSX binary...");
 		
-		FlatProgramAPI fpa = new FlatProgramAPI(program, monitor);
+		FlatProgramAPI fpa = new FlatProgramAPI(program, settings.monitor());
 		
 		long realRamBase = psxExe.getInitPc() & 0xFF000000L;
 		
@@ -248,22 +246,22 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 		try {
 			program.setImageBase(fpa.toAddr(ramBase), true);
 		} catch (AddressOverflowException | LockException | IllegalStateException e1) {
-			log.appendException(e1);
+			settings.log().appendException(e1);
 			return;
 		}
 		
 		List<AddressRange> segments;
 		
 		try {
-			segments = createSegments(provider, fpa, log);
+			segments = createSegments(settings.provider(), fpa, settings.log());
 		} catch (AddressOverflowException | IOException e1) {
-			log.appendException(e1);
+			settings.log().appendException(e1);
 			return;
 		}
 		
 		final Address initPc = fpa.toAddr(psxExe.getInitPc());
 		
-		setFunction(program, initPc, "start", true, true, log);
+		setFunction(program, initPc, "start", true, true, settings.log());
 
 		if (psxExe.getInitGp() == 0L) {
 			Address gpSet = program.getMemory().findBytes(initPc, GP_SET_SIGNATURE, GP_SET_SIGNATURE_MASK, true, TaskMonitor.DUMMY);
@@ -291,28 +289,28 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 					psxExe.setInitGp(gp);
 				} catch (MemoryAccessException e) {
 					e.printStackTrace();
-					log.appendException(e);
+					settings.log().appendException(e);
 					return;
 				}
 			}
 		}
 		
-		addPsyqVerOption(program, ramBase, log);
+		addPsyqVerOption(program, ramBase, settings.log());
 		setGpBase(program, psxExe.getInitGp());
 		
 		for (final AddressRange range : segments) {
-			setRegisterValue(program, "gp", range.getMinAddress(), range.getMaxAddress(), psxExe.getInitGp(), log);
+			setRegisterValue(program, "gp", range.getMinAddress(), range.getMaxAddress(), psxExe.getInitGp(), settings.log());
 		}
 		
 		Address romStart = fpa.toAddr(psxExe.getRomStart());
 		Address romEnd = fpa.toAddr(psxExe.getRomEnd());
-		Reference mainRef = findAndAppyMain(provider, fpa, romStart, log);
+		Reference mainRef = findAndAppyMain(settings.provider(), fpa, romStart, settings.log());
 		
 		if (mainRef != null) {
-			createCompilerSegments(provider, fpa, romStart, romEnd, initPc, mainRef, log);
+			createCompilerSegments(settings.provider(), fpa, romStart, romEnd, initPc, mainRef, settings.log());
 		}
 		
-		monitor.setMessage("Loading PSX binary done.");
+		settings.monitor().setMessage("Loading PSX binary done.");
 	}
 	
 	public static long getGpBase(Program program) throws NoValueException {
@@ -746,7 +744,7 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 				ram.setWrite(true);
 				ram.setExecute(true);
 			}
-		} catch (IOException | MemoryBlockException | LockException | NotFoundException e) {
+		} catch (IOException | MemoryBlockException | LockException e) {
 			log.appendException(e);
 		}
 	}
