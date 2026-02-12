@@ -17,6 +17,7 @@ jobs:
           - "12.0"
           - "12.0.1"
           - "12.0.2"
+          - "12.0.3"
     steps:
       - uses: actions/checkout@v6
         with:
