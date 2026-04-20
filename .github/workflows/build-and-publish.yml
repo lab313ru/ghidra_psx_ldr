@@ -31,25 +31,25 @@ jobs:
           distribution: 'temurin'
 
       - name: Setup ghidra
-        uses: antoniovazquezblanco/setup-ghidra@v2.0.19
+        uses: antoniovazquezblanco/setup-ghidra@v2.1.0
         with:
           version: ${{ matrix.ghidra }}
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v5
+        uses: gradle/actions/setup-gradle@v6
         with:
-          gradle-version: '8.14.3'
+          gradle-version: '8.14.4'
           
       - name: Build Ghidra extension (using gradle)
         run: gradle buildExtension
 
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         with:
           name: psx_ldr_Ghidra_${{ matrix.ghidra }}
           path: dist/*.zip
 
       - name: Upload to GitHub Releases
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         if: github.ref_type == 'tag'
         with:
           files: dist/*.zip
