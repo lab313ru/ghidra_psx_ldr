@@ -34,7 +34,7 @@ jobs:
           distribution: 'temurin'
 
       - name: Setup ghidra
-        uses: antoniovazquezblanco/setup-ghidra@v2.1.0
+        uses: antoniovazquezblanco/setup-ghidra@v2
         with:
           version: ${{ matrix.ghidra }}
 
