@@ -1,7 +1,7 @@
 # ghidra_psx_ldr
 Sony Playstation PSX executables loader for GHIDRA
 
-Video tutorial on how to deal with overlays: https://youtu.be/DuQQfjTkkQc
+Video tutorial on how to deal with overlays: https://youtu.be/fpijiL1x3Pc
 
 # Building
 * Install `GhidraDev` plugin into Eclipse
