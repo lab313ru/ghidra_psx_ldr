@@ -307,9 +307,10 @@ public class OverlayManager extends JPanel {
 		long addr = blockStart.getValue();
 		
 		long ramBase = program.getImageBase().getOffset();
+		long ramSize = program.getOptions(Program.PROGRAM_INFO).getLong(PsxLoader.RAM_SIZE_INFO_KEY, PsxLoader.DEF_RAM_SIZE);
 
-		if ((addr < ramBase) || (addr >= (ramBase + PsxLoader.RAM_SIZE))) {
-			provider.setStatusText(String.format("An address must be in range: %08X-%08X", ramBase, ramBase + PsxLoader.RAM_SIZE - 1));
+		if ((addr < ramBase) || (addr >= (ramBase + ramSize))) {
+			provider.setStatusText(String.format("An address must be in range: %08X-%08X", ramBase, ramBase + ramSize - 1));
 			return false;
 		}
 		

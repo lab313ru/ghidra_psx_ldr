@@ -99,7 +99,8 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 	public static final String PSX_RAM_BASE_OPTION = "RAM Base Address";
 
 	private static final long DEF_RAM_BASE = 0x80000000L;
-	public static final long RAM_SIZE = 0x200000L;
+	public static final long DEF_RAM_SIZE = 0x200000L;
+	public static final String RAM_SIZE_INFO_KEY = "PSX RAM Size";
 	private static final long __heapbase_off = -0x30;
 	private static final long initHeap_delay_off = -0x10;
 	
@@ -154,7 +155,9 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 	private static final long GPBASE_ADDR = DEF_RAM_BASE + 0x1000;
 	
 	private static final String OPTION_NAME = "RAM Base Address: ";
+	private static final String RAM_SIZE_OPTION_NAME = "RAM Size: ";
 	private long ramBase = DEF_RAM_BASE;
+	private long ramSize = DEF_RAM_SIZE;
 	
 	public static final String PSX_LANG_ID = "PSX:LE:32:default";
 	public static final String PSX_LANG_SPEC_ID = "default";
@@ -186,7 +189,8 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 		List<Option> list = new ArrayList<>();
 		
 		list.add(new PsxBaseChooser(OPTION_NAME, ramBase, PsxBaseChooser.class, Loader.COMMAND_LINE_ARG_PREFIX + "-ramStart"));
-		
+		list.add(new PsxSizeChooser(RAM_SIZE_OPTION_NAME, String.format("0x%X", ramSize), PsxSizeChooser.class, Loader.COMMAND_LINE_ARG_PREFIX + "-ramSize"));
+
 		return list;
 	}
 	
@@ -196,7 +200,8 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 			String optName = option.getName();
 			if (optName.equals(OPTION_NAME)) {
 				ramBase = Long.decode((String)option.getValue());
-				break;
+			} else if (optName.equals(RAM_SIZE_OPTION_NAME)) {
+				ramSize = Long.decode((String)option.getValue());
 			}
 		}
 
@@ -208,6 +213,8 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 		
 		Options aOpts = program.getOptions(Program.ANALYSIS_PROPERTIES);
 		aOpts.setBoolean("Non-Returning Functions - Discovered", false);
+
+		program.getOptions(Program.PROGRAM_INFO).setLong(RAM_SIZE_INFO_KEY, ramSize);
 
 		if (!psxExe.isParsed()) {
 			settings.monitor().setMessage(String.format("%s : Cannot load", getName()));
@@ -775,9 +782,13 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 		}
 		
 		long code_end = psxExe.getRomEnd();
-		long ram_size_2 = ramBase + RAM_SIZE - code_end;
-		createSegment(fpa, null, "RAM", code_end, ram_size_2, false, true, log);
-		res.add(new AddressRangeImpl(fpa.toAddr(code_end), ram_size_2));
+		long ram_size_2 = ramBase + ramSize - code_end;
+		if (ram_size_2 > 0) {
+			createSegment(fpa, null, "RAM", code_end, ram_size_2, false, true, log);
+			res.add(new AddressRangeImpl(fpa.toAddr(code_end), ram_size_2));
+		} else {
+			log.appendMsg(String.format("Selected RAM size (0x%X) is smaller than the loaded image (ends at 0x%08X); trailing RAM block skipped.", ramSize, code_end));
+		}
 		
 		createSegment(fpa, null, "CACHE", 0x1F800000L, 0x400, true, true, log);
 		createSegment(fpa, null, "UNK1", 0x1F800400L, 0xC00, true, true, log);
