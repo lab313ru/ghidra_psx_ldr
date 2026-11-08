@@ -39,6 +39,7 @@ jobs:
         uses: gradle/actions/setup-gradle@v6
         with:
           gradle-version: '9.9.0'
+          cache-provider: basic # Switches to the MIT-licensed open-source implementation per https://github.com/gradle/actions/blob/main/DISTRIBUTION.md
           
       - name: Build Ghidra extension (using gradle)
         run: gradle buildExtension
