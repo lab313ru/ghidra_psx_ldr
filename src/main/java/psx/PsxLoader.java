@@ -188,8 +188,8 @@ public class PsxLoader extends AbstractLibrarySupportLoader {
 		
 		List<Option> list = new ArrayList<>();
 		
-		list.add(new PsxBaseChooser(OPTION_NAME, ramBase, PsxBaseChooser.class, Loader.COMMAND_LINE_ARG_PREFIX + "-ramStart"));
-		list.add(new PsxSizeChooser(RAM_SIZE_OPTION_NAME, String.format("0x%X", ramSize), PsxSizeChooser.class, Loader.COMMAND_LINE_ARG_PREFIX + "-ramSize"));
+		list.add(new PsxBaseChooser(OPTION_NAME, String.format("0x%08X", ramBase), Loader.COMMAND_LINE_ARG_PREFIX + "-ramStart"));
+		list.add(new PsxSizeChooser(RAM_SIZE_OPTION_NAME, String.format("0x%X", ramSize), Loader.COMMAND_LINE_ARG_PREFIX + "-ramSize"));
 
 		return list;
 	}

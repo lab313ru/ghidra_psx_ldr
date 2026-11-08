@@ -19,7 +19,7 @@ import ghidra.app.util.importer.MessageLog;
 import ghidra.program.flatapi.FlatProgramAPI;
 import ghidra.program.model.address.Address;
 import ghidra.program.model.address.AddressSet;
-import ghidra.program.model.listing.CodeUnit;
+import ghidra.program.model.listing.CommentType;
 import ghidra.program.model.listing.Listing;
 import ghidra.program.model.listing.Program;
 import ghidra.program.model.symbol.SourceType;
@@ -127,7 +127,7 @@ public final class SigApplier {
 		
 		monitor.initialize(totalObjs);
 		monitor.setMessage("Applying obj symbols...");
-		monitor.clearCanceled();
+		monitor.clearCancelled();
 		
 		Map<String, Pair<Long, Float>> objsList = new HashMap<>();
 		
@@ -180,13 +180,13 @@ public final class SigApplier {
 						
 						monitor.setMessage(String.format("Symbol %s at 0x%08X", newLbName, lbAddr.getOffset()));
 					} else {
-						String prevComment = listing.getComment(CodeUnit.PLATE_COMMENT, lbAddr);
+						String prevComment = listing.getComment(CommentType.PLATE, lbAddr);
 						prevComment = (prevComment != null) ? String.format("%s\n", prevComment) : "";
 						
 						final String newComment = String.format("Possible %s/%s", sig.getName(), newLbName);
 						
 						if (prevComment.indexOf(newComment) == -1) {
-							listing.setComment(lbAddr, CodeUnit.PLATE_COMMENT, String.format("%s%s", prevComment, newComment));
+							listing.setComment(lbAddr, CommentType.PLATE, String.format("%s%s", prevComment, newComment));
 							monitor.setMessage(String.format("Possible symbol %s at 0x%08X", newLbName, lbAddr.getOffset()));
 						}
 					}

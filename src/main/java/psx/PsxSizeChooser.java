@@ -6,32 +6,40 @@ import java.awt.event.ItemListener;
 
 import javax.swing.JComboBox;
 
-import ghidra.app.util.Option;
+import ghidra.app.util.AddressFactoryService;
+import ghidra.app.util.importer.options.StringOption;
 
-public class PsxSizeChooser extends Option {
+public class PsxSizeChooser extends StringOption {
 
-	private String selected;
-	private String[] items = new String[] {
+	private final static String[] items = new String[] {
 			"0x200000",  // 2 MB - retail console
 			"0x400000",  // 4 MB - arcade board
 			"0x800000",  // 8 MB - development kit
 			"0x1000000", // 16 MB - arcade board
 	};
 
-	private JComboBox<String> editor = new JComboBox<>(items);
+	private final JComboBox<String> editor = new JComboBox<>(items);
 
-	public PsxSizeChooser(String name, Object value, Class<?> valueClass, String arg) {
-		super(name, valueClass, value, arg, null);
+	public PsxSizeChooser(String name, String value, String arg) {
+		super(name, value, arg, null, null, false, null);
 
-		selected = items[0];
+		int sel = 0;
+		for (int i = 0; i < items.length; ++i) {
+			if (items[i].equals(value)) {
+				sel = i;
+				break;
+			}
+		}
+
+		editor.setSelectedIndex(sel);
+		setValue(items[sel]);
 
 		editor.addItemListener(new ItemListener() {
 
 			@Override
 			public void itemStateChanged(ItemEvent e) {
 				if (e.getStateChange() == ItemEvent.SELECTED) {
-						selected = (String)e.getItem();
-						PsxSizeChooser.super.setValue(selected);
+						PsxSizeChooser.this.setValue((String)e.getItem());
 			       }
 			}
 
@@ -41,22 +49,12 @@ public class PsxSizeChooser extends Option {
 	}
 
 	@Override
-	public Component getCustomEditorComponent() {
+	public Component getCustomEditorComponent(AddressFactoryService addressFactoryService) {
 		return editor;
 	}
 
 	@Override
-	public Option copy() {
-		return new PsxSizeChooser(getName(), getValue(), getValueClass(), getArg());
-	}
-
-	@Override
-	public Object getValue() {
-		return selected;
-	}
-
-	@Override
-	public Class<?> getValueClass() {
-		return String.class;
+	public PsxSizeChooser copy() {
+		return new PsxSizeChooser(getName(), getValue(), getArg());
 	}
 }
